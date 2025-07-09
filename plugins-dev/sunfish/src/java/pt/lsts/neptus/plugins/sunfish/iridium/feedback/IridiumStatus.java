@@ -184,8 +184,8 @@ public class IridiumStatus extends ConsolePanel {
         rowSorter = new TableRowSorter<TableModel>(iridiumCommsStatus);
         List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(); 
         sortKeys.add(new RowSorter.SortKey(IridiumStatusTableModel.TIMESTAMP, SortOrder.ASCENDING));
+        final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
         rowSorter.setComparator(IridiumStatusTableModel.TIMESTAMP, new Comparator <String>() {
-
             @Override
             public int compare(String sdf1, String sdf2) {
                 if (sdf1 == null && sdf2 == null) {
@@ -198,7 +198,6 @@ public class IridiumStatus extends ConsolePanel {
                     return 1;
                 }
 
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
                 sdf1 = sdf1.replaceAll("V ", "");
                 sdf2 = sdf2.replaceAll("V ", "");
                 
@@ -236,6 +235,17 @@ public class IridiumStatus extends ConsolePanel {
                }
 
                return super.getToolTipText();
+            }
+
+            @Override
+            public int convertRowIndexToModel(int viewRowIndex) {
+                try {
+                    return super.convertRowIndexToModel(viewRowIndex);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Invalid row index conversion: {} :: {} {}", e.getMessage(), viewRowIndex, table.getRowCount());
+                    return 0;
+                }
             }
         };
         table.setAutoCreateRowSorter(false);
