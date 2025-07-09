@@ -319,13 +319,13 @@ public class HubIridiumMessenger implements IridiumMessenger {
                 String imei0 = iridiumArgs.getImei();
                 if (!lastSeen.equals(lastSeenNew)) {
                     NeptusLog.pub().info("Updated vehicle {} to last seen IMEI {} {} from " +
-                                    "the old {} with date {}", veh.getId(), imei0.equals(lastSeenNew) ? "M1" : "M2",
-                                    lastSeenNew, lastSeen, date);
+                                    "the old {} {} with date {}", veh.getId(), imei0.equals(lastSeenNew) ? "M1" : "M2",
+                                    lastSeenNew, imei0.equals(lastSeenNew) ? "M2" : "M1", lastSeen, date);
                     NeptusEvents.post(Notification.warning(
                             I18n.textf("Iridium IMEI Change for %s", veh.getId()),
                             I18n.textf("Updated vehicle %vehicle to last seen IMEI %imeiOrdinal %newImei from " +
-                                    "the old %oldImei with date %date", veh.getId(), imei0.equals(lastSeenNew) ? "M1" : "M2",
-                                    lastSeenNew, lastSeen, date)));
+                                    "the old %oldImeiOrdinal %oldImei with date %date", veh.getId(), imei0.equals(lastSeenNew) ? "M1" : "M2",
+                                    lastSeenNew, imei0.equals(lastSeenNew) ? "M2" : "M1", lastSeen, date)));
                 }
             }
         }
