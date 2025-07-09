@@ -183,7 +183,7 @@ public class IridiumStatus extends ConsolePanel {
 
         rowSorter = new TableRowSorter<TableModel>(iridiumCommsStatus);
         List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(); 
-        sortKeys.add(new RowSorter.SortKey(IridiumStatusTableModel.TIMESTAMP, SortOrder.ASCENDING));
+        sortKeys.add(new RowSorter.SortKey(IridiumStatusTableModel.TIMESTAMP, SortOrder.DESCENDING));
         final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
         rowSorter.setComparator(IridiumStatusTableModel.TIMESTAMP, new Comparator <String>() {
             @Override
