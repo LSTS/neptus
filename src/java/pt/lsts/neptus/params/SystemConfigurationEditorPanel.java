@@ -360,7 +360,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkSelection.setFocusable(false);
         mainPanel.add(checkSelection, "sg checkboxes");
 
-        fakeSyncButton = new JToggleButton(new AbstractAction(I18n.text("Fake Sync")) {
+        fakeSyncButton = new JToggleButton(new AbstractAction(I18n.text("Consider Sync")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -374,9 +374,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 worker.execute();
             }
         });
-        fakeSyncButton.setToolTipText(I18n.text("Fake sync with the system, useful for reducing parameters to send."));
+        fakeSyncButton.setToolTipText(I18n.text("Consider sync with the system, useful for reducing parameters to send."));
         if (showFakeSyncButton) {
-            mainPanel.add(fakeSyncButton, "sg buttons, split");
+            mainPanel.add(fakeSyncButton, "sg buttons2, split");
         }
 
         // FIXME This might not make sense to not always ask for categories if no wifi
