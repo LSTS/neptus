@@ -38,6 +38,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -46,15 +48,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.RowSorter;
-import javax.swing.SortOrder;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -123,10 +119,84 @@ public class IridiumStatus extends ConsolePanel {
         initTableFields();
         configureTable();
 
+        initFilterField();
+
         scroll = new JScrollPane(table);
         scroll.setPreferredSize(new Dimension(350, 200));
         add(scroll,BorderLayout.CENTER);
         add(clear,BorderLayout.SOUTH);
+    }
+
+    public void initFilterField() {
+        String placeHolder = "Filter messages (ex: caravel + StateReport)...";
+        JTextField filterField = new JTextField(placeHolder);
+        filterField.setForeground(Color.GRAY);
+        filterField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (filterField.getText().equals(placeHolder)) {
+                    filterField.setText("");
+                    filterField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (filterField.getText().isEmpty()) {
+                    filterField.setForeground(Color.GRAY);
+                    filterField.setText(placeHolder);
+                }
+            }
+        });
+
+        filterField.getDocument().addDocumentListener(new DocumentListener() {
+            private void filter() {
+                String text = filterField.getText().trim();
+                if (text.trim().length() == 0 || text.equals(placeHolder)) {
+                    rowSorter.setRowFilter(null);
+                    return;
+                }
+
+                String[] parts = text.split("\\+");
+                for (int i = 0; i < parts.length; i++) {
+                    parts[i] = parts[i].trim().toLowerCase();
+                }
+
+                rowSorter.setRowFilter(new RowFilter<TableModel, Integer>() {
+                    public boolean include(Entry<? extends TableModel, ? extends Integer> entry) {
+                        for (String part : parts) {
+                            boolean found = false;
+                            for (int i = 0; i < entry.getValueCount(); i++) {
+                                Object value = entry.getValue(i);
+                                if (value != null && value.toString().toLowerCase().contains(part)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) return false; // One part not found, reject row
+                        }
+                        return true;
+                    }
+                });
+            }
+
+            public void insertUpdate(DocumentEvent e) { filter(); }
+            public void removeUpdate(DocumentEvent e) { filter(); }
+            public void changedUpdate(DocumentEvent e) { filter(); }
+        });
+
+        filterField.setFocusable(false);
+        filterField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!filterField.isFocusable()) {
+                    filterField.setFocusable(true);
+                    filterField.requestFocusInWindow();
+                }
+            }
+        });
+
+        add(filterField, BorderLayout.NORTH);
     }
 
     public void initTableFields() {
