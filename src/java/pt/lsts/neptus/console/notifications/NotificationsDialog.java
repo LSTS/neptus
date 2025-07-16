@@ -184,6 +184,10 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         }
     }
 
+    public boolean isPopupsEnabled() {
+        return popupsEnabled;
+    }
+
     /**
      * Clears the list and glass pane (popups)
      */

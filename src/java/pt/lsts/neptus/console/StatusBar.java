@@ -32,24 +32,22 @@
  */
 package pt.lsts.neptus.console;
 
-import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.BiFunction;
 
-import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 
 import com.google.common.eventbus.Subscribe;
 
+import com.kitfox.svg.SVGDiagram;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
@@ -58,6 +56,8 @@ import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.ImageSvgUtilsFast;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -67,7 +67,9 @@ public class StatusBar extends JPanel {
     private static final long serialVersionUID = -945440076259058094L;
 
     private static final int FONT_SIZE = 12;
-    
+
+    private static final int sizeIcon = 15;
+
     private JLabel clockUTC;
     private JLabel clockLocal;
     private JLabel mainSystem;
@@ -76,7 +78,16 @@ public class StatusBar extends JPanel {
     private ConsoleLayout console;
     private NotificationsDialog notificationsDialog;
     private int notificationCount = 0;
-    private MainSystemSelectionCombo mainSystemSelectionCombo = null; 
+    private MainSystemSelectionCombo mainSystemSelectionCombo = null;
+
+    private boolean notifPopupEnableState;
+    private static final String imagePathNotifPopupOn = "images/buttons/visibilityOn.svg";
+    private static final String imagePathLine = "images/buttons/close.svg";
+
+    private static BufferedImage imageNotifPopupOn;
+    private static BufferedImage imageNotifPopupOff;
+    private ImageIcon notifPopupOnIcon;
+    private ImageIcon notifPopupOffIcon;
 
     protected Timer clockTimer = null;
     protected TimerTask clockTimerTask = null;
@@ -159,6 +170,44 @@ public class StatusBar extends JPanel {
                     notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
                 }
             });
+
+            List<SVGDiagram> svgs = new ArrayList<>();
+            BiFunction<Graphics2D, Integer, Void> graphicsModifier = (g, i) -> {
+                SVGDiagram s = svgs.get(i);
+                if (svgs.size() > 1) {
+                    if (i == 1) {
+                        double scale = 1.4;
+                        ImageSvgUtilsFast.fillSvgElementAttribute(s.getRoot(), "fill", "#ec1a1a", false);
+                        g.scale(scale, scale);
+                        g.translate(-sizeIcon / 2, -sizeIcon / 2);
+                    }
+                    else {
+                        ImageSvgUtilsFast.fillSvgElementAttribute(s.getRoot(), "fill", "#929292", false);
+                        g.setColor(Color.BLACK);
+                    }
+                }
+                else {
+                    ImageSvgUtilsFast.fillSvgElementAttribute(s.getRoot(), "fill", "#5f5f5f", false);
+                    g.setColor(Color.BLACK);
+                }
+                return null;
+            };
+
+            SVGDiagram svgNotifPopupOn = ImageSvgUtilsFast.getSvgImage(imagePathNotifPopupOn);
+            SVGDiagram svgLine = ImageSvgUtilsFast.getSvgImage(imagePathLine);
+
+            svgs.add(svgNotifPopupOn);
+            imageNotifPopupOn = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+            ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageNotifPopupOn, true, graphicsModifier, svgNotifPopupOn);
+            notifPopupOnIcon = ImageUtils.getScaledIcon(imageNotifPopupOn, sizeIcon, sizeIcon);
+
+            svgs.add(svgLine);
+            imageNotifPopupOff = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+            ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageNotifPopupOff, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+            notifPopupOffIcon = ImageUtils.getScaledIcon(imageNotifPopupOff, sizeIcon, sizeIcon);
+
+            updateNotifIcon();
+
             this.add(notificationButton);
         }
         
@@ -181,6 +230,7 @@ public class StatusBar extends JPanel {
                         ? DateTimeUtil.timeFormatterNoSegs3.format(new Date(curMillis)) + " " + I18n.text("Local")
                         : "";
                 clockLocal.setText(clockStr);
+                updateNotifIcon();
             }
         };
         clockTimer.schedule(clockTimerTask, 100, 800);
@@ -193,6 +243,20 @@ public class StatusBar extends JPanel {
             clockTimerTask.cancel();
         if (clockTimer != null)
             clockTimer.cancel();
+    }
+
+    public void updateNotifIcon() {
+        if (notificationsDialog != null) {
+            if (notifPopupEnableState != notificationsDialog.isPopupsEnabled()) {
+                if (notificationsDialog.isPopupsEnabled()) {
+                    notificationButton.setIcon(notifPopupOnIcon);
+                }
+                else {
+                    notificationButton.setIcon(notifPopupOffIcon);
+                }
+                notifPopupEnableState = notificationsDialog.isPopupsEnabled();
+            }
+        }
     }
 
     public void clean() {
