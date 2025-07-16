@@ -128,7 +128,7 @@ public class IridiumStatus extends ConsolePanel {
     }
 
     public void initFilterField() {
-        String placeHolder = "Filter messages (ex: caravel + StateReport)...";
+        String placeHolder = "Filter messages (ex: caravel + delivered + (EntityState, PlainTextMessage))...";
         JTextField filterField = new JTextField(placeHolder);
         filterField.setForeground(Color.GRAY);
         filterField.addFocusListener(new FocusAdapter() {
@@ -152,31 +152,48 @@ public class IridiumStatus extends ConsolePanel {
         filterField.getDocument().addDocumentListener(new DocumentListener() {
             private void filter() {
                 String text = filterField.getText().trim();
-                if (text.trim().length() == 0 || text.equals(placeHolder)) {
+                if (text.trim().isEmpty() || text.equals(placeHolder)) {
                     rowSorter.setRowFilter(null);
                     return;
                 }
 
-                String[] parts = text.split("\\+");
-                for (int i = 0; i < parts.length; i++) {
-                    parts[i] = parts[i].trim().toLowerCase();
-                }
+                String[] andParts = text.split("[+;]");
 
                 rowSorter.setRowFilter(new RowFilter<TableModel, Integer>() {
                     public boolean include(Entry<? extends TableModel, ? extends Integer> entry) {
-                        for (String part : parts) {
+                        for (String andPart : andParts) {
+                            andPart = andPart.trim().toLowerCase();
                             boolean found = false;
-                            for (int i = 0; i < entry.getValueCount(); i++) {
-                                Object value = entry.getValue(i);
-                                if (value != null && value.toString().toLowerCase().contains(part)) {
-                                    found = true;
-                                    break;
+
+                            if (andPart.startsWith("(") && andPart.endsWith(")")) {
+                                String[] orParts = andPart.substring(1, andPart.length()-1).split("[,]");
+                                for (String orPart : orParts) {
+                                    found = matchesAnyColumn(entry, orPart);
+                                    if (found) {
+                                        break;
+                                    }
                                 }
                             }
-                            if (!found) return false; // One part not found, reject row
+                            else {
+                                found = matchesAnyColumn(entry, andPart);
+                            }
+                            if (!found) {
+                                return false;
+                            }
                         }
                         return true;
                     }
+
+                    private boolean matchesAnyColumn(Entry<? extends TableModel, ? extends Integer> entry, String term) {
+                        for (int i = 0; i < entry.getValueCount(); i++) {
+                            Object value = entry.getValue(i);
+                            if (value != null && value.toString().toLowerCase().contains(term)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
                 });
             }
 
