@@ -32,14 +32,14 @@
  */
 package pt.lsts.neptus.plugins.sunfish.iridium.feedback;
 
+
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -48,7 +48,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
@@ -74,7 +84,7 @@ public class IridiumStatus extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     private IridiumStatusTableModel iridiumCommsStatus;
-    private JTable table; 
+    private JTable table;
     private JScrollPane scroll;
     private JButton clear;
     private DefaultTableCellRenderer highlightRenderer,defaultRenderer;
@@ -129,33 +139,11 @@ public class IridiumStatus extends ConsolePanel {
 
     public void initFilterField() {
         String placeHolder = "Filter messages (ex: caravel + delivered + (EntityState, PlainTextMessage))...";
-        JTextField filterField = new JTextField(placeHolder);
-        filterField.setForeground(Color.GRAY);
-        filterField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (filterField.getText().equals(placeHolder)) {
-                    filterField.setText("");
-                    filterField.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (filterField.getText().isEmpty()) {
-                    filterField.setForeground(Color.GRAY);
-                    filterField.setText(placeHolder);
-                }
-            }
-        });
+        JTextField filterField = new PlaceholderTextField(placeHolder);
 
         filterField.getDocument().addDocumentListener(new DocumentListener() {
             private void filter() {
                 String text = filterField.getText().trim();
-                if (text.trim().isEmpty() || text.equals(placeHolder)) {
-                    rowSorter.setRowFilter(null);
-                    return;
-                }
 
                 String[] andParts = text.split("[+;]");
 
@@ -269,7 +257,7 @@ public class IridiumStatus extends ConsolePanel {
         };
 
         rowSorter = new TableRowSorter<TableModel>(iridiumCommsStatus);
-        List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(); 
+        List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
         sortKeys.add(new RowSorter.SortKey(IridiumStatusTableModel.TIMESTAMP, SortOrder.DESCENDING));
         final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
         rowSorter.setComparator(IridiumStatusTableModel.TIMESTAMP, new Comparator <String>() {
@@ -406,3 +394,4 @@ public class IridiumStatus extends ConsolePanel {
         super.setProperties(properties);
     }
 }
+
