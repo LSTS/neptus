@@ -93,11 +93,12 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     private final ArrayList<VerticalProfile> profiles = new ArrayList<>();
     private VerticalProfile selected = null;
     private File store = new File("conf/profiles.json");
-    private int oldestProfiles = 24;
+    private int oldestProfiles;
     private boolean colorizeSalinity = true;
     private boolean valuesTable = true;
 
-    public VerticalProfileViewer() {
+    public VerticalProfileViewer(int oldestProfiles) {
+        this.oldestProfiles = oldestProfiles;
         if (!store.exists())
             return;
         synchronized (profiles) {

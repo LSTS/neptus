@@ -66,6 +66,7 @@ import pt.lsts.neptus.endurance.DripSettings;
 import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.endurance.SoiSettings;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -85,7 +86,7 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  *
  */
 @PluginDescription(name = "SOI Interaction", icon="pt/lsts/neptus/soi/icons/soi_interaction.png")
-public class SoiInteraction extends SimpleRendererInteraction {
+public class SoiInteraction extends SimpleRendererInteraction implements ConfigurationListener {
 
     private static final long serialVersionUID = 477322168507708457L;
 
@@ -115,7 +116,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Show profile values", userLevel = LEVEL.REGULAR)
     public boolean profileValues = true;
     
-    private final VerticalProfileViewer profileView = new VerticalProfileViewer();
+    private final VerticalProfileViewer profileView = new VerticalProfileViewer(oldestProfiles);
     
     public SoiInteraction(ConsoleLayout console) {
         super(console);
@@ -492,4 +493,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
         profileView.setValuesTable(profileValues);
         profileView.paint(g, renderer);
     }
+
+    @Override
+    public void propertiesChanged() {
+        profileView.setOldestProfiles(oldestProfiles);
+        repaint();
+    }
+
 }
