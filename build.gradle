@@ -90,8 +90,10 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         executableDir = "$appHomeRelativePathOpt"
 
         defaultJvmOpts = [
-            '-Xms10m',
+            '-Xms48m',
             '-Xmx4g',
+            //'-XX:InitialRAMPercentage=25.0',
+            //'-XX:MaxRAMPercentage=80.0',
             '-XX:MaxMetaspaceSize=512m',
             '-XX:+UseG1GC', //for Java 8+
             //'-XX:+UseZGC', //for Java 11+
@@ -99,6 +101,8 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
             //'-Xlog:gc*:file=$APP_HOME/log', //for Java 9+
             '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
             '-Xss256k',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
             ]
 
         doLast {
@@ -223,8 +227,10 @@ application {
     mainClass = 'pt.lsts.neptus.loader.NeptusMain'
     // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
     applicationDefaultJvmArgs = [
-        '-Xms10m',
+        '-Xms48m',
         '-Xmx4g',
+        //'-XX:InitialRAMPercentage=25.0',
+        //'-XX:MaxRAMPercentage=80.0',
         '-XX:MaxMetaspaceSize=512m',
         '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
@@ -232,6 +238,8 @@ application {
         //"-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
         '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}".toString(),
         '-Xss256k',
+        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
         "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"".toString(),
         "-Dsun.java2d.uiScale=${runUiScale}".toString(),
         ]
