@@ -38,6 +38,7 @@ package pt.lsts.neptus.types.mission;
  * @author ZP
  *
  */
+@Deprecated
 public class ManeuverType {
 
     private String id = null;
