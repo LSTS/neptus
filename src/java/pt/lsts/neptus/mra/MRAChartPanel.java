@@ -75,6 +75,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.i18n.I18n;
@@ -360,8 +361,17 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         cpanel = new ChartPanel(c);
 
         cpanel.setMouseWheelEnabled(true);
-        cpanel.getChart().getXYPlot().setDomainPannable(true);
-        cpanel.getChart().getXYPlot().setRangePannable(true);
+        try {
+            JFreeChart cht = cpanel.getChart();
+            if (cht.getPlot().getClass().isAssignableFrom(CategoryPlot.class)) {
+                cht.getCategoryPlot().setRangePannable(true);
+            } else if (cht.getPlot().getClass().isAssignableFrom(XYPlot.class)) {
+                cht.getXYPlot().setDomainPannable(true);
+                cht.getXYPlot().setRangePannable(true);
+            }
+        } catch (Exception e) {
+            NeptusLog.pub().error("Error setting parameters to chart {}", e.getMessage());
+        }
 
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
