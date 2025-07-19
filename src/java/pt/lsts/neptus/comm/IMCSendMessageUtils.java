@@ -300,6 +300,7 @@ public class IMCSendMessageUtils {
      * @param acousticOpSysLst
      * @return
      */
+    @Deprecated
     public static boolean sendMessageByAcousticModem(IMCMessage msg, String system,
             boolean sendOnlyThroughOne, ImcSystem[] acousticOpSysLst) {
         // TODO listen for the responses back from the systems with modems
