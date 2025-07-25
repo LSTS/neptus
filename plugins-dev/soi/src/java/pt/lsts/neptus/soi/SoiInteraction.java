@@ -105,18 +105,8 @@ public class SoiInteraction extends SimpleRendererInteraction implements Configu
 
     @NeptusProperty(name = "Audio Notifications", userLevel = LEVEL.REGULAR)
     public boolean audioNotifications = true;
-    
-    @NeptusProperty(name = "Maximum profile age (hours)", userLevel = LEVEL.REGULAR,
-            description = "Profiles older than this age will be hidden")
-    public int oldestProfiles = 24;
-        
-    @NeptusProperty(name = "Use salinity colormap for profiles", userLevel = LEVEL.REGULAR)
-    public boolean colorizeSalinity = false;
-    
-    @NeptusProperty(name = "Show profile values", userLevel = LEVEL.REGULAR)
-    public boolean profileValues = true;
-    
-    private final VerticalProfileViewer profileView = new VerticalProfileViewer(oldestProfiles);
+
+
     
     public SoiInteraction(ConsoleLayout console) {
         super(console);
@@ -313,24 +303,6 @@ public class SoiInteraction extends SimpleRendererInteraction implements Configu
         }
     }
 
-    @Subscribe
-    public void on(VerticalProfile msg) {
-        profileView.addProfile(msg);
-        getConsole().post(Notification.success(I18n.text("Profile from "+msg.getSourceName()),
-                I18n.textf("Received %param profile from %vehicle.",
-                        msg.getParameter() != null ? msg.getParameter().name().toLowerCase() : "unknown type", msg.getSourceName())));
-        
-        if (audioNotifications) {
-            VehicleType v = VehiclesHolder.getVehicleById(msg.getSourceName());
-            String vName = "Vehicle";
-            if (v != null)
-                vName = v.getNickname();
-            
-            say(vName+ " profile");
-            
-        }
-    }
-    
     private void say(String text) {
         if (audioNotifications) {
             SpeechUtil.removeStringsFromQueue(text);
@@ -462,19 +434,10 @@ public class SoiInteraction extends SimpleRendererInteraction implements Configu
 
             popup.add("Change plug-in settings").addActionListener(e -> {
                 PluginUtils.editPluginProperties(SoiInteraction.this, true);
-                profileView.setOldestProfiles(oldestProfiles);
             });
 
             popup.show(source, event.getX(), event.getY());
         }
-        else {
-            profileView.mouseClicked(event, source);
-        }
-    }
-    
-    @Override
-    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
-        profileView.mouseMoved(event, source);
     }
 
     private void sendCommand(SoiCommand cmd, final String system) {
@@ -488,15 +451,11 @@ public class SoiInteraction extends SimpleRendererInteraction implements Configu
         if (!active && hideIfInactive)
             return;
 
-        SoiStateRenderer.paintStatic(g, renderer);        
-        profileView.setColorizeSalinity(colorizeSalinity);
-        profileView.setValuesTable(profileValues);
-        profileView.paint(g, renderer);
+        SoiStateRenderer.paintStatic(g, renderer);
     }
 
     @Override
     public void propertiesChanged() {
-        profileView.setOldestProfiles(oldestProfiles);
         repaint();
     }
 
