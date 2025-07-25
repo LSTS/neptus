@@ -33,8 +33,6 @@
 package pt.lsts.neptus.soi;
 
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -56,16 +54,13 @@ import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.StateReport;
-import pt.lsts.imc.VerticalProfile;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.endurance.AssetsManager;
 import pt.lsts.neptus.endurance.CommMean;
 import pt.lsts.neptus.endurance.DripSettings;
 import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.endurance.SoiSettings;
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
