@@ -267,6 +267,11 @@ public class BathymetryLayer extends ConsoleLayer {
     public void on(EstimatedState state) {
         try {
             Point2D pt = locToPoint(IMCUtils.getLocation(state));
+            if (pt == null)
+                return;
+            if (state.getDepth() == -1 || state.getAlt() == -1)
+                return;
+
             double width = 0;
             double alt = 0;
             if (state.getAlt() != -1) {
@@ -286,7 +291,7 @@ public class BathymetryLayer extends ConsoleLayer {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn("Error calculating bathymetry: {}", e.getMessage());
         }
     }
 }
