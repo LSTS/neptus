@@ -436,6 +436,9 @@ public class ConfigurationManager {
                             if (!hasPairs(values))
                                 comboEditor = new ComboEditor<>(((ArrayList<Double>) values).toArray(new Double[0]));
                         }
+                        else if (type.equals(ValueTypeEnum.BOOLEAN.getText())) {
+                            // Ignore
+                        }
                         else { // if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
                             ArrayList<?> valuesI18n = extractI18nValues(type, pValues, values);
                             comboEditor = new ComboEditor<>(((ArrayList<String>) values).toArray(new String[0]),
