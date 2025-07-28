@@ -41,6 +41,7 @@ import java.awt.event.ActionEvent;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -51,14 +52,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.RowSorter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EntityList;
+import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -73,6 +79,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
@@ -101,6 +108,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 
     private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/buttons/clear.png", 16, 16);
     private final Icon ICON_RQST = ImageUtils.getScaledIcon("images/buttons/log.png", 16, 16);
+    private final Icon ICON_UNKNOWN = ImageUtils.getScaledIcon("images/buttons/filter.png", 16, 16);
 
     // Events Data
     private LinkedHashMap<String, EntityStateType> dataMap = new LinkedHashMap<String, EntityStateType>();
@@ -114,6 +122,8 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     // GUI Components
     private JTable table = null;
     private StatusLed status;
+
+    private boolean filterUnknown = true;
 
     private long timeSinceLastUpdateVoiceWarning = -1;
 
@@ -175,10 +185,20 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         ToolbarButton rqstEntListButton = new ToolbarButton(new AbstractAction("request", ICON_RQST) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendEntityListRequestMsg();;
+                sendEntityListRequestMsg();
             }
         });
         rqstEntListButton.setToolTipText(I18n.text("Request entity list"));
+        ToolbarSwitch filterUnknownEntListSwitch = new ToolbarSwitch(new AbstractAction("filter unknown", ICON_UNKNOWN) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                filterUnknown = ((ToolbarSwitch) e.getSource()).isSelected();
+                etmodel.fireTableStructureChanged();
+                setPreferredTableColumnWidth();
+            }
+        });
+        filterUnknownEntListSwitch.setSelected(filterUnknown);
+        filterUnknownEntListSwitch.setToolTipText(I18n.text("Filter unknown"));
         status = new StatusLed();
         status.made5LevelIndicator();
         status.setLevel(StatusLed.LEVEL_OFF);
@@ -187,16 +207,20 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         wPanel.add(status);
         wPanel.add(clearButton);
         wPanel.add(rqstEntListButton);
+        wPanel.add(filterUnknownEntListSwitch);
         this.add(wPanel, BorderLayout.NORTH);
 
+        setPreferredTableColumnWidth();
     }
 
     @Override
     public void initSubPanel() {
         getTimer().scheduleAtFixedRate(getTtask(), 100, 1000);
+        clearData();
     }
 
     private void setup() {
+        eColor.put(-1L, COLOR_OFF);
         eColor.put(0L, COLOR_BLUE);
         eColor.put(1L, COLOR_GREEN);
         eColor.put(2L, COLOR_YELLOW);
@@ -206,6 +230,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         eColor.put(6L, COLOR_OFF);
         eColor.put(7L, COLOR_OFF);
 
+        eLevel.put(-1L, StatusLed.LEVEL_NONE);
         eLevel.put(0L, StatusLed.LEVEL_1);
         eLevel.put(1L, StatusLed.LEVEL_0);
         eLevel.put(2L, StatusLed.LEVEL_2);
@@ -238,7 +263,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             timer = null;
         }
 
-        clearData(); // calling this to remove alarms
+        clearData(true); // calling this to remove alarms
     }
 
     /**
@@ -289,15 +314,39 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 
             // table.setRowSorter(new TableRowSorter<EntityStateTableModel>(etmodel)); //FIXME Problem with clear
             table.setAutoCreateRowSorter(true);
+            RowSorter<? extends TableModel> rs = table.getRowSorter();
+            if (rs instanceof TableRowSorter) {
+                ((TableRowSorter) rs).setRowFilter(new RowFilter<TableModel, Integer>() {
+                    @Override
+                    public boolean include(Entry<? extends TableModel, ? extends Integer> entry) {
+                        Object sel = entry.getValue(1);
+                        System.out.println(">>>>>>>>>>>>>>>>>>> " + sel.toString());
+                        return !filterUnknown || !"Unknown".equalsIgnoreCase(sel.toString());
+                    }
+                });
+            }
 
-            TableColumn col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.STATE_COL);
-            col.setPreferredWidth(30);
-            col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.DONT_CARE_FLAG_COL);
-            col.setPreferredWidth(10);
-            col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.TIME_COL);
-            col.setPreferredWidth(20);
+            //clearData();
         }
+
+        setPreferredTableColumnWidth();
         return table;
+    }
+
+    private void setPreferredTableColumnWidth() {
+        TableColumn col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.ENTITY_COL);
+        col.setPreferredWidth(100);
+        col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.STATE_COL);
+        col.setPreferredWidth(60);
+        col.setMaxWidth(150);
+        col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.DONT_CARE_FLAG_COL);
+        col.setPreferredWidth(50);
+        col.setMaxWidth(50);
+        col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.TIME_COL);
+        col.setPreferredWidth(60);
+        col.setMaxWidth(150);
+
+        table.repaint(20);
     }
 
     /*
@@ -346,9 +395,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             }
         }
         // short oldState = status.getLevel();
+        if (status == null)
+            return;
         status.setLevel(max);
         status.setMessage(I18n.textf("State '%state'", evtLabel));
-
     }
 
     @Subscribe
@@ -357,6 +407,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     }
 
     private void clearData() {
+        clearData(false);
+    }
+
+    private void clearData(boolean cleanAll) {
         if (data.size() != 0)
             etmodel.fireTableRowsDeleted(0, data.size() - 1);
         data.clear();
@@ -364,6 +418,32 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 //        etmodel.fireTableDataChanged();
         etmodel.fireTableStructureChanged();
         calcTotalState();
+        if (!cleanAll) {
+            fillEmptyData();
+            etmodel.fireTableStructureChanged();
+            calcTotalState();
+            setPreferredTableColumnWidth();
+        }
+    }
+
+    private void fillEmptyData() {
+        Map<Integer, String> entList = EntitiesResolver.getEntities(getMainVehicleId());
+        if (entList != null) {
+            for (Map.Entry<Integer, String> entry : entList.entrySet()) {
+                String entityName = entry.getValue();
+                EntityStateType eType = new EntityStateType(entityName, new Enumerated(
+                        getStatePossibleValues(), -1), "", -1);
+                data.add(eType);
+                dataMap.put(entityName, eType);
+            }
+        }
+        setPreferredTableColumnWidth();
+    }
+
+    private LinkedHashMap<Long, String> getStatePossibleValues() {
+        LinkedHashMap<Long, String> pf = new EntityState().getMessageType().getFieldPossibleValues("state");
+        pf.put(-1L, I18n.text("Unknown"));
+        return pf;
     }
 
     @Override
@@ -379,6 +459,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             Integer index = eType == null ? null : data.indexOf(eType);
 
             boolean wasChange = false;
+            boolean triggerStructChange = false;
 
             // Updating (not the first time receiving for this entity)
             if (index != null) {
@@ -386,16 +467,18 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
                 if (message.getLong("state") != eType.getState().longValue()) { // Means it has changed, time to post a
                     // msg_type type = msg_type.info;
                     wasChange = true;
+                    if (eType.getState().longValue() == -1)
+                        triggerStructChange = true;
                 }
-                eType.update(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues("state"),
-                        message.getLong("state")), message.getString("description"), System.currentTimeMillis());
+                eType.update(entityName, new Enumerated(getStatePossibleValues(), message.getLong("state")),
+                        message.getString("description"), System.currentTimeMillis());
                 data.set(index, eType);
                 etmodel.fireTableRowsUpdated(index, index);
             }
             else {
                 wasChange = true;
-                eType = new EntityStateType(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues(
-                        "state"), message.getLong("state")), getDescription(), System.currentTimeMillis());
+                eType = new EntityStateType(entityName, new Enumerated(getStatePossibleValues(),
+                        message.getLong("state")), getDescription(), System.currentTimeMillis());
 
                 if (data.add(eType)) {
                     index = data.indexOf(eType);
@@ -405,8 +488,13 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             }
             calcTotalState();
 
-            if (wasChange)
+            if (triggerStructChange) {
+                etmodel.fireTableStructureChanged();
+                setPreferredTableColumnWidth();
+            }
+            if (wasChange) {
                 speakUpdateEntityState();
+            }
         }
     }
 
@@ -761,6 +849,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 
         public Component getTableCellRendererComponent(JTable table, Object timems, boolean isSelected,
                 boolean hasFocus, int row, int column) {
+            if (timems == null || !(timems instanceof Long) || (Long) timems == -1L) {
+                setText("");
+                return this;
+            }
             Long enu = System.currentTimeMillis() - (Long) timems;
             setText(DateTimeUtil.milliSecondsToFormatedString(enu / 1000 * 1000));
             return this;
