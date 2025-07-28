@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -124,25 +125,38 @@ public class ConfigurationManager {
     private void loadConfigurations() {
         String lang = GeneralPreferences.language;
 
-        File fx = new File(ConfigFetch.getConfFolder() + CONF_DIR);
+        String filePath = ConfigFetch.getConfFolder() + CONF_DIR;
+        File fx = new File(filePath);
         if (fx.exists()) {
-            for(File f : fx.listFiles(getFileFilterForConfigurationFiles())) {
-                if (!f.isFile())
-                    continue;
-                String fname = f.getName();
-                String fext = FileUtil.getFileExtension(fname);
-                if (!fname.replaceAll("." + fext + "$", "").endsWith(lang))
-                    continue;
+            try {
+                for (File f : Objects.requireNonNull(fx.listFiles(getFileFilterForConfigurationFiles()))) {
+                    try {
+                        if (!f.isFile()) {
+                            continue;
+                        }
+                        String fname = f.getName();
+                        String fext = FileUtil.getFileExtension(fname);
+                        if (!fname.replaceAll("." + fext + "$", "").endsWith(lang)) {
+                            continue;
+                        }
 
-                NeptusLog.pub().debug("Loading vehicle configuration from " + f.getName());
-                String systemName = f.getName().split("\\.")[0];
-                try {
-                    map.put(systemName, readConfiguration(f));
-                } 
-                catch (InvalidConfigurationException e) {
-                    NeptusLog.pub().error(e.getMessage());
-                    e.printStackTrace();
-               }
+                        NeptusLog.pub().debug("Loading vehicle configuration from " + f.getName());
+                        String systemName = f.getName().split("\\.")[0];
+                        try {
+                            map.put(systemName, readConfiguration(f));
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error processing systems parameters at '{}'", f);
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("No systems parameters found to process incide '{}'", filePath);
             }
         }
     }
