@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,772a1475d)" modules="system/caravel,b1fa56d" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,644fd9c47)" modules="system/caravel,c966acb" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -377,7 +377,7 @@
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>true</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
@@ -2633,6 +2633,162 @@
       <values-i18n>none,delete_oldest,stop</values-i18n>
     </param>
   </section>
+  <section name="Stern Light" name-i18n="Stern Light">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Stern Light</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Proximity Distance">
+      <name-i18n>Proximity Distance</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>km</units>
+      <desc>Distance in kilometers to consider an AIS target as in proximity.</desc>
+      <min>0</min>
+    </param>
+    <param name="Discard AIS Timeout">
+      <name-i18n>Discard AIS Timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>300</default>
+      <units>s</units>
+      <desc>Timeout in seconds to discard an AIS target that is not updated.</desc>
+      <min>0</min>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Stern Light State No Targets">
+      <name-i18n>Stern Light State No Targets</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>State of the stern light when no targets are in proximity.</desc>
+      <min>0</min>
+    </param>
+    <param name="Stern Light State With Targets">
+      <name-i18n>Stern Light State With Targets</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>State of the stern light when targets are in proximity.</desc>
+      <min>0</min>
+    </param>
+    <param name="Stern Light Entity" editable="false">
+      <name-i18n>Stern Light Entity</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>CPC</default>
+      <units/>
+      <desc>Entity label for the stern light.</desc>
+    </param>
+    <param name="Stern Light Parameter Label" editable="false">
+      <name-i18n>Stern Light Parameter Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>LED Period</default>
+      <units/>
+      <desc>Parameter label for the stern light state.</desc>
+    </param>
+  </section>
   <section name="Operational Limits" name-i18n="Operational Limits">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2974,14 +3130,64 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Interval Time Window in Minutes">
-      <name-i18n>Interval Time Window in Minutes</name-i18n>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Thruster ID">
+      <name-i18n>Thruster ID</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>ID of the thruster to monitor.</desc>
+    </param>
+    <param name="Timeout for Expected Actuation">
+      <name-i18n>Timeout for Expected Actuation</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Maximum time to wait for high current levels on the thruster.</desc>
+      <min>5</min>
+    </param>
+    <param name="Timeout for Periodic Check in Error">
+      <name-i18n>Timeout for Periodic Check in Error</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>global</scope>
       <default>30</default>
-      <units/>
-      <desc>Maximum time to wait for high current levels on the thruster (in minutes).</desc>
+      <units>min</units>
+      <desc>Timeout to do a periodic check when the thruster is in error.</desc>
       <min>5</min>
     </param>
     <param name="Current Threshold in Amperes">
@@ -2990,7 +3196,7 @@
       <visibility>user</visibility>
       <scope>global</scope>
       <default>1.0</default>
-      <units/>
+      <units>A</units>
       <desc>Current value threshold to trigger a warning (in Amperes).</desc>
       <min>0.1</min>
     </param>
@@ -3002,6 +3208,57 @@
       <default>THRUST_D</default>
       <units/>
       <desc>Label of the thruster current channel to monitor.</desc>
+    </param>
+    <param name="Thruster Power Channel Label">
+      <name-i18n>Thruster Power Channel Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>THRUST_C</default>
+      <units/>
+      <desc>Label of the thruster power channel.</desc>
+    </param>
+    <param name="Send Satellite Updates">
+      <name-i18n>Send Satellite Updates</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Send updates over satellite.</desc>
+    </param>
+    <param name="Monitor only when submerged">
+      <name-i18n>Monitor only when submerged</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Only monitor thruster when submerged.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
+    </param>
+    <param name="Auto Restart">
+      <name-i18n>Auto Restart</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Try to restart thruster automatically.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
+    </param>
+    <param name="Restart Thruster">
+      <name-i18n>Restart Thruster</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Try to restart thruster.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
     </param>
   </section>
   <section name="ZeroTier" name-i18n="ZeroTier">
@@ -3061,22 +3318,55 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="AutoReconnect">
-      <name-i18n>AutoReconnect</name-i18n>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
-      <desc>AutoReconnect the ZeroTier service if it is not running.</desc>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="AutoReconnect">
+      <name-i18n>AutoReconnect</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Restart the ZeroTier service if it is not running.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
     </param>
     <param name="AutoCheck Interval in Minutes">
       <name-i18n>AutoCheck Interval in Minutes</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>10</default>
-      <units/>
+      <default>20</default>
+      <units>min</units>
       <desc>Timeout in minutes to check ZeroTier state. If the ZeroTier service is not running, it will be restarted.</desc>
       <min>2</min>
     </param>
@@ -3088,6 +3378,8 @@
       <default>false</default>
       <units/>
       <desc>Force restart of ZeroTier service if it is not running. If this is set to true, the service will be restarted even if it is running.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
     </param>
     <param name="Restart Modem GSM">
       <name-i18n>Restart Modem GSM</name-i18n>
@@ -3097,6 +3389,8 @@
       <default>false</default>
       <units/>
       <desc>Restart the GSM modem if it is not running. If this is set to true, the modem will be restarted even if it is running.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
     </param>
     <param name="Label of GSM Modem Power">
       <name-i18n>Label of GSM Modem Power</name-i18n>
@@ -3105,7 +3399,7 @@
       <scope>global</scope>
       <default>MOBILE_1_C</default>
       <units/>
-      <desc>Label of the GSM modem power channel. This is used to control the power of the GSM modem. </desc>
+      <desc>Label of the GSM modem power channel. This is used to control the power of the GSM modem.</desc>
     </param>
     <param name="Remote Hosts IP to Check for Connectivity">
       <name-i18n>Remote Hosts IP to Check for Connectivity</name-i18n>
@@ -3114,7 +3408,18 @@
       <scope>global</scope>
       <default>10.188.254.253, 10.188.2.118, 10.188.0.230, 10.188.0.116</default>
       <units/>
-      <desc>List of Remote Hosts IP to Check for Connectivity</desc>
+      <desc>List of Remote Hosts IP to Check for Connectivity.</desc>
+    </param>
+    <param name="Send Satellite Updates">
+      <name-i18n>Send Satellite Updates</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Send updates over satellite.</desc>
+      <values>false,true</values>
+      <values-i18n>false,true</values-i18n>
     </param>
   </section>
   <section name="Wave Frequency Estimator" name-i18n="Wave Frequency Estimator">
@@ -5084,6 +5389,15 @@
       <units/>
       <desc>Entity Label for the Thruster Power Data</desc>
     </param>
+    <param name="Power Channel Label for Thruster">
+      <name-i18n>Power Channel Label for Thruster</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>THRUST_C</default>
+      <units/>
+      <desc>Entity Label for the Thruster Power Channel</desc>
+    </param>
     <param name="Power Channel Label for Iridium 1">
       <name-i18n>Power Channel Label for Iridium 1</name-i18n>
       <type>string</type>
@@ -5101,6 +5415,17 @@
       <default>IRIDIUM_2_C</default>
       <units/>
       <desc>Entity Label for the Iridium 2</desc>
+    </param>
+    <param name="System to Jump">
+      <name-i18n>System to Jump</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>System to Jump.</desc>
+      <values>None, CPU1, CPU2, CPC</values>
+      <values-i18n>None, CPU1, CPU2, CPC</values-i18n>
     </param>
   </section>
   <section name="AIS" name-i18n="AIS">
@@ -6543,7 +6868,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>80</default>
+      <default>1800</default>
       <units>s</units>
       <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
@@ -9053,95 +9378,163 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyUSB3</default>
+      <default>global</default>
       <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>115200</default>
+      <default>developer</default>
       <units/>
-      <desc>Serial port baud rate</desc>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
-    <param name="Reply Timeout">
-      <name-i18n>Reply Timeout</name-i18n>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
-      <units>s</units>
-      <desc>Amount of time to wait for a command reply</desc>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
     </param>
-    <param name="PIN">
-      <name-i18n>PIN</name-i18n>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>uart:///dev/ttyUSB3:115200</default>
+      <units/>
+      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
+    </param>
+    <param name="Time to Check Mailbox in Seconds">
+      <name-i18n>Time to Check Mailbox in Seconds</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>300</default>
+      <units/>
+      <desc>Time to wait before checking mailbox in seconds</desc>
+      <min>30</min>
+    </param>
+    <param name="Maximum Time to Accept SMS in Hours">
+      <name-i18n>Maximum Time to Accept SMS in Hours</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units/>
+      <desc>Maximum time to accept an incoming SMS in Hours</desc>
+      <min>1</min>
+    </param>
+    <param name="PIN Number">
+      <name-i18n>PIN Number</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>PIN Code</desc>
+      <desc>PIN number to unlock the SIM card</desc>
     </param>
-    <param name="RSSI Periodicity">
-      <name-i18n>RSSI Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Periodicity of RSSI reports</desc>
-    </param>
-    <param name="Read SMS Periodicity">
-      <name-i18n>Read SMS Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Periodicity of received SMS checks</desc>
-    </param>
-    <param name="SMS Send Timeout">
-      <name-i18n>SMS Send Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Maximum amount of time to wait for SMS send completion</desc>
-    </param>
-    <param name="USSD code">
-      <name-i18n>USSD code</name-i18n>
+    <param name="Number of Consecutive Errors to Restart Task">
+      <name-i18n>Number of Consecutive Errors to Restart Task</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>111</default>
+      <default>5</default>
       <units/>
-      <desc>USSD code</desc>
+      <desc>Number of consecutive errors to restart the task</desc>
+      <min>2</min>
     </param>
-    <param name="Request Balance">
-      <name-i18n>Request Balance</name-i18n>
+    <param name="Send SMS Text Messages">
+      <name-i18n>Send SMS Text Messages</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable Balance Request</desc>
-    </param>
-    <param name="Balance Periodicity">
-      <name-i18n>Balance Periodicity</name-i18n>
-      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>60</default>
+      <default>true</default>
       <units/>
-      <desc>Balance Periodicity</desc>
+      <desc>Send SMS text messages. If false, only received SMS will be processed without sending any SMS text messages</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
