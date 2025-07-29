@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,59f1d07af)" modules="system/caravel,502feed" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,fd5e82a58)" modules="system/caravel,6a6581b" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2699,6 +2699,17 @@
       <units>Hz</units>
       <desc>Frequency at which task is executed</desc>
     </param>
+    <param name="Distance Method">
+      <name-i18n>Distance Method</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>both</default>
+      <units/>
+      <desc>Method to determine distance to AIS targets. Options: latlon (WGS84), ais_dist (from AIS message), both (use both methods). When using 'both', if distance from AIS message is &lt;= 0, use WGS84 calculation.</desc>
+      <values>latlon,ais_dist,both</values>
+      <values-i18n>latlon,ais_dist,both</values-i18n>
+    </param>
     <param name="Proximity Distance">
       <name-i18n>Proximity Distance</name-i18n>
       <type>integer</type>
@@ -2750,43 +2761,43 @@
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
-    <param name="Stern Light State No Targets">
-      <name-i18n>Stern Light State No Targets</name-i18n>
+    <param name="Light State No Targets">
+      <name-i18n>Light State No Targets</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units/>
+      <desc>State of the light when no targets are in proximity.</desc>
+      <min>-1</min>
+    </param>
+    <param name="Light State With Targets">
+      <name-i18n>Light State With Targets</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
       <units/>
-      <desc>State of the stern light when no targets are in proximity.</desc>
+      <desc>State of the light when targets are in proximity.</desc>
       <min>-1</min>
     </param>
-    <param name="Stern Light State With Targets">
-      <name-i18n>Stern Light State With Targets</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>State of the stern light when targets are in proximity.</desc>
-      <min>-1</min>
-    </param>
-    <param name="Stern Light Entity" editable="false">
-      <name-i18n>Stern Light Entity</name-i18n>
+    <param name="Light Entity" editable="false">
+      <name-i18n>Light Entity</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>CPC</default>
       <units/>
-      <desc>Entity label for the stern light.</desc>
+      <desc>Entity label for the light.</desc>
     </param>
-    <param name="Stern Light Parameter Label" editable="false">
-      <name-i18n>Stern Light Parameter Label</name-i18n>
+    <param name="Light Parameter Label" editable="false">
+      <name-i18n>Light Parameter Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>LED Period</default>
       <units/>
-      <desc>Parameter label for the stern light state.</desc>
+      <desc>Parameter label for the light state.</desc>
     </param>
   </section>
   <section name="Operational Limits" name-i18n="Operational Limits">
@@ -3040,7 +3051,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VerticalProfile:ADCP - North:900, VerticalProfile:ADCP - East:900, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:1800, VerticalProfile:Fluorometers - Turbidity:1800, VerticalProfile:Fluorometers - Dissolved Organic Matter:1800, VerticalProfile:AirMar120WX - Average:1800, VerticalProfile:AirMar120WX - Maximum:1800, VerticalProfile:Dissolved Oxygen:1800, Voltage:Batteries:3600</default>
+      <default>VerticalProfile:ADCP - North:900, VerticalProfile:ADCP - East:900, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:1800, VerticalProfile:Fluorometers - Turbidity:1800, VerticalProfile:Fluorometers - Dissolved Organic Matter:1800, VerticalProfile:AirMar120WX - Average:1800, VerticalProfile:AirMar120WX - Maximum:1800, VerticalProfile:Dissolved Oxygen:1800, Voltage:Batteries:3600, Current:Batteries:0</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt;:&lt;Rate&gt; to send using Iridium. The rate is in seconds and is optional. If rate is not specified, the message will be sent every time it is received. If rate is 0, the message will be ignored.</desc>
     </param>
@@ -3170,25 +3181,26 @@
       <units/>
       <desc>ID of the thruster to monitor.</desc>
     </param>
-    <param name="Timeout for Expected Actuation">
-      <name-i18n>Timeout for Expected Actuation</name-i18n>
+    <param name="Expected Actuation">
+      <name-i18n>Expected Actuation</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>15</default>
       <units>s</units>
       <desc>Maximum time to wait for high current levels on the thruster.</desc>
-      <min>5</min>
+      <min>15</min>
+      <max>59</max>
     </param>
-    <param name="Timeout for Periodic Check in Error">
-      <name-i18n>Timeout for Periodic Check in Error</name-i18n>
+    <param name="Periodic Check During Error">
+      <name-i18n>Periodic Check During Error</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>global</scope>
       <default>30</default>
       <units>min</units>
       <desc>Timeout to do a periodic check when the thruster is in error.</desc>
-      <min>5</min>
+      <min>2</min>
     </param>
     <param name="Current Threshold in Amperes">
       <name-i18n>Current Threshold in Amperes</name-i18n>
@@ -3214,7 +3226,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>THRUST_C</default>
+      <default>THRUSTER_C</default>
       <units/>
       <desc>Label of the thruster power channel.</desc>
     </param>
