@@ -320,7 +320,6 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
                     @Override
                     public boolean include(Entry<? extends TableModel, ? extends Integer> entry) {
                         Object sel = entry.getValue(1);
-                        System.out.println(">>>>>>>>>>>>>>>>>>> " + sel.toString());
                         return !filterUnknown || !"Unknown".equalsIgnoreCase(sel.toString());
                     }
                 });
