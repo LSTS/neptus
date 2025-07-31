@@ -49,6 +49,7 @@ import pt.lsts.neptus.console.plugins.LogBookPanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.conf.StringProperty;
@@ -58,6 +59,7 @@ import pt.lsts.neptus.util.conf.StringProperty;
  * 
  */
 @PluginDescription(author = "zp", name = "Quick Logbook Panel")
+@Popup
 public class QuickLogger extends ConsolePanel implements ConfigurationListener {
     private ConsoleScript conScript = new ConsoleScript();
 
