@@ -475,7 +475,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             quadrant = 2;
         }
         double angleDeg1 = Math.toDegrees(angleRad);
-        System.out.println("angleDeg: " + angleDeg + "   :: angleDeg1: " + angleDeg1);
+        //System.out.println("angleDeg: " + angleDeg + "   :: angleDeg1: " + angleDeg1);
         return new Pair<>(angleRad, quadrant);
     }
 }
