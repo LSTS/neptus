@@ -504,36 +504,45 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         httpComm.cleanUp();
     }
 
-    public static Future<Boolean> rockBlockIsReachable() {
-        return new Future<Boolean>() {
+
+    private static Future<Boolean> lastSuccessFuture = null;
+    private static synchronized Future<Boolean> currentRockBlockIsReachable() {
+        if (lastSuccessFuture != null && !lastSuccessFuture.isDone()) {
+            return lastSuccessFuture;
+        }
+
+        lastSuccessFuture = new Future<Boolean>() {
             Boolean result = null;
             boolean canceled = false;
             long start = System.currentTimeMillis();
             {
-
                 if (System.currentTimeMillis() - lastSuccess < 15000) {
                     result = true;
                 }
 
-                try {
-                    URL url = new URL("http://secure.rock7mobile.com/rockblock");
-                    NeptusLog.pub().info("Checking RockBlock server at {}", url);
-                    int len = url.openConnection().getContentLength();
-                    if (len > 0)
-                        lastSuccess = System.currentTimeMillis();
-                    result = len > 0;
-                    NeptusLog.pub().info("RockBlock server is {}reachable", result ? "" : "NOT ");
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e);
-                    result = false;
+                if (result == null) {
+                    try {
+                        URL url = new URL("http://secure.rock7mobile.com/rockblock");
+                        NeptusLog.pub().info("Checking RockBlock server at {}", url);
+                        int len = url.openConnection().getContentLength();
+                        if (len > 0) {
+                            lastSuccess = System.currentTimeMillis();
+                        }
+                        result = len > 0;
+                        NeptusLog.pub().info("RockBlock server is {}reachable", result ? "" : "NOT ");
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                        result = false;
+                    }
                 }
             }
 
             @Override
             public Boolean get() throws InterruptedException, ExecutionException {
                 while (result == null) {
-                    Thread.sleep(100);
+                    //Thread.sleep(100);
+                    Thread.yield();
                 }
                 return result;
             }
@@ -548,7 +557,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             public Boolean get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
                     TimeoutException {
                 while (result == null) {
-                    Thread.sleep(100);
+                    //Thread.sleep(100);
+                    Thread.yield();
                     if (System.currentTimeMillis() - start > unit.toMillis(timeout))
                         throw new TimeoutException("Time out while connecting");
                 }
@@ -565,6 +575,12 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 return result != null;
             }
         };
+
+        return lastSuccessFuture;
+    }
+
+    public static Future<Boolean> rockBlockIsReachable() {
+        return currentRockBlockIsReachable();
     }
     
     @Override
