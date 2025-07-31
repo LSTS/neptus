@@ -414,7 +414,6 @@ public class IridiumManager {
     }
 
     public boolean isRunning() {
-        System.out.println("Is running? " + (service != null));
         return service != null;
     }
 
