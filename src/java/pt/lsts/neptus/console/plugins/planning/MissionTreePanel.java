@@ -544,18 +544,28 @@ public class MissionTreePanel extends ConsolePanel
             if (!usePlanDBSyncFeatures)
                 return;
 
+            StringBuilder pname = getPlanNamesString(selectedItems, true);
+            String[] pnamesList = pname.toString().split(", ");
             popupMenu.add(I18n.textf("Get %planName info from %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
                     .addActionListener(e -> {
                                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                                     @Override
                                     protected Void doInBackground() throws Exception {
                                         for (NameId nameId : selectedItems) {
-                                            PlanType sel = (PlanType) nameId;
+                                            String name = "";
+                                            if (!(nameId instanceof PlanType)) {
+                                                name = pnamesList.length > 0 ? pnamesList[0] : "";
+                                                if (name.isEmpty())
+                                                    break;
+                                            } else {
+                                                PlanType sel = (PlanType) nameId;
+                                                name = sel.getId();
+                                            }
                                             String mainSystem = console2.getMainSystem();
                                             pdbControl.setRemoteSystemId(mainSystem);
-                                            boolean ret = pdbControl.requestPlanInfo(sel.getId());
+                                            boolean ret = pdbControl.requestPlanInfo(name);
                                             if (!ret) {
-                                                NeptusLog.pub().error("Error requesting plan info " + sel.getId());
+                                                NeptusLog.pub().error("Error requesting plan info " + name);
                                                 break;
                                             }
                                         }
