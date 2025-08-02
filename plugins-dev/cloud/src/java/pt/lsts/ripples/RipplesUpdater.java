@@ -137,7 +137,9 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
     public void initSubPanel() {
         onIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_on.png", 16, 16);
         offIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_off.png", 16, 16);
-        menuItem = addCheckMenuItem(checkMenuTxt + ">" + I18n.text("Connect"), offIcon, new CheckMenuChangeListener() {
+        menuItem = addCheckMenuItem(checkMenuTxt + ">" +
+                (connected ? I18n.text("Disconnect") : I18n.text("Connect")),
+                connected ? onIcon : offIcon, new CheckMenuChangeListener() {
 
             @Override
             public void menuChecked(ActionEvent e) {
