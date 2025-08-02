@@ -1031,6 +1031,8 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
                     }
                 });
         parser.register(contactDb);
+
+        updateConnectMenuText();
     }
 
     private void updateConnectMenuText() {
