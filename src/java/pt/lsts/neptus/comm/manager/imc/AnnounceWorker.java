@@ -45,15 +45,18 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
 import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteActionsRequest;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -526,8 +529,33 @@ public class AnnounceWorker {
      */
     void sendEntityListRequestMsg(ImcSystem sys) {
         try {
-        	NeptusLog.pub().debug("Sending '" + sys.name + " | "
-        			+ sys.getId() + "' EntityList request...");
+            boolean sentRqst = false;
+            Map<Integer, String> er = EntitiesResolver.getEntities(sys.getName());
+            if (er == null || er.isEmpty())
+                sentRqst = true;
+
+           ImcSystemState imcState = imcManager.getState(sys.getName());
+           if (!sentRqst && imcState != null && imcState.get(EntityList.class.getSimpleName()) != null) {
+                try {
+                    EntityList lastEntityList = (EntityList) imcState.get(EntityList.class.getSimpleName());
+                    if (System.currentTimeMillis() - lastEntityList.getTimestampMillis() > getPeriodEntityListRequest() * 3) {
+                        sentRqst = true;
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn("Expecting {} for casting but got error {}",
+                            EntityList.class.getSimpleName(), e.getMessage());
+                }
+           }
+
+           if (!sentRqst) {
+               NeptusLog.pub().info("Skipping asking for a '{}' for '{}'.",
+                       EntityList.class.getSimpleName(), sys.getName());
+               return;
+           }
+
+           NeptusLog.pub().debug("Sending '" + sys.name + " | "
+                            + sys.getId() + "' EntityList request...");
         	IMCMessage msg = imcDefinition.create("EntityList", "op", 1);
         	if (msg == null)
         		msg = imcDefinition.create("Aliases", "op", 1);
