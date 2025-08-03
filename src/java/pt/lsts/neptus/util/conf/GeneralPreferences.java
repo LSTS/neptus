@@ -172,7 +172,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
 
     @NeptusProperty(name = "Number Of Shown Trails Points", category = "Map", userLevel = LEVEL.REGULAR)
-    public static int numberOfShownPoints = 500;
+    public static int numberOfShownPoints = 400;
 
     // -------------------------------------------------------------------------
 
