@@ -162,9 +162,9 @@ public class ScatterPointsElement extends AbstractElement {
                 locT.convertToAbsoluteLatLonDepth();
 
                 Point2D ofsT = renderer.getScreenPosition(locT);
-                if (!renderer.contains((int)ofsT.getX(), (int)ofsT.getY())) {
-                    continue;
-                }
+                //if (!renderer.contains((int)ofsT.getX(), (int)ofsT.getY())) {
+                //    continue; // Because of the lines connecting points, we need to draw all points
+                //}
                 double transX = ofsT.getX() - ofs.getX();
                 double transY = ofsT.getY() - ofs.getY();
 
