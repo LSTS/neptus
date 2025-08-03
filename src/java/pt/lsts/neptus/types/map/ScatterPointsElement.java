@@ -86,6 +86,8 @@ public class ScatterPointsElement extends AbstractElement {
     protected Point3d lastRemoved = null;
     private int gradientcolor = 0;
 
+    int maxDistToChangeCenterMeters = 10_000;
+
     public ScatterPointsElement() {
         super();
     }
@@ -221,10 +223,34 @@ public class ScatterPointsElement extends AbstractElement {
     }
 
     public void addPoint(LocationType loc) {
-        if (loc.getDistanceInMeters(getCenterLocation()) > 3000) {
+        double distanceInMeters = loc.getDistanceInMeters(getCenterLocation());
+        if (distanceInMeters > maxDistToChangeCenterMeters) {
+            NeptusLog.pub().warn("Point {} is too far away ({}m) from the center location ({}). Changing center location to the new point.",
+                    loc, distanceInMeters, getCenterLocation());
+            synchronized (points) {
+                // Iterate from the start to the end, removing points that are too far away
+                for (int i = 0; i < points.size(); i++) {
+                    Point3d pt = points.get(i);
+                    LocationType ptLoc = new LocationType(getCenterLocation());
+                    ptLoc.translatePosition(pt.x, pt.y, pt.z);
+                    double dist = ptLoc.getDistanceInMeters(loc);
+                    if (dist > maxDistToChangeCenterMeters * 3) {
+                        NeptusLog.pub().warn("Removing point {} at distance {}m from the new center location {}",
+                                pt, dist, loc);
+                        points.remove(i);
+                        i--; // Adjust index after removal
+                    } else {
+                        double[] offsets = ptLoc.getOffsetFrom(loc);
+                        pt.x = offsets[0];
+                        pt.y = offsets[1];
+                        pt.z = offsets[2];
+                    }
+                }
+            }
+
             setCenterLocation(loc);
             addPoint(0, 0, 0);
-            clearPoints();
+            // clearPoints();
         }
         else {
             double[] offsets = loc.getOffsetFrom(getCenterLocation());

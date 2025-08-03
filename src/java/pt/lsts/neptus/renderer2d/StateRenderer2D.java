@@ -64,6 +64,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -570,6 +571,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     public void vehicleStateChanged(String systemId, SystemPositionAndAttitude state, boolean repaint) {
         if (state == null) {
+            NeptusLog.pub().warn(">>>>>>>>>> Tail for {} state was null, clearing tail!! (was {}) <<<<<<<<<<", systemId,
+                    vehicleTails.containsKey(systemId) ? vehicleTails.get(systemId).getNumberOfPoints() : "-");
             vehicleStates.remove(systemId);
             vehicleTails.remove(systemId);
             vehicles = vehicleStates.keySet().toArray(new String[0]);
@@ -605,7 +608,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             vehicleStates.put(systemId, state);
 
             //double[] distFromRef = state.getPosition().getOffsetFrom(vehicleTails.get(systemId).getCenterLocation());
-            vehicleTails.get(systemId).addPoint(state.getPosition());
+            if (state.getTime() > vehicleTails.get(systemId).getLastLocationTimeMillis() || vehicleTails.get(systemId).getLastLocationTimeMillis() == -1) {
+                NeptusLog.pub().trace(">>>>>>>>>> Tail for {} ADD element. (was {})  @ {} <<<<<<<<<<", systemId,
+                    vehicleTails.get(systemId).getPoints().size(), new Date(state.getTime()));
+            }
+            vehicleTails.get(systemId).addPoint(state.getPosition(), state.getTime());
 
             if (!repaint || System.currentTimeMillis() - lastPaintTime < minDelay) {
                 return;

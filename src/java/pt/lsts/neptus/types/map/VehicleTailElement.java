@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.types.map;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+
 import java.awt.Color;
 
 
@@ -40,6 +43,8 @@ import java.awt.Color;
  *
  */
 public class VehicleTailElement extends ScatterPointsElement {
+
+    private long lastLocationTimeMillis = -1;
 
     public VehicleTailElement() {
         super();
@@ -56,5 +61,33 @@ public class VehicleTailElement extends ScatterPointsElement {
 	@Override
 	public String getType() {
 		return "Vehicle tail";
-	}	
+	}
+
+    public void addPoint(LocationType loc, long timeMillis) {
+        if (timeMillis <= lastLocationTimeMillis && lastLocationTimeMillis != -1) {
+            // If the new point is older than the last one, ignore it
+            NeptusLog.pub().trace("Received a location point with time {} older than or equal to the last one: {}",
+                    timeMillis, lastLocationTimeMillis);
+            return;
+        }
+
+        super.addPoint(loc);
+        lastLocationTimeMillis = timeMillis;
+    }
+
+    @Override
+    public void addPoint(LocationType loc) {
+        super.addPoint(loc);
+        lastLocationTimeMillis = System.currentTimeMillis();
+    }
+
+    @Override
+    public void clearPoints() {
+        super.clearPoints();
+        lastLocationTimeMillis = -1;
+    }
+
+    public long getLastLocationTimeMillis() {
+        return lastLocationTimeMillis;
+    }
 }
