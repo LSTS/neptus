@@ -204,7 +204,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     private void processStateReport(MessageInfo info, StateReport msg) {
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(msg.getLatitude());
-        loc.setLongitudeRads(msg.getLongitude());
+        loc.setLongitudeDegs(msg.getLongitude());
 
         double time = msg.getTimestampMillis();
         time = time < 0 ? info.getTimeReceivedNanos() / 1_000_000d : time; // milliseconds
