@@ -46,6 +46,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -75,6 +76,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -212,6 +214,8 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
                 planStates.put(pcs.getSourceName(), pcs);
             }
         }
+
+
     }
 
     @Subscribe
@@ -311,7 +315,39 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
         if (lastSendTime != null && System.currentTimeMillis() - lastSendTime.getTime() < pollInterval.toMillis()) {
             return;
         }
+        Date prevSentTime = lastSendTime;
         lastSendTime =  new Date();
+
+        try {
+            // Let us see if we have plan data to send but no position data
+            List<String> missingSystemsPositions = new ArrayList<>();
+            for (String sysName : planStates.keySet()) {
+                PlanControlState pstate = planStates.get(sysName);
+                if (pstate.getTimestampMillis() < prevSentTime.getTime())
+                    continue;
+                if (!assetStates.containsKey(sysName)) {
+                    missingSystemsPositions.add(sysName);
+                }
+            }
+
+            // update asset states with the latest plan data
+            assetStates.forEach((sysName, assetState) -> {
+                RipplesAssetState newAssetState = fillAssetState(sysName, assetState);
+                if (newAssetState == null)
+                    return;
+                assetStates.replace(sysName, newAssetState);
+            });
+
+            // Add the missing ones if planinfo later than the asset state
+            for (String sysName : missingSystemsPositions) {
+                RipplesAssetState newAssetState = fillAssetState(sysName, null);
+                if (newAssetState != null) {
+                    assetStates.put(sysName, newAssetState);
+                }
+            }
+        } catch (Exception e) {
+            NeptusLog.pub().warn("Error checking for plan data: " + e.getMessage());
+        }
 
         try {
             System.out.println("Sending updates to Ripples");
@@ -349,6 +385,21 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
         catch (Exception e) {
             NeptusLog.pub().warn(e.getMessage());
         }
+    }
+
+    private static RipplesAssetState fillAssetState(String sysName, RipplesAssetState assetState) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(sysName);
+        if (sys == null)
+            return null;
+
+        LocationType loc = sys.getLocation().getNewAbsoluteLatLonDepth();
+        long locTimeMillis = sys.getLocationTimeMillis();
+        double headingDegress = sys.getYawDegrees();
+        if (loc == null || assetState != null && assetState.getTimestamp() > locTimeMillis / 1000.0)
+            return null;
+
+        return new RipplesAssetState((int) (locTimeMillis / 1000.0), loc.getLatitudeDegs(),
+                loc.getLongitudeDegs(), AngleUtils.nomalizeAngleDegrees360(headingDegress), -1);
     }
 
     private String sendPost(String data) throws Exception {
