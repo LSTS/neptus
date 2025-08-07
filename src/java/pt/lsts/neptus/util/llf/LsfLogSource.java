@@ -35,6 +35,7 @@ package pt.lsts.neptus.util.llf;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -138,10 +139,23 @@ public class LsfLogSource implements IMraLogGroup {
         File defsFile1 = new File(f.getParent()+"/IMC.xml");
         File defsFile2 = new File(f.getParent()+"/IMC.xml.gz");
         if(defsFile1.canRead()) {
-            defs = new IMCDefinition(new FileInputStream(defsFile1));
+            try (InputStream is = new FileInputStream(defsFile1)) {
+                defs = new IMCDefinition(is);
+            }
+            catch (Exception e) {
+                // defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
+                throw new Exception(String.format("IMC definition was not loaded correctly.\n(cause: %s).\n" +
+                        "Fix it or try to load with default IMC (delete the IMC on the log folder).", e.getMessage()), e);
+            }
         }
         else if (defsFile2.canRead()) {
-            defs = new IMCDefinition(new GzipCompressorInputStream(new FileInputStream(defsFile2), true));
+            try (InputStream is = new GzipCompressorInputStream(new FileInputStream(defsFile2), true)) {
+                defs = new IMCDefinition(is);
+            } catch (Exception e) {
+                // defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
+                throw new Exception(String.format("IMC definition was not loaded correctly.\n(cause: %s).\n" +
+                        "Fix it or try to load with default IMC (delete the IMC on the log folder).", e.getMessage()), e);
+            }
         }
         else {
             defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
