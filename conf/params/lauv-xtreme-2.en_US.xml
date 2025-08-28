@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (feature/caravel_merge,e7c71caaa)" system="lauv-xtreme-2" i18n="en_US">
+<config format="1" version="2025.08.0 (merge/caravel,4e1241a4b)" modules="merge/caravel,15bcb90" system="lauv-xtreme-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -21,7 +21,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -30,7 +30,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -350,7 +350,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -359,7 +359,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -427,7 +427,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -436,7 +436,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -487,7 +487,16 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>abort,dislodge,dive,errors,info,force,go,help,phone,reboot,sk,start,surface</default>
+      <default>abort,dislodge,dive,errors,info,force,go,help,phone,pos,reboot,sk,start,surface</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Hash">
+      <name-i18n>Hash</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
       <units/>
       <desc/>
     </param>
@@ -513,7 +522,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -522,7 +531,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -722,7 +731,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -731,7 +740,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -773,7 +782,7 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>60.0f</default>
-      <units>m</units>
+      <units>s</units>
       <desc>Timeout for ignoring invalid altitude</desc>
     </param>
     <param name="Altitude Reference Margin">
@@ -982,7 +991,7 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>true</default>
-      <units>m</units>
+      <units/>
       <desc>Force pitching up at the surface</desc>
     </param>
     <param name="Pitch Angle At Surface">
@@ -1201,7 +1210,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1210,7 +1219,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1313,7 +1322,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1322,7 +1331,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1366,6 +1375,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -1375,6 +1386,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -1488,7 +1501,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1497,7 +1510,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1665,7 +1678,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1674,7 +1687,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1948,6 +1961,24 @@
       <units/>
       <desc>Entity label of the Forward Looking Sonar (FLS).</desc>
     </param>
+    <param name="Use Radius To Endpoint">
+      <name-i18n>Use Radius To Endpoint</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use radius to endpoint instead of ETA.</desc>
+    </param>
+    <param name="Radius To Endpoint">
+      <name-i18n>Radius To Endpoint</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Radius around endpoint to consider maneuver as done.</desc>
+    </param>
     <param name="Corridor -- Width">
       <name-i18n>Corridor -- Width</name-i18n>
       <type>real</type>
@@ -2019,7 +2050,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2028,7 +2059,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2122,7 +2153,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2131,7 +2162,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2252,7 +2283,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2261,7 +2292,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2649,15 +2680,6 @@
       <units>m</units>
       <desc>Safe depth change to consider the maneuver was successful</desc>
     </param>
-    <param name="Dislodge -- Safe Depth Gap">
-      <name-i18n>Dislodge -- Safe Depth Gap</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3.0</default>
-      <units>m</units>
-      <desc>Safe depth change to consider the maneuver was successful</desc>
-    </param>
     <param name="ScheduledGoto -- Minimum Speed">
       <name-i18n>ScheduledGoto -- Minimum Speed</name-i18n>
       <type>real</type>
@@ -2779,7 +2801,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2788,7 +2810,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2837,7 +2859,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2846,7 +2868,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2922,7 +2944,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2931,7 +2953,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2975,6 +2997,8 @@
       <default>idle</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -2984,31 +3008,34 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
     <param name="SMS Recipient Number">
       <name-i18n>SMS Recipient Number</name-i18n>
-      <type>string</type>
+      <type>list:string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351913097109</default>
+      <default>+351910012611</default>
       <units/>
-      <desc>Phone number of the SMS recipient</desc>
+      <desc>Phone numbers of the SMS recipients</desc>
+      <min-size>1</min-size>
     </param>
     <param name="Lost Communications Timeout">
       <name-i18n>Lost Communications Timeout</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>300.0</default>
+      <default>300</default>
       <units>s</units>
       <desc>Lost Communications Timeout</desc>
       <min>60.0</min>
@@ -3075,7 +3102,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3084,7 +3111,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3180,7 +3207,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3189,7 +3216,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3216,6 +3243,37 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
   </section>
   <section name="Medium" name-i18n="Medium">
     <param name="Entity Label">
@@ -3238,7 +3296,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3247,7 +3305,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3291,6 +3349,8 @@
       <default>idle</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -3300,6 +3360,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -3456,7 +3518,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3465,7 +3527,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3605,7 +3667,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3614,7 +3676,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3649,6 +3711,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -3658,6 +3722,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -3861,7 +3927,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3870,7 +3936,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3928,7 +3994,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3937,7 +4003,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4085,7 +4151,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4094,7 +4160,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4197,7 +4263,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
@@ -4206,7 +4272,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4241,6 +4307,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -4250,6 +4318,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -4259,6 +4329,45 @@
       <default>1</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -4528,7 +4637,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4537,7 +4646,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -5191,7 +5300,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -5200,7 +5309,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -5321,7 +5430,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>20.0</default>
@@ -5330,7 +5439,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -5365,6 +5474,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -5374,6 +5485,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -5383,6 +5496,45 @@
       <default>1</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -5402,24 +5554,6 @@
       <units>s</units>
       <desc>Input timeout</desc>
       <min>0.0</min>
-    </param>
-    <param name="Power Channel - Names">
-      <name-i18n>Power Channel - Names</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>GPS</default>
-      <units/>
-      <desc>Device's power channels</desc>
-    </param>
-    <param name="Post Power On Delay">
-      <name-i18n>Post Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>Delay on power on before attempts to connect</desc>
     </param>
     <param name="Sentence Order">
       <name-i18n>Sentence Order</name-i18n>
@@ -5713,7 +5847,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>3.0</default>
@@ -5722,7 +5856,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -5754,9 +5888,81 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>idle</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -5766,6 +5972,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6013,7 +6221,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>90</default>
@@ -6022,7 +6230,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>60</default>
@@ -6057,6 +6265,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6066,6 +6276,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6075,6 +6287,45 @@
       <default>false</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (Sidescan)</default>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
     </param>
     <param name="Data Server Port">
       <name-i18n>Data Server Port</name-i18n>
@@ -6184,15 +6435,6 @@
       <units/>
       <desc>This device has an additional bathymetry channel</desc>
     </param>
-    <param name="Power Channel">
-      <name-i18n>Power Channel</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Private (Sidescan)</default>
-      <units/>
-      <desc>Name of sidescan's power channel</desc>
-    </param>
     <param name="Recording Path Prefix">
       <name-i18n>Recording Path Prefix</name-i18n>
       <type>string</type>
@@ -6248,7 +6490,7 @@
       <desc>Log PAUV and GPZDA NMEA sentences as DevDataText IMC messages.</desc>
     </param>
   </section>
-  <section name="DVL" name-i18n="DVL">
+  <section name="DVL" name-i18n="DVL" editor="NortekDVL">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
@@ -6269,7 +6511,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>50.0</default>
@@ -6278,7 +6520,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5.0</default>
@@ -6313,6 +6555,8 @@
       <default>idle</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6322,6 +6566,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6331,6 +6577,45 @@
       <default>false</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (DVL)</default>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -6412,15 +6697,6 @@
       <values>TTLRISE, TTLFALL</values>
       <values-i18n>TTLRISE, TTLFALL</values-i18n>
     </param>
-    <param name="Power Channel">
-      <name-i18n>Power Channel</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Private (DVL)</default>
-      <units/>
-      <desc>Name of device's power channel</desc>
-    </param>
     <param name="Hardware Debug Mode">
       <name-i18n>Hardware Debug Mode</name-i18n>
       <type>boolean</type>
@@ -6452,6 +6728,17 @@
       <min>0.01</min>
       <max>5.0</max>
     </param>
+    <param name="Range">
+      <name-i18n>Range</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units>m</units>
+      <desc>Max value for distance measurements</desc>
+      <min>1.0</min>
+      <max>80</max>
+    </param>
     <param name="Speed of Sound">
       <name-i18n>Speed of Sound</name-i18n>
       <type>real</type>
@@ -6462,11 +6749,20 @@
       <desc>Set speed of sound used. If is 0.0 speed of sound is measured.</desc>
       <min>0.0</min>
     </param>
+    <param name="Current Profiler -- Available">
+      <name-i18n>Current Profiler -- Available</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>false</default>
+      <units/>
+      <desc>Current profiler availability</desc>
+    </param>
     <param name="Current Profiler -- Enabled">
       <name-i18n>Current Profiler -- Enabled</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>idle</scope>
       <default>false</default>
       <units/>
       <desc>Enable current profiler</desc>
@@ -6474,8 +6770,8 @@
     <param name="Current Profiler -- Get At Nth Ping">
       <name-i18n>Current Profiler -- Get At Nth Ping</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>idle</scope>
       <default>20</default>
       <units/>
       <desc>Collect current profiles at each Nth ping (0 to disable)</desc>
@@ -6485,8 +6781,8 @@
     <param name="Current Profiler -- Number of Cells">
       <name-i18n>Current Profiler -- Number of Cells</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>idle</scope>
       <default>10</default>
       <units/>
       <desc>Number of cells available for the current profiler</desc>
@@ -6496,8 +6792,8 @@
     <param name="Current Profiler -- Cell Size">
       <name-i18n>Current Profiler -- Cell Size</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>idle</scope>
       <default>1.0</default>
       <units>m</units>
       <desc>Cell size for the current profiler</desc>
@@ -6507,8 +6803,8 @@
     <param name="Current Profiler -- Blanking Distance">
       <name-i18n>Current Profiler -- Blanking Distance</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>idle</scope>
       <default>0.5</default>
       <units>m</units>
       <desc>Blanking Distance for the current profiler</desc>
@@ -6543,8 +6839,8 @@
       <default>PD0</default>
       <units/>
       <desc>Enable and config data format to additional online data A</desc>
-      <values>PD6, PD0, OFF</values>
-      <values-i18n>PD6, PD0, OFF</values-i18n>
+      <values>PD6, PD0, NORTEK, OFF</values>
+      <values-i18n>PD6, PD0, NORTEK, OFF</values-i18n>
     </param>
     <param name="Additional Stream B">
       <name-i18n>Additional Stream B</name-i18n>
@@ -6554,8 +6850,8 @@
       <default>OFF</default>
       <units/>
       <desc>Enable and config data format to additional online data B</desc>
-      <values>PD6, PD0, OFF</values>
-      <values-i18n>PD6, PD0, OFF</values-i18n>
+      <values>PD6, PD0, NORTEK, OFF</values>
+      <values-i18n>PD6, PD0, NORTEK, OFF</values-i18n>
     </param>
   </section>
   <section name="Navigation" name-i18n="Navigation">
@@ -6579,7 +6875,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6588,7 +6884,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6674,7 +6970,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6683,7 +6979,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6759,7 +7055,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>15</default>
@@ -6768,7 +7064,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6803,6 +7099,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6812,6 +7110,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6821,6 +7121,45 @@
       <default>1</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -6872,7 +7211,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6881,7 +7220,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -6966,7 +7305,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>1</default>
@@ -6975,7 +7314,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7078,7 +7417,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>60</default>
@@ -7087,7 +7426,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
@@ -7105,6 +7444,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -7113,6 +7461,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -7122,6 +7472,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -7155,7 +7507,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Off</default>
+      <default>Strobe</default>
       <units/>
       <desc>Led type mode.</desc>
       <values>Strobe, On, Off</values>
@@ -7202,7 +7554,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>4</default>
+      <default>3</default>
       <units/>
       <desc>Number Frames/s.</desc>
       <min>1</min>
@@ -7251,7 +7603,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>150000</default>
+      <default>100000</default>
       <units/>
       <desc>Strobe Delay in us.</desc>
     </param>
@@ -7260,7 +7612,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>24</default>
+      <default>8</default>
       <units/>
       <desc>Shutter Value time in ms.</desc>
       <min>1</min>
@@ -7297,7 +7649,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7306,7 +7658,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7391,7 +7743,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7400,7 +7752,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7467,6 +7819,26 @@
       <min>1</min>
       <max>600</max>
     </param>
+    <param name="SMS Reports">
+      <name-i18n>SMS Reports</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable SMS system state reporting</desc>
+    </param>
+    <param name="SMS Reports Periodicity">
+      <name-i18n>SMS Reports Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>600</default>
+      <units>s</units>
+      <desc>Reports periodicity</desc>
+      <min>1</min>
+      <max>600</max>
+    </param>
   </section>
   <section name="Slave CPU" name-i18n="Slave CPU">
     <param name="Entity Label">
@@ -7489,7 +7861,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>30</default>
@@ -7498,7 +7870,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
@@ -7533,6 +7905,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -7542,6 +7916,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -7601,7 +7977,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7610,7 +7986,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7695,7 +8071,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7704,7 +8080,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7843,7 +8219,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7852,7 +8228,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7910,7 +8286,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -7919,7 +8295,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8031,7 +8407,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8040,7 +8416,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8116,7 +8492,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8125,7 +8501,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8370,7 +8746,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8379,7 +8755,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8437,7 +8813,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8446,7 +8822,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8531,7 +8907,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8540,7 +8916,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8575,6 +8951,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -8584,6 +8962,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -8601,7 +8981,7 @@
       <scope>global</scope>
       <default>600</default>
       <units>s</units>
-      <desc>Delay between announce update messages. 0 for no updates being sent.</desc>
+      <desc>Delay between device update messages. 0 for no updates being sent.</desc>
     </param>
     <param name="Announce Periodicity">
       <name-i18n>Announce Periodicity</name-i18n>
@@ -8652,7 +9032,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8661,7 +9041,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8696,6 +9076,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -8705,6 +9087,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -8715,23 +9099,23 @@
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyACM0</default>
+      <default>uart:///dev/ttyACM0:19200</default>
       <units/>
-      <desc>Serial port device used to communicate with the modem</desc>
+      <desc>IO Port - Device used to communicate with the modem</desc>
     </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
+    <param name="IO Port - Device 9523">
+      <name-i18n>IO Port - Device 9523</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>19200</default>
+      <default>uart:///dev/ttyACM0:115200</default>
       <units/>
-      <desc>Serial port baud rate</desc>
+      <desc>IO Port - Device used to communicate with the modem</desc>
     </param>
     <param name="Mailbox Check - Periodicity">
       <name-i18n>Mailbox Check - Periodicity</name-i18n>
@@ -8768,15 +9152,6 @@
       <default>false</default>
       <units/>
       <desc/>
-    </param>
-    <param name="Serial Port 9523 - Baud Rate">
-      <name-i18n>Serial Port 9523 - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>115200</default>
-      <units/>
-      <desc>Serial port baud rate for 9523N Module</desc>
     </param>
     <param name="Address Section">
       <name-i18n>Address Section</name-i18n>
@@ -8855,6 +9230,35 @@
       <units/>
       <desc>Monitor Iridium Task Label</desc>
     </param>
+    <param name="Clear Message Queue">
+      <name-i18n>Clear Message Queue</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Clears the message queue</desc>
+    </param>
+    <param name="Max Messages In Queue">
+      <name-i18n>Max Messages In Queue</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Maximum number of messages in queue. 0 means no limit</desc>
+      <min>0</min>
+    </param>
+    <param name="General Monitor Timeout">
+      <name-i18n>General Monitor Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>600.0</default>
+      <units/>
+      <desc>Timeout in seconds for the general monitor</desc>
+      <min>60.0</min>
+    </param>
   </section>
   <section name="Log Book" name-i18n="Log Book">
     <param name="Entity Label">
@@ -8877,7 +9281,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8886,7 +9290,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8935,7 +9339,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -8944,7 +9348,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9012,9 +9416,27 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AcousticLink, AcousticOperation, AcousticRequest, AcousticStatus, AllocatedControlTorques, AlignmentState, Chlorophyll, Conductivity, CurrentProfile, DvlRejection, DissolvedOrganicMatter, DissolvedOxygen, Elevator, Fluorescein, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, MagneticField, PH, Phycocyanin, Phycoerythrin, PopUp, Pressure, Redox, RhodamineDye, Rpm, Salinity, SadcReadings, ServoPosition, SetServoPosition, SetThrusterActuation, SoiCommand, SoiState, SonarData, SoundSpeed, Turbidity, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, WaterDensity, WaterVelocity, YoYo</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AcousticLink, AcousticOperation, AcousticRequest, AcousticStatus, AllocatedControlTorques, AlignmentState, AssetReport, Chlorophyll, Conductivity, CurrentProfile, DvlRejection, DissolvedOrganicMatter, DissolvedOxygen, Elevator, Fluorescein, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, MagneticField, PH, Phycocyanin, Phycoerythrin, PopUp, Pressure, Redox, RhodamineDye, Rpm, Salinity, SadcReadings, ServoPosition, SetServoPosition, SetThrusterActuation, SoiCommand, SoiState, SonarData, SoundSpeed, Turbidity, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
+    </param>
+    <param name="Rate Limiters">
+      <name-i18n>Rate Limiters</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
   </section>
   <section name="SMS" name-i18n="SMS">
@@ -9038,16 +9460,16 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>10</default>
       <units/>
       <desc/>
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9074,95 +9496,163 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyACM1</default>
+      <default>global</default>
       <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>115200</default>
+      <default>developer</default>
       <units/>
-      <desc>Serial port baud rate</desc>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
-    <param name="Reply Timeout">
-      <name-i18n>Reply Timeout</name-i18n>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
-      <units>s</units>
-      <desc>Amount of time to wait for a command reply</desc>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
     </param>
-    <param name="PIN">
-      <name-i18n>PIN</name-i18n>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>uart:///dev/ttyACM1:115200</default>
+      <units/>
+      <desc>IO device URI in the form "uart:///dev/tty[a-zA-Z][0-9]:BAUD" or "uart:///dev/uart/[0-9]:BAUD"</desc>
+    </param>
+    <param name="Time to Check Mailbox in Seconds">
+      <name-i18n>Time to Check Mailbox in Seconds</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>120</default>
+      <units/>
+      <desc>Time to wait before checking mailbox in seconds</desc>
+      <min>30</min>
+    </param>
+    <param name="Maximum Time to Accept SMS in Hours">
+      <name-i18n>Maximum Time to Accept SMS in Hours</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units/>
+      <desc>Maximum time to accept an incoming SMS in Hours</desc>
+      <min>1</min>
+    </param>
+    <param name="PIN Number">
+      <name-i18n>PIN Number</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>PIN Code</desc>
+      <desc>PIN number to unlock the SIM card</desc>
     </param>
-    <param name="RSSI Periodicity">
-      <name-i18n>RSSI Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Periodicity of RSSI reports</desc>
-    </param>
-    <param name="Read SMS Periodicity">
-      <name-i18n>Read SMS Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Periodicity of received SMS checks</desc>
-    </param>
-    <param name="SMS Send Timeout">
-      <name-i18n>SMS Send Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Maximum amount of time to wait for SMS send completion</desc>
-    </param>
-    <param name="USSD code">
-      <name-i18n>USSD code</name-i18n>
+    <param name="Number of Consecutive Errors to Restart Task">
+      <name-i18n>Number of Consecutive Errors to Restart Task</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>123</default>
+      <default>5</default>
       <units/>
-      <desc>USSD code</desc>
+      <desc>Number of consecutive errors to restart the task</desc>
+      <min>2</min>
     </param>
-    <param name="Request Balance">
-      <name-i18n>Request Balance</name-i18n>
+    <param name="Send SMS Text Messages">
+      <name-i18n>Send SMS Text Messages</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable Balance Request</desc>
-    </param>
-    <param name="Balance Periodicity">
-      <name-i18n>Balance Periodicity</name-i18n>
-      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>60</default>
+      <default>true</default>
       <units/>
-      <desc>Balance Periodicity</desc>
+      <desc>Send SMS text messages. If false, only received SMS will be processed without sending any SMS text messages</desc>
     </param>
   </section>
   <section name="SVS to TCP" name-i18n="SVS to TCP">
@@ -9186,7 +9676,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
@@ -9195,7 +9685,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
@@ -9280,7 +9770,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9289,7 +9779,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9401,7 +9891,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9410,7 +9900,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9522,7 +10012,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9531,7 +10021,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9598,7 +10088,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9607,7 +10097,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9740,7 +10230,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9749,7 +10239,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9920,6 +10410,15 @@
       <units/>
       <desc>Optional custom service type (imc+udp+&lt;Custom Service Type&gt;), empty entry gives default service (imc+udp)</desc>
     </param>
+    <param name="Ignore Filter">
+      <name-i18n>Ignore Filter</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Ignore the UDP source message filter.</desc>
+    </param>
   </section>
   <section name="LEDs" name-i18n="LEDs">
     <param name="Entity Label">
@@ -9942,7 +10441,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -9951,7 +10450,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
