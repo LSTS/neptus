@@ -25,7 +25,7 @@ ext {
     copyYears = "2004-${new Date().format('yyyy')}"
     libJNIPaths = ['.']
 
-    jreDownloadVersion = "jdk-11.0.21+9"
+    jreDownloadVersion = "jdk-11.0.28+6"
 
     // optional "gradle.local.properties" file properties
     runUiScale = 1.0 // Default UI scale factor for application task
