@@ -353,10 +353,10 @@
   <protocols-supported>
       <protocols>iridium</protocols>
       <protocols-args>
-        <!--iridium>
-          <imei>300234064800490</imei>
-          <imei1>300234064226880</imei1>
-        </iridium-->
+        <iridium>
+          <imei>300534068640370</imei>
+          <imei1>300534068644360</imei1>
+        </iridium>
       </protocols-args>
     </protocols-supported>
   <communication-means>
