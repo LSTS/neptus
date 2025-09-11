@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2025.08.0 (merge/caravel,1a9c1ae9e)" modules="client/autonaut,0f87efd" system="autonaut-01" i18n="en_US">
+<config format="1" version="2025.08.0 (merge/caravel,1d68b1760)" modules="client/autonaut,7603ea8" system="autonaut-01" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2294,7 +2294,7 @@
       <type>list:string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351912439480</default>
+      <default>+912297429</default>
       <units/>
       <desc>Phone numbers of the SMS recipients</desc>
       <min-size>1</min-size>
@@ -2314,7 +2314,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Both</default>
+      <default>Iridium</default>
       <units/>
       <desc>Desired transmission interface</desc>
       <values>GSM, Iridium, Both</values>
@@ -3562,7 +3562,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPC</default>
+      <default>APC</default>
       <units/>
       <desc>Name of secondary preferred GPS navigation unit.</desc>
     </param>
@@ -4072,7 +4072,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>uart:///dev/ttyUSB1:115200</default>
+      <default>uart:///dev/ttyS2:115200</default>
       <units/>
       <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
@@ -4300,9 +4300,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (CPU-AUX)</default>
+      <default>CPU-AUX</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
+    </param>
+    <param name="Power Channel 2 Turn On">
+      <name-i18n>Power Channel 2 Turn On</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Power Channel State</desc>
     </param>
     <param name="Power Channel 2 Max Current" editable="false">
       <name-i18n>Power Channel 2 Max Current</name-i18n>
@@ -4494,7 +4503,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LIDB_1_C</default>
+      <default>IRIDIUM_1_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4523,7 +4532,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LIDB_2_C</default>
+      <default>IRIDIUM_2_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4581,7 +4590,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GPS_C</default>
+      <default>GNSS_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4610,7 +4619,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AIRMAIR_C</default>
+      <default>AIRMAR_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4851,7 +4860,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -4871,7 +4880,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VBAT_C</default>
+      <default>HC2A_CONVERTER_SERIAL_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4880,7 +4889,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -4990,7 +4999,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VBAT_D</default>
+      <default>HC2A_CONVERTER_SERIAL_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4999,7 +5008,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GPS_D</default>
+      <default>GNSS_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -5017,7 +5026,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LIDB_2_D</default>
+      <default>IRIDIUM_2_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -5026,7 +5035,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LIDB_1_D</default>
+      <default>IRIDIUM_1_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -5080,7 +5089,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AIRMAIR_D</default>
+      <default>AIRMAR_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -5249,7 +5258,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LIDB_1_C</default>
+      <default>IRIDIUM_1_C</default>
       <units/>
       <desc>Entity Label for the Iridium 1</desc>
     </param>
@@ -5258,7 +5267,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LIDB_2_C</default>
+      <default>IRIDIUM_2_C</default>
       <units/>
       <desc>Entity Label for the Iridium 2</desc>
     </param>
@@ -5272,6 +5281,307 @@
       <desc>System to Jump.</desc>
       <values>None, CPU1, CPU2, APC</values>
       <values-i18n>None, CPU1, CPU2, APC</values-i18n>
+    </param>
+  </section>
+  <section name="ADAM6017" name-i18n="ADAM6017">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ADAM6017</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration">
+      <name-i18n>Sample Time Duration</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration - Visibility">
+      <name-i18n>Sample Time Duration - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Sample Time Duration - Scope">
+      <name-i18n>Sample Time Duration - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling">
+      <name-i18n>Periodicity of Data Sampling</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>s</units>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling - Visibility">
+      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling - Scope">
+      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="IPV4 Address" editable="false">
+      <name-i18n>IPV4 Address</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>192.168.1.195</default>
+      <units/>
+      <desc>IPV4 address of the ADAM6017 device.</desc>
+      <size>1</size>
+    </param>
+    <param name="TCP Port" editable="false">
+      <name-i18n>TCP Port</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>502</default>
+      <units/>
+      <desc>TCP port of the ADAM6017 device.</desc>
+      <min>0</min>
+      <size>1</size>
+    </param>
+    <param name="Analog Input Channel 0 Range" editable="false">
+      <name-i18n>Analog Input Channel 0 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4~20 mA</default>
+      <units/>
+      <desc>Analog Input range of channel 0.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 1 Range" editable="false">
+      <name-i18n>Analog Input Channel 1 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 1.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 2 Range" editable="false">
+      <name-i18n>Analog Input Channel 2 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 2.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 3 Range" editable="false">
+      <name-i18n>Analog Input Channel 3 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 3.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 4 Range" editable="false">
+      <name-i18n>Analog Input Channel 4 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 4.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 5 Range" editable="false">
+      <name-i18n>Analog Input Channel 5 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 5.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 6 Range" editable="false">
+      <name-i18n>Analog Input Channel 6 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 6.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
+    </param>
+    <param name="Analog Input Channel 7 Range" editable="false">
+      <name-i18n>Analog Input Channel 7 Range</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>disabled</default>
+      <units/>
+      <desc>Analog Input range of channel 7.</desc>
+      <values>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values>
+      <values-i18n>disabled, +-150 mV, +-500 mV, +-1 V, +-5 V, +-10 V, 0~150 mV, 0~500 mV, 0~1 V,0~5 V, 0~10 V, 0~20 mA, 4~20 mA, +-20 mA</values-i18n>
     </param>
   </section>
   <section name="AIS" name-i18n="AIS">
@@ -5358,7 +5668,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>true</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
@@ -5547,456 +5857,6 @@
       <desc>Add messages received to logs</desc>
     </param>
   </section>
-  <section name="AirMar120WX" name-i18n="AirMar120WX">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>AirMar120WX</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3.0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Loopback Internal Messages">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>developer</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Power Channel - Names">
-      <name-i18n>Power Channel - Names</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>AIRMAR_C</default>
-      <units/>
-      <desc>Device's power channels</desc>
-    </param>
-    <param name="Power On Delay">
-      <name-i18n>Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering on the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Power Off Delay">
-      <name-i18n>Power Off Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering off the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Post Power On Delay">
-      <name-i18n>Post Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units/>
-      <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="IO Port - Device">
-      <name-i18n>IO Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>uart:///dev/ttyS8:4800</default>
-      <units/>
-      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
-    </param>
-    <param name="Input Timeout">
-      <name-i18n>Input Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>7.0</default>
-      <units>s</units>
-      <desc>Input timeout</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Angle offset">
-      <name-i18n>Angle offset</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units>°</units>
-      <desc>Angle offset for relative wind</desc>
-    </param>
-  </section>
-  <section name="Fluorometers" name-i18n="Fluorometers">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Fluorometers</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Loopback Internal Messages">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Power Channel - Names">
-      <name-i18n>Power Channel - Names</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>ECHOTRIP_C</default>
-      <units/>
-      <desc>Device's power channels</desc>
-    </param>
-    <param name="Power On Delay">
-      <name-i18n>Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering on the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Power Off Delay">
-      <name-i18n>Power Off Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering off the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Post Power On Delay">
-      <name-i18n>Post Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration - Visibility">
-      <name-i18n>Sample Time Duration - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Sample Time Duration - Scope">
-      <name-i18n>Sample Time Duration - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>80</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling - Visibility">
-      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling - Scope">
-      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="IO Port - Device">
-      <name-i18n>IO Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>uart:///dev/ttyS11:19200</default>
-      <units/>
-      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
-    </param>
-    <param name="Input Timeout">
-      <name-i18n>Input Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc>Amount of seconds to wait for data before reporting an error</desc>
-      <min>2.0</min>
-    </param>
-    <param name="Device Serial Number">
-      <name-i18n>Device Serial Number</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>BBFL2W-8379</default>
-      <units/>
-      <desc>Device's serial number. Required to check communication with device.</desc>
-    </param>
-    <param name="CDOM -- Dark Counts">
-      <name-i18n>CDOM -- Dark Counts</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>62</default>
-      <units/>
-      <desc>Signal output of the meter in clean water with black tape over detector</desc>
-    </param>
-    <param name="CDOM -- Scale Factor">
-      <name-i18n>CDOM -- Scale Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0916</default>
-      <units/>
-      <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
-    </param>
-    <param name="Chlorophyll -- Dark Counts">
-      <name-i18n>Chlorophyll -- Dark Counts</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>49</default>
-      <units/>
-      <desc>Signal output of the meter in clean water with black tape over detector</desc>
-    </param>
-    <param name="Chlorophyll -- Scale Factor">
-      <name-i18n>Chlorophyll -- Scale Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0073</default>
-      <units/>
-      <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
-    </param>
-    <param name="Turbidity -- Dark Counts">
-      <name-i18n>Turbidity -- Dark Counts</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>51</default>
-      <units/>
-      <desc>Signal output of the meter in clean water with black tape over detector</desc>
-    </param>
-    <param name="Turbidity -- Scale Factor">
-      <name-i18n>Turbidity -- Scale Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0024</default>
-      <units/>
-      <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
-    </param>
-  </section>
   <section name="Wind Sensor FT742" name-i18n="Wind Sensor FT742">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -6160,7 +6020,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>uart:///dev/ttyUSB1:9600</default>
+      <default>uart:///dev/ttyS11:9600</default>
       <units/>
       <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
@@ -6181,6 +6041,201 @@
       <default>600</default>
       <units>s</units>
       <desc>Input timeout</desc>
+    </param>
+  </section>
+  <section name="H2CA Sensor" name-i18n="H2CA Sensor">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>H2CA Sensor</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>uart:///dev/ttyS7:19200</default>
+      <units/>
+      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
+    </param>
+    <param name="Angle offset">
+      <name-i18n>Angle offset</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>°</units>
+      <desc>Angle offset for relative wind</desc>
+    </param>
+    <param name="Input Timeout">
+      <name-i18n>Input Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Input timeout</desc>
+    </param>
+    <param name="Data Sampling Periodicity">
+      <name-i18n>Data Sampling Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>s</units>
+      <desc>Time between data requests</desc>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
@@ -6315,7 +6370,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>uart:///dev/ttyS9:19200</default>
+      <default>uart:///dev/ttyS9:38400</default>
       <units/>
       <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
@@ -6334,7 +6389,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GPGGA, GPROT</default>
+      <default>GPGGA, GPGLL, GPGNS, HCHDG, GPRMC</default>
       <units/>
       <desc>Sentence order</desc>
     </param>
@@ -6868,7 +6923,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>uart:///dev/ttyUSB0:115200</default>
+      <default>uart:///dev/ttyS1:115200</default>
       <units/>
       <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
@@ -7242,581 +7297,6 @@
       <desc>Enable System Parameters Output.</desc>
     </param>
   </section>
-  <section name="ADCP" name-i18n="ADCP">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>ADCP</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Loopback Internal Messages">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>false</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Power Channel - Names">
-      <name-i18n>Power Channel - Names</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>Device's power channels</desc>
-    </param>
-    <param name="Power On Delay">
-      <name-i18n>Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering on the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Power Off Delay">
-      <name-i18n>Power Off Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering off the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Post Power On Delay">
-      <name-i18n>Post Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units/>
-      <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration - Visibility">
-      <name-i18n>Sample Time Duration - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Sample Time Duration - Scope">
-      <name-i18n>Sample Time Duration - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>80</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling - Visibility">
-      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling - Scope">
-      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="IO Port - Device">
-      <name-i18n>IO Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>uart:///dev/ttyUSB1:115200</default>
-      <units/>
-      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
-    </param>
-    <param name="Correlation Threshold for Vertical Profile">
-      <name-i18n>Correlation Threshold for Vertical Profile</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>50</default>
-      <units/>
-      <desc>Correlation threshold for a sample to be considered for the Vertical Profile. If the measurement correlation is lower than this threshold, the sample won't be considered for the Vertical Profile. If value is greater than 100, the correlation threshold won't be considered.</desc>
-    </param>
-    <param name="Distance Threshold for Vertical Profile">
-      <name-i18n>Distance Threshold for Vertical Profile</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1.0</default>
-      <units/>
-      <desc>Max difference threshold for a sample to be considered for the Vertical Profile. If the measurement depth minus the measured altitude is greater than this threshold, the sample won't be considered for the Vertical Profile. If value is negative, the distance threshold won't be considered.</desc>
-    </param>
-    <param name="Initialization String 0 - Command">
-      <name-i18n>Initialization String 0 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETDEFAULT,ALL</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 1 - Command">
-      <name-i18n>Initialization String 1 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETPLAN,MIAVG=1,AVG=1,DIAVG=0,VD=0,MV=10,SA=35,BURST=1,MIBURST=3600,DIBURST=0,SV=0,FN="RAWDATA.ad2cp",SO=0,FREQ=500,NSTT=0\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 2 - Command">
-      <name-i18n>Initialization String 2 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETAVG,NC=16,CS=4,BD=1.0,CY="ENU",PL=0,AI=1,VP=0.000,VR=5.0,DF=3,NPING=3,NB=4,CH=0,MUX=0,BW="NARROW",ALTI=1,BT=0,ICE=0,ALTISTART=0.5,ALTIEND=70,RAWALTI=60\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 3 - Command">
-      <name-i18n>Initialization String 3 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETTMAVG,EN=1,CD=1,PD=1,AVG=1,TV=1,TA=1,TC=1,CY="ENU",FO=0,SO=1,DF=3,DISTILT=0,TPG=1,MAPBINS=0\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 4 - Command">
-      <name-i18n>Initialization String 4 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETTMALTI,EN=1,TS=1,TQ=1,FO=0,SO=1,DF=200,TPR=0\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 5 - Command">
-      <name-i18n>Initialization String 5 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETTMBURST,EN=0,NS=1,SO=0,FO=0,DF=3,ENAVG=0,CY="ENU",MAPBINS=0\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 6 - Command">
-      <name-i18n>Initialization String 6 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SETINST,BR=115200,RS=232,LED="ON",ORIENT="ZDOWN",CMTOUT=300,DMTOUT=60,CFMTOUT=60\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 7 - Command">
-      <name-i18n>Initialization String 7 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SAVE,ALL\r\n</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 8 - Command">
-      <name-i18n>Initialization String 8 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 9 - Command">
-      <name-i18n>Initialization String 9 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-  </section>
-  <section name="Dissolved Oxygen" name-i18n="Dissolved Oxygen">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Dissolved Oxygen</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Loopback Internal Messages">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Power Channel - Names">
-      <name-i18n>Power Channel - Names</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>OXYGEN_C</default>
-      <units/>
-      <desc>Device's power channels</desc>
-    </param>
-    <param name="Power On Delay">
-      <name-i18n>Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units/>
-      <desc>Delay before powering on the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Power Off Delay">
-      <name-i18n>Power Off Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay before powering off the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Post Power On Delay">
-      <name-i18n>Post Power On Delay</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration - Visibility">
-      <name-i18n>Sample Time Duration - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Sample Time Duration - Scope">
-      <name-i18n>Sample Time Duration - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>80</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling - Visibility">
-      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling - Scope">
-      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="IO Port - Device">
-      <name-i18n>IO Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>uart:///dev/ttyS7:9600</default>
-      <units/>
-      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
-    </param>
-    <param name="Measurement String Identifier">
-      <name-i18n>Measurement String Identifier</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>4835</default>
-      <units/>
-      <desc>Measurement command string identifier</desc>
-    </param>
-    <param name="Entity Label - Temperature">
-      <name-i18n>Entity Label - Temperature</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CTD</default>
-      <units/>
-      <desc>Entity label of the CTD</desc>
-    </param>
-    <param name="Entity Label - Depth">
-      <name-i18n>Entity Label - Depth</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CTD</default>
-      <units/>
-      <desc>Entity label of the CTD</desc>
-    </param>
-    <param name="Entity Label - Salinity">
-      <name-i18n>Entity Label - Salinity</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CTD</default>
-      <units/>
-      <desc>Entity label of the CTD</desc>
-    </param>
-    <param name="Data rate">
-      <name-i18n>Data rate</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units>Hz</units>
-      <desc>Data Acquisition Rate.</desc>
-    </param>
-  </section>
   <section name="CTD" name-i18n="CTD">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -7841,7 +7321,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0</default>
+      <default>5</default>
       <units/>
       <desc/>
     </param>
@@ -7910,7 +7390,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CTD_C</default>
+      <default/>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -7919,7 +7399,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>0.0</default>
       <units/>
       <desc>Delay before powering on the device</desc>
       <min>0.0</min>
@@ -7944,133 +7424,181 @@
       <desc>Delay after powering up the device</desc>
       <min>0.0</min>
     </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration - Visibility">
-      <name-i18n>Sample Time Duration - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Sample Time Duration - Scope">
-      <name-i18n>Sample Time Duration - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling - Visibility">
-      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling - Scope">
-      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
-      <min>0.0</min>
-    </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>uart:///dev/ttyS5:115200</default>
+      <default>uart:///dev/ttyS5:9600</default>
       <units/>
       <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
-    <param name="Sample Period (ms)">
-      <name-i18n>Sample Period (ms)</name-i18n>
+    <param name="Number of Samples to Average">
+      <name-i18n>Number of Samples to Average</name-i18n>
       <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>8</default>
+      <units/>
+      <desc>Number of samples to average and output data</desc>
+      <min>1</min>
+      <max>255</max>
+    </param>
+    <param name="Zero Conductivity Frequency">
+      <name-i18n>Zero Conductivity Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2780</default>
+      <units>Hz</units>
+      <desc>Minimum conductivity frequency (Hz) to enable pump turn-on, to prevent pump from turning on before FastCAT is in water. Pump stops when frequency drops below value. FastCAT Configuration Sheet in manual lists uncorrected (raw) frequency output at 0 conductivity. Typical value (factory-set) for salt water and estuarine application is:     (0 conductivity frequency + 500 Hz). Typical value for fresh water applications is:     (0 conductivity frequency + 5 Hz)</desc>
+    </param>
+    <param name="Minimum Conductivity Frequency">
+      <name-i18n>Minimum Conductivity Frequency</name-i18n>
+      <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>125</default>
-      <units>ms</units>
-      <desc>Sample Period in milliseconds</desc>
+      <default>500</default>
+      <units>Hz</units>
+      <desc>Minimum conductivity frequency (Hz) to enable pump turn-on, to prevent pump from turning on before FastCAT is in water. Pump stops when frequency drops below value. FastCAT Configuration Sheet in manual lists uncorrected (raw) frequency output at 0 conductivity. Typical value (factory-set) for salt water and estuarine application is:     (0 conductivity frequency + 500 Hz). Typical value for fresh water applications is:     (0 conductivity frequency + 5 Hz)</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Pump Delay">
+      <name-i18n>Pump Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>s</units>
+      <desc>Time to wait after minimum conductivity frequency is reached before turning pump on. Pump delay time allows time for tubing and pump to fill with water after FastCAT is submerged.</desc>
+    </param>
+    <param name="Process In Real-Time">
+      <name-i18n>Process In Real-Time</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Apply alignment, filtering, and conductivity cell thermal mass corrections to real-time data.</desc>
+    </param>
+    <param name="Time to Advance Temperature">
+      <name-i18n>Time to Advance Temperature</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0625</default>
+      <units>s</units>
+      <desc>Time to advance temperature data relative to conductivity and pressure data.</desc>
+      <min>0.0</min>
+      <max>0.125</max>
+    </param>
+    <param name="Conductivity Alpha Correction">
+      <name-i18n>Conductivity Alpha Correction</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.03</default>
+      <units/>
+      <desc>Conductivity cell thermal mass alpha correction.</desc>
+      <min>0.02</min>
+      <max>0.05</max>
+    </param>
+    <param name="Conductivity Tau Correction">
+      <name-i18n>Conductivity Tau Correction</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.0</default>
+      <units/>
+      <desc>Conductivity cell thermal mass tau correction.</desc>
+      <min>5.0</min>
+      <max>10.0</max>
+    </param>
+    <param name="Automatic Activation">
+      <name-i18n>Automatic Activation</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>true</default>
+      <units/>
+      <desc>Operator is able to control device</desc>
     </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc>Input timeout in seconds. Must be greater than 2*Sample Time Duration</desc>
+      <default>30</default>
+      <units>s</units>
+      <desc>Input timeout</desc>
     </param>
-    <param name="Medium Threshold">
-      <name-i18n>Medium Threshold</name-i18n>
+  </section>
+  <section name="TPTLRa" name-i18n="TPTLRa">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>TPTLRa</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.2</default>
+      <default>0</default>
       <units/>
-      <desc>Medium conductivity threshold.</desc>
+      <desc/>
     </param>
-    <param name="Medium Periodicity">
-      <name-i18n>Medium Periodicity</name-i18n>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>0</default>
       <units/>
-      <desc>Medium dispatch periodicity.</desc>
+      <desc/>
     </param>
-    <param name="Dispatch Medium">
-      <name-i18n>Dispatch Medium</name-i18n>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
+      <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
-      <desc>Dispatch VehicleMedium message.</desc>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Current Entity Label" editable="false">
+      <name-i18n>Current Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ADAM6017 - Channel 0</default>
+      <units/>
+      <desc>Entity label of Current messages.</desc>
+      <size>1</size>
     </param>
   </section>
   <section name="Thermal Zone" name-i18n="Thermal Zone">
@@ -9687,7 +9215,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc/>
     </param>
@@ -9954,7 +9482,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed, MessagePartControl, WaveSpectrumParameters</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, RelativeHumidity, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed, MessagePartControl, WaveSpectrumParameters</default>
       <units/>
       <desc/>
     </param>
@@ -10138,7 +9666,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, Current, CpuUsage, DevCalibrationControl, DevCalibrationState, DesiredHeading, DesiredHeadingRate, DesiredSpeed, Distance, EntityList, EntityParameters, EntityState, EstimatedState, EulerAngles, FollowRefState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, LogBookControl, ManeuverDone, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, RSSI, SimulatedState, SmsRequest, SmsStatus, StateReport, StorageUsage, TCPRequest, TCPStatus, Temperature, Teleoperation, TeleoperationDone, TextMessage, TransmissionRequest, TransmissionStatus, TrexObservation, TrexOperation, TrexToken, TrexPlan, UamTxFrame, UamRxFrame, UamTxStatus, UamRxRange, VehicleMedium, VehicleState, Voltage, AbsoluteWind, AisInfo, ArmingState, CurrentProfile, Displacement, ENCAwareness, Frequency, MagneticField, Rpm, ServoPosition, SetServoPosition, SetThrusterActuation, AisInfo, RemoteSensorInfo, DevDataText</default>
+      <default>Acceleration, AngularVelocity, Current, CpuUsage, DevCalibrationControl, DevCalibrationState, DesiredHeading, DesiredHeadingRate, DesiredSpeed, Distance, EntityList, EntityParameters, EntityState, EstimatedState, EulerAngles, FollowRefState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, LogBookControl, ManeuverDone, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, RSSI, SimulatedState, SmsRequest, SmsStatus, StateReport, StorageUsage, TCPRequest, TCPStatus, Temperature, Teleoperation, TeleoperationDone, TextMessage, TransmissionRequest, TransmissionStatus, TrexObservation, TrexOperation, TrexToken, TrexPlan, UamTxFrame, UamRxFrame, UamTxStatus, UamRxRange, VehicleMedium, VehicleState, Voltage, AbsoluteWind, AisInfo, ArmingState, CurrentProfile, Displacement, ENCAwareness, Frequency, MagneticField, Rpm, RelativeHumidity, ServoPosition, SetServoPosition, SetThrusterActuation, AisInfo, RemoteSensorInfo, DevDataText</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
