@@ -195,7 +195,7 @@ public class ReflectionUtil {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn("Error finding maneuvers found :: {}", e.getMessage());
         }
         return maneuvers;
     }
@@ -217,7 +217,7 @@ public class ReflectionUtil {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn("No plan templates found :: {}", e.getMessage());
         }
 
         return templates.toArray(new Class<?>[0]);
