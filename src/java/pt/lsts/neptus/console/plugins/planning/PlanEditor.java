@@ -182,6 +182,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         MissionChangeListener, ConfigurationListener {
 
+    public static boolean exposePlanTemplatesA = true;
+
     private static final long serialVersionUID = 1L;
     private final String defaultCondition = "ManeuverIsDone";
     private MissionType mission = null;
@@ -2515,13 +2517,20 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public void initSubPanel() {
         this.mission = getConsole().getMission();
 
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."), ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
+        if (exposePlanTemplatesA) {
+            addMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."), ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    new PlanTemplatesDialog(getConsole()).showDialog();
+                }
+            });
+        }
+    }
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new PlanTemplatesDialog(getConsole()).showDialog();
-            }
-        });
+    @Override
+    public void cleanSubPanel() {
+        super.cleanSubPanel();
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."));
     }
 
     public void updateSelected(Maneuver m) {
