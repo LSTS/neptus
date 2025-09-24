@@ -364,8 +364,8 @@ project(':core') {
     }
 
     dependencies {
-        implementation name: 'libimc-5.90.6'
-        implementation name: 'libimcsender-5.90.6'
+        implementation name: 'libimc-5.90.7'
+        implementation name: 'libimcsender-5.90.7'
 
         implementation name: 'aisparser-2.0.0'
         implementation name: 'jssc' //dependency of aisparser, and serial port reader
