@@ -91,47 +91,28 @@ public class LsfLogSource implements IMraLogGroup {
             throw(new IOException());
         
         if (f.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
-            GzipCompressorInputStream mmgis = new GzipCompressorInputStream(new FileInputStream(f), true);
-            File outFile = new File(f.getAbsolutePath().replaceAll("\\.gz$", ""));
-            if (!outFile.exists()) {
-                outFile.createNewFile();
-            }
-            try {
+            try (GzipCompressorInputStream mmgis = new GzipCompressorInputStream(new FileInputStream(f), true)) {
+                File outFile = new File(f.getAbsolutePath().replaceAll("\\.gz$", ""));
+                if (!outFile.exists()) {
+                    outFile.createNewFile();
+                }
+
                 StreamUtil.copyStreamToFile(mmgis, outFile);
                 f = outFile;
-            }
-            catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            finally {
-                try {
-                    mmgis.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         else if (f.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)) {
-            BZip2CompressorInputStream mmgis = new BZip2CompressorInputStream(new FileInputStream(f), true);
-            File outFile = new File(f.getAbsolutePath().replaceAll("\\.bz2$", ""));
-            if (!outFile.exists()) {
-                outFile.createNewFile();
-            }
-            try {
+            try (BZip2CompressorInputStream mmgis = new BZip2CompressorInputStream(new FileInputStream(f), true)) {
+                File outFile = new File(f.getAbsolutePath().replaceAll("\\.bz2$", ""));
+                if (!outFile.exists()) {
+                    outFile.createNewFile();
+                }
                 StreamUtil.copyStreamToFile(mmgis, outFile);
                 f = outFile;
-            }
-            catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            finally {
-                try {
-                    mmgis.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
