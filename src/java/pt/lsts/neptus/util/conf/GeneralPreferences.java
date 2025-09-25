@@ -303,16 +303,6 @@ public class GeneralPreferences implements PropertiesProvider {
 
     // -------------------------------------------------------------------------
 
-    @Deprecated
-    @NeptusProperty(name = "AIS MMSI Query Prefix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
-    public static String aisMmsiQueryUrlPrefix = "http://api.ais.owm.io/1.2/vessels/";
-
-    @Deprecated
-    @NeptusProperty(name = "AIS MMSI Query Sufix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
-    public static String aisMmsiQueryUrlSufix = ".json?api_key=f7a0da8eacb49740eb45b5e74d130459";
-    
-    // -------------------------------------------------------------------------
-
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
 

@@ -67,7 +67,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.odss.track.PlatformReportType;
 import pt.lsts.neptus.plugins.odss.track.PlatformReportType.PlatformType;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.util.AISMmsiUtil;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.DateTimeUtil;
 
@@ -565,7 +564,7 @@ public class OdssRabbitMQTrackFetcher extends ConsolePanel implements IPeriodicU
                             
                             String name = pr.getName();
                             if (pr.hasMmsi() && pr.getName().equalsIgnoreCase("" + pr.getMmsi())) {
-                                String nameFromMmsi = AISMmsiUtil.queryNameFromMmsi(pr.getMmsi());
+                                String nameFromMmsi = null; //AISMmsiUtil.queryNameFromMmsi(pr.getMmsi());
                                 if (nameFromMmsi != null && !nameFromMmsi.isEmpty())
                                     name = nameFromMmsi;
                             }
