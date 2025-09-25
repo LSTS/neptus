@@ -378,6 +378,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         updateTransStateEDT(mission, mainVehicleId, console);
         // Set the right nodes as selected
         setSelectedNodes(selectedNodes);
+        setHideTransponder(isHideTransponder()); // We need this here for proper display if hiding transponders
     }
 
     private TreeMap<String, PlanType> getLocalPlans(final MissionType mission) {
