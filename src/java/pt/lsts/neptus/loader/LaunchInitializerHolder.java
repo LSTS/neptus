@@ -34,7 +34,6 @@ package pt.lsts.neptus.loader;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.Loader;
-import pt.lsts.neptus.loader.autonaut.AutonautConsole;
 
 import java.util.LinkedHashMap;
 import java.util.Objects;
@@ -50,10 +49,10 @@ public class LaunchInitializerHolder {
     }
 
     public void registerLauncher(String key, String name, Runnable launcher) {
-        NeptusMain.registerLauncher("au", "Autonaut Console", launcher);
+        NeptusMain.registerLauncher(key, name, launcher);
     }
 
     public void setDefaultApp(String key) {
-        NeptusMain.defaultApp = "au";
+        NeptusMain.defaultApp = key;
     }
 }
