@@ -372,7 +372,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         if (destination == null)
             return false;
         ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(destination);
-        if (sysL != null && !sysL.isActive()) {
+        if (sysL != null && !sysL.isActiveWifi()) {
             if (onlyWifi)
                 return false; // do not send via Iridium if onlyWifi is true
 
