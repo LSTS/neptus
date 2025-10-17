@@ -13,3 +13,13 @@ file("$rootDir").listFiles({file ->
         project(":${dir.name}").projectDir = dir
     }
 }
+
+file("$rootDir").listFiles({file ->
+    file.isDirectory() && file.name ==~ 'srcAux.*'} as FileFilter).each {
+    it.eachDir { dir ->
+        if (dir.name.startsWith(".")) return
+
+        include dir.name
+        project(":${dir.name}").projectDir = dir
+    }
+}
