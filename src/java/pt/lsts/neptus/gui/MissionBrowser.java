@@ -168,6 +168,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     public void setHideTransponder(boolean hideTransponder) {
         treeModel.setHideTransponder(hideTransponder);
+        if (!hideTransponder) {
+            elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
+        }
+        elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
     }
     
     /**
@@ -374,11 +378,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         TreeMap<String, PlanType> localPlans = getLocalPlans(mission);
-        updatePlansStateEDT(localPlans, mainVehicleId);
         updateTransStateEDT(mission, mainVehicleId, console);
+        setHideTransponder(isHideTransponder()); // We need this here for proper display if hiding transponders
+        updatePlansStateEDT(localPlans, mainVehicleId);
         // Set the right nodes as selected
         setSelectedNodes(selectedNodes);
-        setHideTransponder(isHideTransponder()); // We need this here for proper display if hiding transponders
     }
 
     private TreeMap<String, PlanType> getLocalPlans(final MissionType mission) {
