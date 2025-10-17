@@ -8,7 +8,7 @@ plugins {
     id 'java' //apply false
     id 'application'
     id 'distribution'
-    id "com.gorylenko.gradle-git-properties" version "2.3.2"
+    id "com.gorylenko.gradle-git-properties" version "2.5.3"
     id "com.github.langmo.gradlensis" version "0.1.0"
     id "de.undercouch.download" version "4.1.2"
 
