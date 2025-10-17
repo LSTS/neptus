@@ -466,7 +466,8 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     loc.setLatitudeDegs(latDeg);
                     loc.setLongitudeDegs(lonDeg);
 
-                    resSys.setLocation(loc, timeMillis);
+                    // Commented out because it doesn't guarantee the time is correct if coming from sat comms
+                    //resSys.setLocation(loc, timeMillis);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
