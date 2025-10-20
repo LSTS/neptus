@@ -68,6 +68,7 @@ import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.lica.LicaMgmt;
 import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
@@ -199,6 +200,9 @@ public class ConfigFetch {
      * @param configFile Configuration file name
      */
     private ConfigFetch(String configFile) {
+        LicaMgmt lis = new LicaMgmt();
+        lis.checkAndLoad();
+
         // Set Environment
         if (ConfigFetch.class.getResource("/version.txt").toString().startsWith("jar:")) {
             runEnvironment = Environment.PRODUCTION;
