@@ -467,7 +467,10 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     loc.setLongitudeDegs(lonDeg);
 
                     // Commented out because it doesn't guarantee the time is correct if coming from sat comms
-                    //resSys.setLocation(loc, timeMillis);
+                    if (resSys.typeVehicle == VehicleType.VehicleTypeEnum.USV) {
+                        // Allow for USVs only
+                        resSys.setLocation(loc, timeMillis);
+                    }
                 }
                 catch (Exception e) {
                     e.printStackTrace();
