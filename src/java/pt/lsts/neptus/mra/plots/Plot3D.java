@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -335,9 +336,11 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     @Override
     public void onHide() {
         super.onHide();
-        chart.stopAnimator();
-        chart.clear();
-        chart.dispose();
+        if (chart != null) {
+            chart.stopAnimator();
+            chart.clear();
+            chart.dispose();
+        }
         removeAll();
         chart = null;
     }
@@ -345,12 +348,17 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     @Override
     public void onShow() {
         super.onShow();
-        addChart();
-        if (super.panel != null) {
-            for (LogMarker m : super.panel.getMarkers())
-                addLogMarker(m);
+        try {
+            addChart();
+            if (super.panel != null) {
+                for (LogMarker m : super.panel.getMarkers())
+                    addLogMarker(m);
+            }
+            add(createToolbar(), BorderLayout.SOUTH);
+        } catch (Error | Exception e) {
+            add(new JLabel("<html><div style=\"color: red;\">" + "Error loading: " + e.getMessage() + "</div></html>"), BorderLayout.SOUTH);
+            e.printStackTrace();
         }
-        add(createToolbar(), BorderLayout.SOUTH);        
     }
 
     @Override
