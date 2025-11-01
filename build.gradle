@@ -1303,7 +1303,7 @@ nsis {
 }
 
 def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
-    return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
+    return rootProject.tasks.register("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
         description = "Generate $distName Windows installer"
         group = 'Distribution'
 
