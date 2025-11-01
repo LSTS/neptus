@@ -808,8 +808,11 @@ configure(subprojects.findAll { it.name != 'core' }) {
 
         dependsOn configurations.runtimeClasspath
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+        def projectRuntimeClasspath = project.configurations.runtimeClasspath
+        def coreRuntimeClasspath = project(':core').sourceSets.main.runtimeClasspath
         from {
-            (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
+            (projectRuntimeClasspath - coreRuntimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
 
