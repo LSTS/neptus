@@ -10,7 +10,7 @@ plugins {
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
     id "com.github.langmo.gradlensis" version "0.1.0"
-    id "de.undercouch.download" version "4.1.2"
+    id "de.undercouch.download" version "5.6.0"
 
     id "eclipse"
 }
@@ -1154,7 +1154,7 @@ def createDownloadJre(String os, String arch) {
 
         doLast {
             if (!file("${jreFile}").exists()) {
-                download {
+                download.run {
                     src "https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-${jreVersionNumUrl}?architecture=${arch.toLowerCase()}&heap_size=normal&image_type=jre&os=${os.toLowerCase()}&project=jdk"
                     dest metaInfoFile
                     overwrite true
@@ -1163,12 +1163,12 @@ def createDownloadJre(String os, String arch) {
                 def downloadJreUrlSha256 = json.binaries.package.checksum[0]
                 def downloadJreUrl = json.binaries.package.link[0]
                 file("${sha256InfoFile}").text = "${downloadJreUrlSha256}  ${outJreFileName}"
-                download {
+                download.run {
                     src "${downloadJreUrl}"
                     dest jreFileTmp
                     overwrite true
                 }
-                verifyChecksum {
+                verifyChecksum.run {
                     src new File("${jreFileTmp}")
                     algorithm 'SHA-256'
                     checksum "${downloadJreUrlSha256}"
