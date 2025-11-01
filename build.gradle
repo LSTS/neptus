@@ -834,7 +834,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
 task buildJars {
     description = "Generate $rootProject.name and plugins"
     group = 'Build'
-    dependsOn jar, subprojects.findAll().collect {it.tasks.withType(Jar).collect{it}}
+    dependsOn jar, subprojects.findAll().collect { it.tasks.withType(Jar).collect { it } }
 }
 run.dependsOn buildJars
 
@@ -908,16 +908,16 @@ task buildWorldmapBundleJar(type: Jar) {
         }.collect { zipTree(it) }
     }
 
-    from (sourceSets.main.output) {
+    from(sourceSets.main.output) {
         include 'LICEN*'
         include 'git.*'
         include 'version.*'
         include 'info*'
     }
-    from ("${rootProject.rootDir}/legal") {
+    from("${rootProject.rootDir}/legal") {
         into 'legal'
     }
-    from (project(':core').sourceSets.main.output) {
+    from(project(':core').sourceSets.main.output) {
         include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
@@ -983,16 +983,16 @@ task buildCheckBundleJar(type: Jar) {
         }.collect { zipTree(it) }
     }
 
-    from (sourceSets.main.output) {
+    from(sourceSets.main.output) {
         include 'LICEN*'
         include 'git.*'
         include 'version.*'
         include 'info*'
     }
-    from ("${rootProject.rootDir}/legal") {
+    from("${rootProject.rootDir}/legal") {
         into 'legal'
     }
-    from (project(':core').sourceSets.main.output) {
+    from(project(':core').sourceSets.main.output) {
         include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
