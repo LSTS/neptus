@@ -339,12 +339,16 @@ allprojects {
     task copyGitPropertiesFromRoot {
         if (project != rootProject)
             dependsOn rootProject.tasks.generateGitProperties
+
+        def projectExt = project.ext
+        def projectSourceSets = project.sourceSets
+
         doLast {
-            project.ext['gitProps'] = rootProject.ext.gitProps
+            projectExt['gitProps'] = rootProject.ext.gitProps
             copy {
                 from (rootProject.sourceSets.main.output.resourcesDir)
                 include 'git.info'
-                into project.sourceSets.main.output.resourcesDir
+                into projectSourceSets.main.output.resourcesDir
             }
         }
     }
