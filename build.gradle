@@ -258,7 +258,7 @@ allprojects {
             dirs 'lib', "${rootProject.projectDir}/lib"
         }
         maven {
-            url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
+            url = 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
             content {
                 includeGroup "edu.ucar"
             }
@@ -280,7 +280,7 @@ allprojects {
 
     processResources {
         mustRunAfter(generateRunScripts)
-        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from (rootProject.projectDir) {
             include 'LICENSE.md'
         }
@@ -585,7 +585,7 @@ project(':core') {
     }
 
     processResources {
-        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         outputs.upToDateWhen{ false }
         from (project.sourceSets.main.resources.srcDirs) {
             include 'version.txt'
@@ -726,7 +726,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
     }
 
     processResources {
-        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         outputs.upToDateWhen { false }
         from('.'){
             include 'plugins.lst'
@@ -790,11 +790,11 @@ configure(subprojects.findAll { it.name != 'core' }) {
     jar {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
-        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from sourceSets.main.output
 
         dependsOn configurations.runtimeClasspath
-        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from {
             (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
@@ -1182,7 +1182,7 @@ def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
         destinationDirectory = file("${distTarTask.destinationDirectory.getAsFile().get()}")
         from tarTree(file("${tarNeptusFilePath}"))
         from(tarTree(file("${jreFileName}"))) {
-            includeEmptyDirs false
+            includeEmptyDirs = false
             into "${tarBasePath}/jre"
             eachFile {FileCopyDetails details ->
                 details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
@@ -1208,7 +1208,7 @@ def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
         destinationDirectory = file("${distZipTask.destinationDirectory.getAsFile().get()}")
         from zipTree(file("${zipNeptusFilePath}"))
         from(zipTree(file("${jreFileName}"))) {
-            includeEmptyDirs false
+            includeEmptyDirs = false
             into "${zipBasePath}/jre"
             eachFile {FileCopyDetails details ->
                 details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
@@ -1432,7 +1432,7 @@ task processI18N(type: Exec) {
     fileTree(dir: "$rootDir/plugins-dev", include: '**/*.java').each {
         args "${relativePath(it)}"
     }
-    ignoreExitValue true
+    ignoreExitValue = true
 
     doLast {
         if (executionResult.get().getExitValue() > 0) {
