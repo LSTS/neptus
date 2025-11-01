@@ -184,6 +184,9 @@ task generateRunScripts(type: Copy) {
 jar.dependsOn generateRunScripts
 jar.enabled = false
 
+
+import com.github.langmo.gradlensis.GradleNsisTask
+
 import static org.apache.tools.ant.taskdefs.condition.Os.*
 task updateLibJNIPaths {
     def familyLst = []
@@ -1303,7 +1306,7 @@ nsis {
 }
 
 def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
-    return rootProject.tasks.register("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
+    return rootProject.tasks.register("installer${distName.capitalize()}WindowsDist", GradleNsisTask) {
         description = "Generate $distName Windows installer"
         group = 'Distribution'
 
