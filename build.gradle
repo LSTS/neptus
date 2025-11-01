@@ -595,6 +595,7 @@ project(':core') {
     }
 
     processResources {
+        def projectExt = project.ext
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         outputs.upToDateWhen{ false }
         from (project.sourceSets.main.resources.srcDirs) {
@@ -605,8 +606,8 @@ project(':core') {
             filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
             filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
             filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
-            filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
-            filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
+            filter{ it.replaceAll("@SCM_REV@", "${-> projectExt.gitProps['git.commit.id.describe']}") }
+            filter{ it.replaceAll("@SCM_PATH@", "${-> projectExt.gitProps['git.remote.origin.url']}") }
         }
     }
 
