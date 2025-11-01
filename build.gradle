@@ -189,6 +189,7 @@ jar.enabled = false
 
 
 import com.github.langmo.gradlensis.GradleNsisTask
+import groovy.json.JsonSlurper
 
 import static org.apache.tools.ant.taskdefs.condition.Os.*
 task updateLibJNIPaths {
@@ -1158,7 +1159,7 @@ def createDownloadJre(String os, String arch) {
                     dest metaInfoFile
                     overwrite true
                 }
-                def json = new groovy.json.JsonSlurper().parseText(new File("${metaInfoFile}").text)
+                def json = new JsonSlurper().parseText(new File("${metaInfoFile}").text)
                 def downloadJreUrlSha256 = json.binaries.package.checksum[0]
                 def downloadJreUrl = json.binaries.package.link[0]
                 file("${sha256InfoFile}").text = "${downloadJreUrlSha256}  ${outJreFileName}"
