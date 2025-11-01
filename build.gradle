@@ -831,7 +831,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
 // Build Section //
 ///////////////////
 
-task buildJars {
+tasks.register('buildJars') {
     description = "Generate $rootProject.name and plugins"
     group = 'Build'
     dependsOn jar, subprojects.findAll().collect { it.tasks.withType(Jar).collect { it } }
@@ -843,7 +843,7 @@ run.dependsOn buildJars
 /////////////////////
 
 // Creates the bin/bundles neptus-worldmap.jar
-task buildWorldmapBundleJar(type: Jar) {
+tasks.register('buildWorldmapBundleJar', Jar) {
     dependsOn buildJars
     archiveBaseName = "${rootProject.name}"
     archiveClassifier = 'worldmap'
@@ -933,7 +933,7 @@ task buildWorldmapBundleJar(type: Jar) {
 }
 
 // Creates the bin/bundles neptus-check.jar
-task buildCheckBundleJar(type: Jar) {
+def buildWorldmapBundleJar = tasks.register('buildCheckBundleJar', Jar) {
     dependsOn buildJars
     archiveBaseName = "${rootProject.name}"
     archiveClassifier = 'check'
@@ -1004,7 +1004,7 @@ task buildCheckBundleJar(type: Jar) {
     }
 }
 
-task buildBundleJars {
+def buildBundleJars = tasks.register('buildBundleJars') {
     description = "Generate the bundle Jars"
     group = 'Distribution'
 
