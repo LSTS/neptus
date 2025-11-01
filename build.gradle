@@ -941,20 +941,22 @@ task buildCheckBundleJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/bin-bundles")
     includeEmptyDirs = false
+
+    def projectExt = project.ext
     manifest {
         attributes(
             'Specification-Title': rootProject.name.capitalize(),
-            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+            'Specification-Version': "$project.version, ${-> projectExt.gitProps['git.commit.time']}",
             'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
             'Implementation-Title': "${project.name}-check",
             'Implementation-Version': project.version,
             'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
-            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> projectExt.gitProps['git.commit.id.describe']}",
             'Built-By': "${System.properties['user.name']}",
             'Built-On': "${new Date()}",
             'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
             'Main-Class': 'pt.lsts.neptus.gui.checklist.ChecklistPanel',
-            )
+        )
     }
     dependsOn configurations.runtimeClasspath
     from {
