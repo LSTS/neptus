@@ -1127,7 +1127,7 @@ tasks.withType(Sync).each {
 /////////////////////////////////////
 
 def createDownloadJre(String os, String arch) {
-    return rootProject.tasks.create("downloadJre${os.capitalize()}${arch.capitalize()}") {
+    return rootProject.tasks.register("downloadJre${os.capitalize()}${arch.capitalize()}") {
         description = "Downloads JRE from Adoptium.net for ${os.capitalize()}/$arch"
         group = 'Distribution'
 
@@ -1186,7 +1186,7 @@ createDownloadJre('windows', 'x64')
 ///////////////////////////////////////////
 
 def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
-    return rootProject.tasks.create("${distTarTask.name}WithJre", Tar) {
+    return rootProject.tasks.register("${distTarTask.name}WithJre", Tar) {
         description = "Takes the '${distTarTask.name}' output and adds a JRE from '${jreLinuxTarTask.name}'"
         group = 'Distribution'
 
@@ -1212,7 +1212,7 @@ def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
 }
 
 def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
-    return rootProject.tasks.create("${distZipTask.name}WithJre", Zip) {
+    return rootProject.tasks.register("${distZipTask.name}WithJre", Zip) {
         description = "Takes the '${distZipTask.name}' output and adds a JRE from '${jreWindowsZipTask.name}'"
         group = 'Distribution'
 
@@ -1264,7 +1264,7 @@ rootProject.findAll().each { sp ->
 // Distribution Installers Section - Linux //
 
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
-    return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
+    return rootProject.tasks.register("installer${distName.capitalize()}LinuxDist") {
         def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
         description = "Generate $distName Linux installer"
         group = 'Distribution'
