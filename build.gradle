@@ -86,7 +86,7 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         outputs.upToDateWhen { false }
         mainClass = "$mainclass"
         classpath =  classpathCollection
-        outputDir = file("$buildDir/scripts/$taskPrefixName")
+        outputDir = file("${layout.buildDirectory.get().asFile}/scripts/$taskPrefixName")
         executableDir = "$appHomeRelativePathOpt"
 
         defaultJvmOpts = [
@@ -614,7 +614,7 @@ project(':core') {
         }
     }
 
-    buildDir = file("$rootProject.rootDir/build/$project.name")
+    layout.buildDirectory.set(file("$rootProject.rootDir/build/$project.name"))
 
     eclipse {
         classpath {
@@ -655,9 +655,9 @@ project(':core') {
     }
     task createEclipseBuild {
         doLast {
-            file("${rootProject.buildDir.getName()}/eclipse/main")
+            file("${rootProject.layout.buildDirectory.get().asFile.getName()}/eclipse/main")
             subprojects.each { project ->
-                file("${project.projectDir}/${rootProject.buildDir.getName()}/eclipse/main").mkdirs()
+                file("${project.projectDir}/${rootProject.layout.buildDirectory.get().asFile.getName()}/eclipse/main").mkdirs()
             }
         }
     }
@@ -756,7 +756,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
         compileOnly project(':core').sourceSets.main.runtimeClasspath
     }
 
-    buildDir = file("$rootProject.buildDir/plugins/$project.name")
+    layout.buildDirectory.set(file("${rootProject.layout.buildDirectory.get().asFile}/plugins/$project.name"))
 
     apply plugin: 'eclipse'
     eclipse {
@@ -1143,7 +1143,7 @@ def createDownloadJre(String os, String arch) {
         def jreMajorVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').split('\\.')[0]}"
         def jreVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '_')}"
         def jreVersionNumUrl = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '%2B')}"
-        def outFolder = "${rootProject.buildDir}/tmp/jredownload"
+        def outFolder = "${rootProject.layout.buildDirectory.get().asFile}/tmp/jredownload"
         def outJreFileName = "OpenJDK${jreMajorVersionNum}U-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.${extension}"
         def jreFile = "${outFolder}/${outJreFileName}"
         def jreFileTmp = "${outFolder}/${outJreFileName}.part"
@@ -1266,7 +1266,7 @@ rootProject.findAll().each { sp ->
 
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
     return rootProject.tasks.register("installer${distName.capitalize()}LinuxDist") {
-        def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
+        def workTmpDirectory = "${rootProject.layout.buildDirectory.get().asFile}/tmp/sfx/${distName}/"
         description = "Generate $distName Linux installer"
         group = 'Distribution'
 
@@ -1389,7 +1389,7 @@ createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZipWithJre)
 ///////////////////
 
 task agregateI18N(type: JavaExec) {
-    def emptyTemplateFile = file("${rootProject.buildDir}/tmp/pot/empty.pot")
+    def emptyTemplateFile = file("${rootProject.layout.buildDirectory.get().asFile}/tmp/pot/empty.pot")
     doFirst {
         emptyTemplateFile.getParentFile().mkdirs()
         emptyTemplateFile.text = """# Neptus POT file.
@@ -1498,7 +1498,7 @@ task cleanEclipseBuild {
     description = "Cleanup build folders"
     group = 'IDE'
     doLast {
-        delete file("${rootProject.buildDir}/eclipse")
+        delete file("${rootProject.layout.buildDirectory.get().asFile}/eclipse")
         delete file("${project(':core').projectDir}/code")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
