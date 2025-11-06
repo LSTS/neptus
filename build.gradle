@@ -654,7 +654,7 @@ project(':core') {
             }
         }
     }
-    task createEclipseBuild {
+    def createEclipseBuild = tasks.register('createEclipseBuild') {
         doLast {
             file("${rootProject.layout.buildDirectory.get().asFile.getName()}/eclipse/main")
             subprojects.each { project ->
@@ -662,7 +662,9 @@ project(':core') {
             }
         }
     }
-    tasks.eclipse.dependsOn cleanEclipse, createEclipseBuild
+    tasks.eclipse.configure {
+        dependsOn cleanEclipse, createEclipseBuild
+    }
 
     // jar.dependsOn generateRunScripts
     jar {
