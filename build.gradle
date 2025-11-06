@@ -1499,7 +1499,7 @@ cleanEclipse {
     }
 }
 
-task cleanEclipseBuild {
+tasks.register('cleanEclipseBuild') {
     description = "Cleanup build folders"
     group = 'IDE'
     doLast {
@@ -1507,15 +1507,16 @@ task cleanEclipseBuild {
         delete file("${project(':core').projectDir}/code")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
-                    file -> file.isDirectory() && (file.name ==~ 'build'
-                    || file.name ==~ 'bin'
-                    || file.name ==~ 'log')
-                } as FileFilter).each { delete it }
+                file ->
+                    file.isDirectory() && (file.name ==~ 'build'
+                            || file.name ==~ 'bin'
+                            || file.name ==~ 'log')
+            } as FileFilter).each { delete it }
         }
     }
 }
 
-task cleanIdeaBuild {
+tasks.register('cleanIdeaBuild') {
     description = "Cleanup build and project folders"
     group = 'IDE'
     doLast {
@@ -1524,13 +1525,13 @@ task cleanIdeaBuild {
         delete file("src/out")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
-                    file -> file.isDirectory() && file.name ==~ 'out'
-                } as FileFilter).each { delete it }
+                file -> file.isDirectory() && file.name ==~ 'out'
+            } as FileFilter).each { delete it }
         }
     }
 }
 
-task cleanVSCodeBuild {
+tasks.register('cleanVSCodeBuild') {
     doLast {
         delete file("$rootDir/.vscode")
     }
