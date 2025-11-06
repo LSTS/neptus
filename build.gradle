@@ -1391,7 +1391,7 @@ createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZipWithJre)
 // Tools Section //
 ///////////////////
 
-task agregateI18N(type: JavaExec) {
+def agregateI18N = tasks.register('agregateI18N', JavaExec) {
     def emptyTemplateFile = file("${rootProject.layout.buildDirectory.get().asFile}/tmp/pot/empty.pot")
     doFirst {
         emptyTemplateFile.getParentFile().mkdirs()
@@ -1427,7 +1427,7 @@ msgstr ""
     ]
 }
 
-task processI18N(type: Exec) {
+def processI18N = tasks.register('processI18N', Exec) {
     workingDir file(rootProject.rootDir)
     executable 'xgettext'
     args = [
@@ -1464,9 +1464,11 @@ task processI18N(type: Exec) {
         }
     }
 }
-processI18N.mustRunAfter agregateI18N
+processI18N.configure {
+    mustRunAfter agregateI18N
+}
 
-task generateI18N {
+tasks.register('generateI18N') {
     description = "Generate the I18N POT files (needs gettext installed)"
     group = 'Distribution'
     dependsOn agregateI18N, processI18N
