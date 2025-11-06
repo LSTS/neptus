@@ -134,7 +134,7 @@ apply plugin: 'distribution'
 apply plugin: "com.gorylenko.gradle-git-properties"
 apply plugin: 'eclipse'
 
-task buildClasspathJar(type: Jar) {
+tasks.register('buildClasspathJar', Jar) {
     archiveBaseName = "cp"
     archiveVersion = ''
     destinationDirectory = file("$rootDir")
