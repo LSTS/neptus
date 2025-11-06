@@ -178,7 +178,7 @@ generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMa
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
     }
 
-task generateRunScripts(type: Copy) {
+tasks.register('generateRunScripts', Copy) {
     dependsOn buildClasspathJar
     from runStartScripts
     into file("$rootDir")
