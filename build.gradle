@@ -646,7 +646,7 @@ project(':core') {
                     def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
                     assert rootProject.file(formaterFx).exists();
                     formaterFx.eachLine { String line ->
-                    def tks = line.split('=')
+                        def tks = line.split('=')
                         // set properties for the file org.eclipse.jdt.core.prefs
                         properties[tks[0]] = tks[1]
                     }
