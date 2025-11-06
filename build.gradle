@@ -688,7 +688,7 @@ project(':core') {
 ////////////////////////////
 
 // Configure all tasks of type CreateStartScripts to use custom templates
-tasks.withType(CreateStartScripts) {
+tasks.withType(CreateStartScripts).configureEach {
     def unixTemplateName = rootProject.file('dist/scripts/unixStartScript.txt')
     assert project.file(unixTemplateName).exists();
     def winTemplateName = rootProject.file('dist/scripts/windowsStartScript.txt')
@@ -698,7 +698,7 @@ tasks.withType(CreateStartScripts) {
 }
 
 // Configure all tasks of type Tar to also GZIP it
-tasks.withType(Tar){
+tasks.withType(Tar).configureEach {
     compression = Compression.GZIP
     archiveExtension = 'tar.gz'
 }
