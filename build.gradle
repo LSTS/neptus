@@ -192,7 +192,8 @@ import com.github.androxyde.gradlensis.GradleNsisTask
 import groovy.json.JsonSlurper
 
 import static org.apache.tools.ant.taskdefs.condition.Os.*
-task updateLibJNIPaths {
+
+tasks.register('updateLibJNIPaths') {
     def familyLst = []
     if (isFamily(FAMILY_WINDOWS))
         familyLst += 'win'
