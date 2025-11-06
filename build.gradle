@@ -9,7 +9,7 @@ plugins {
     id 'application'
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
-    id "com.github.langmo.gradlensis" version "0.1.0"
+    id "io.github.androxyde.gradlensis" version "0.2.0"
     id "de.undercouch.download" version "5.6.0"
 
     id "eclipse"
@@ -188,7 +188,7 @@ jar.dependsOn generateRunScripts
 jar.enabled = false
 
 
-import com.github.langmo.gradlensis.GradleNsisTask
+import com.github.androxyde.gradlensis.GradleNsisTask
 import groovy.json.JsonSlurper
 
 import static org.apache.tools.ant.taskdefs.condition.Os.*
@@ -1332,6 +1332,8 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
         baseDir = "../../${baseDir}".replaceAll('/', '\\\\')
 
         def runInFolder = file("${rootProject.projectDir}/NSIS_release/install_scripts")
+
+        extractTo.get().getAsFile().mkdirs()
 
         doFirst {
             println """!!INFO!! If error on Linux run >> cd \"${runInFolder}\" &&
