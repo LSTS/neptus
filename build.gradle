@@ -340,7 +340,7 @@ allprojects {
     generateGitProperties.outputs.upToDateWhen { false }
     // If the subproject is on the same Git as the root,
     // just copy from it and don't run generateGitProperties
-    task copyGitPropertiesFromRoot {
+    def copyGitPropertiesFromRoot = tasks.register('copyGitPropertiesFromRoot') {
         if (project != rootProject)
             dependsOn rootProject.tasks.generateGitProperties
 
@@ -350,7 +350,7 @@ allprojects {
         doLast {
             projectExt['gitProps'] = rootProject.ext.gitProps
             copy {
-                from (rootProject.sourceSets.main.output.resourcesDir)
+                from(rootProject.sourceSets.main.output.resourcesDir)
                 include 'git.info'
                 into projectSourceSets.main.output.resourcesDir
             }
@@ -359,7 +359,9 @@ allprojects {
     if (file("${project.projectDir}/.git").exists()
             || file("${project.projectDir}/../.git").exists()
             && file("${project.projectDir}/../") != file("${rootProject.projectDir}"))
-        tasks.copyGitPropertiesFromRoot.enabled = false
+        copyGitPropertiesFromRoot.configure {
+            enabled = false
+        }
     else
         tasks.generateGitProperties.enabled = false
     generateGitProperties.dependsOn copyGitPropertiesFromRoot
