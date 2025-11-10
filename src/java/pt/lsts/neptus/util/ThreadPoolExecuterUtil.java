@@ -58,8 +58,7 @@ public class ThreadPoolExecuterUtil {
                     private ThreadGroup group;
                     private long count = 0;
                     {
-                        SecurityManager s = System.getSecurityManager();
-                        group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+                        group = Thread.currentThread().getThreadGroup();
                     }
 
                     @Override
