@@ -558,10 +558,9 @@ public class JWebCam extends JPanel implements ComponentListener {
     public void componentShown(ComponentEvent e) {
     }
 
-    protected void finalize() throws Throwable {
+    public void cleanup() {
         NeptusLog.pub().info("<###>foi chamado");
         playerClose();
-        super.finalize();
     }
 
     class MyToolBarAction extends AbstractAction {
