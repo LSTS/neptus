@@ -338,11 +338,11 @@ public class PlanTransitionsSimpleEditor extends JPanel {
     /* (non-Javadoc)
      * @see java.lang.Object#finalize()
      */
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        clean();
-    }
+    //@Override
+    //protected void finalize() throws Throwable {
+    //    super.finalize();
+    //    clean();
+    //}
     
     static class PlanTransitionGuiPanel extends JPanel {
         TransitionType transition = null;

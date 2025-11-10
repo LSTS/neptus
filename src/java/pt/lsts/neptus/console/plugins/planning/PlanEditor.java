@@ -1592,10 +1592,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         });
                         
                         transitions.setModalityType(ModalityType.DOCUMENT_MODAL);
-                        transitions.getContentPane().add(new PlanTransitionsSimpleEditor(plan));
+                        PlanTransitionsSimpleEditor planTransitionsSimpleEditor = new PlanTransitionsSimpleEditor(plan);
+                        transitions.getContentPane().add(planTransitionsSimpleEditor);
                         transitions.setSize(800, 500);
                         GuiUtils.centerParent(transitions, getConsole());
                         transitions.setVisible(true);
+                        // cleanup
+                        planTransitionsSimpleEditor.clean();
+
                         parsePlan();
                         renderer.repaint();
 
