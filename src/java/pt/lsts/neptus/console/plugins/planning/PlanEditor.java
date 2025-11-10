@@ -1575,7 +1575,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        Window parent = SwingUtilities.getWindowAncestor(getConsole());
+                        Window parent = getConsole();
                         if (parent == null)
                             parent = SwingUtilities.getWindowAncestor(ConfigFetch.getSuperParentAsFrame());
                         JDialog transitions = new JDialog(parent, I18n.textf("Edit '%planName' plan transitions",
