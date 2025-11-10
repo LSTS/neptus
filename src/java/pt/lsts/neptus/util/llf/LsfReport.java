@@ -433,6 +433,7 @@ public class LsfReport {
             out.flush();
             out.close();
 
+            po.cleanup();
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -101,7 +101,8 @@ public class PlanReplayLayer implements LogReplayLayer {
 
     @Override
     public void cleanup() {
-
+        if (po != null) {
+            po.cleanup();
+        }
     }
-
 }

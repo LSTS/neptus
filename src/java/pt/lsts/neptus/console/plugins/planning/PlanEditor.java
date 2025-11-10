@@ -484,8 +484,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     ((JComponent) c).setBorder(new EmptyBorder(0, 0, 0, 0));
             }
             if (plan != null && !manager.canUndo()
-                    && getConsole().getMission().getIndividualPlansList().containsKey(plan.getId()))
+                    && getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
                 plan = null;
+            }
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = null;
             renderer.setToolTipText("");
             overlay = null;
@@ -921,6 +925,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         this.plan = plan;
         if (plan == null) {
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = null;
             return;
         }
@@ -932,6 +939,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             getPropertiesPanel().setManeuver(null);
             getPropertiesPanel().setManager(null);
             parsePlan();
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = new PlanElement(mapGroup, new MapType());
             planElem.setBeingEdited(true);
             planElem.setRenderer(renderer);
