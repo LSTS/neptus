@@ -61,8 +61,7 @@ public class HTTPArgs extends ProtocolArgs {
 		return loadOk;
 	}
 	
-    public boolean load(Element elem)
-    {
+    public boolean load(Element elem) {
         try
         {
             url = new URI(elem.selectSingleNode("//url").getText()).toURL();
@@ -71,30 +70,25 @@ public class HTTPArgs extends ProtocolArgs {
             	formats.add(f.trim().toLowerCase());
             }
             loadOk = true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             NeptusLog.pub().error(this, e);
             loadOk = false;           
         }
         return loadOk;
     }
     
-    public boolean load (String xml)
-    {
-        try
-        {
+    public boolean load (String xml) {
+        try {
             Document doc = DocumentHelper.parseText(xml);
             loadOk = load(doc.getRootElement());
-        } catch (DocumentException e)
-        {
+        } catch (DocumentException e) {
             NeptusLog.pub().error(this, e);
             loadOk = false;            
         }
         return loadOk;
     }
 	
-    public Document asDocument(String rootElementName)
-    {
+    public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement( rootElementName );
         root.addElement("url").setText(url.getPath());
@@ -130,8 +124,9 @@ public class HTTPArgs extends ProtocolArgs {
 	}
 	
 	public void setSupportedFormats(Vector<String> formats) {
-		for (int i = 0; i < formats.size(); i++)
-			formats.setElementAt(formats.get(i).trim().toLowerCase(), i);
+		for (int i = 0; i < formats.size(); i++) {
+            formats.setElementAt(formats.get(i).trim().toLowerCase(), i);
+        }
 		this.formats = formats;
 	}
 	
