@@ -41,7 +41,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -1547,7 +1546,7 @@ public class IMCUtils {
     public static void testSysTypeResolution() throws Exception {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
 
-        URLConnection conn = new URL(address_url).openConnection();
+        URLConnection conn = new URI(address_url).toURL().openConnection();
         Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream(), (Charset) null));
         List<?> nodes = doc.getRootElement().selectNodes("address/@id");
         for (int i = 0; i < nodes.size(); i++) {
