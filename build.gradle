@@ -81,7 +81,7 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
 def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
         FileCollection classpathCollection) {
-    return tasks.create("${taskPrefixName}StartScripts".toString(), CreateStartScripts) {
+    return tasks.register("${taskPrefixName}StartScripts".toString(), CreateStartScripts) {
         applicationName = "$applicationNameOpt"
         outputs.upToDateWhen { false }
         mainClass = "$mainclass"
@@ -162,7 +162,8 @@ tasks.register('buildClasspathJar', Jar) {
 
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
-    '', 'RunOptions', files('SUBSTITUTE')).doLast {
+    '', 'RunOptions', files('SUBSTITUTE')).configure {
+    doLast {
         // def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
         // configurationClasspath -= project(':core').configurations.core.allArtifacts.files
         // subprojects.findAll({it.name != 'core'}).each {
@@ -177,6 +178,7 @@ generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMa
         unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
     }
+}
 
 tasks.register('generateRunScripts', Copy) {
     dependsOn buildClasspathJar
