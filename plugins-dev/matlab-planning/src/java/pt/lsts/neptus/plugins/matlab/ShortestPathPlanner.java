@@ -51,6 +51,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JMenuItem;
@@ -415,7 +416,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
         try {
             // String s;
             // NeptusLog.pub().info("<###> "+new File("astar").listFiles().length);
-            Process p = Runtime.getRuntime().exec(command);
+            Process p = Runtime.getRuntime().exec(List.of(command).toArray(new String[0]));
             final BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
             final BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
