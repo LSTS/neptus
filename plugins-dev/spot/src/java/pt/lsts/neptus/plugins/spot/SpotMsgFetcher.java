@@ -33,7 +33,7 @@
 package pt.lsts.neptus.plugins.spot;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -76,7 +76,7 @@ public class SpotMsgFetcher {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         try {
-            Document doc = db.parse(new URL(url).openStream());
+            Document doc = db.parse(new URI(url).toURL().openStream());
             // TODO Error with first char being space
             // File file = new File("/home/meg/LSTS/spot.xml");
             // Document doc = db.parse(file);
