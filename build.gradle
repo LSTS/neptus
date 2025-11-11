@@ -162,7 +162,7 @@ tasks.register('buildClasspathJar', Jar) {
 
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
-    '', 'RunOptions', files('SUBSTITUTE')).configure {
+        '', 'RunOptions', files('SUBSTITUTE')).configure {
     doLast {
         // def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
         // configurationClasspath -= project(':core').configurations.core.allArtifacts.files
