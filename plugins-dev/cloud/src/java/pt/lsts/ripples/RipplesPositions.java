@@ -37,6 +37,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.ParseException;
@@ -161,7 +162,7 @@ public class RipplesPositions extends ConsoleLayer {
 
         try {
             JsonParser parser = new JsonParser();
-            URL url = new URL(positionsApiUrl);
+            URL url = new URI(positionsApiUrl).toURL();
 
             URLConnection con = url.openConnection();
             if (authKey != null && !authKey.isEmpty()) {
