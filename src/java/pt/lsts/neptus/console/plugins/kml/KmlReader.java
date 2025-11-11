@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console.plugins.kml;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -161,7 +162,7 @@ public class KmlReader {
     }   
 
     public static void main(String[] args) throws Exception {
-        KmlReader browser = new KmlReader(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), false);
+        KmlReader browser = new KmlReader(new URI("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc").toURL(), false);
         browser.extractFeatures();
     }
 }
