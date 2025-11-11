@@ -60,6 +60,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -101,7 +103,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public DeviceUpdate pollActiveDevices() throws Exception {
         Gson gson = new Gson();
-        URL url = new URL(activeSystemsUrl);
+        URL url = new URI(activeSystemsUrl).toURL();
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         if (authKey != null && !authKey.isEmpty()) {
             con.setRequestProperty ("Authorization", authKey);
@@ -139,8 +141,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
         listeners.remove(listener);       
     }
 
-    private HttpURLConnection getHttpURLConnection(String url) throws IOException {
-        URL u = new URL(url);
+    private HttpURLConnection getHttpURLConnection(String url) throws IOException, URISyntaxException {
+        URL u = new URI(url).toURL();
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod( "POST" );
@@ -244,9 +246,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         URL u;
         if (timeSince != null) {
-            u = new URL(messagesUrl + "?since=" + (timeSince.getTime() / 1000));
+            u = new URI(messagesUrl + "?since=" + (timeSince.getTime() / 1000)).toURL();
         } else {
-            u = new URL(messagesUrl);
+            u = new URI(messagesUrl).toURL();
         }
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setDoOutput(true);
@@ -358,7 +360,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public HubSystemMsg[] retrieveSystems() throws Exception {
         Gson gson = new Gson();
-        URL url = new URL(systemsUrl);
+        URL url = new URI(systemsUrl).toURL();
         URLConnection con = url.openConnection();
         if (authKey != null && !authKey.isEmpty()) {
             con.setRequestProperty ("Authorization", authKey);

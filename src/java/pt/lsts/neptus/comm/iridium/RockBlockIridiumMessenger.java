@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -522,7 +523,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
                 if (result == null) {
                     try {
-                        URL url = new URL("http://secure.rock7mobile.com/rockblock");
+                        URL url = new URI("http://secure.rock7mobile.com/rockblock").toURL();
                         NeptusLog.pub().info("Checking RockBlock server at {}", url);
                         int len = url.openConnection().getContentLength();
                         if (len > 0) {
