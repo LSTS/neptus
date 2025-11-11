@@ -44,6 +44,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
@@ -986,7 +988,7 @@ public class FileUtil {
      * @return
      * @throws MalformedURLException
      */
-    public static URL pathToURL(String path) throws MalformedURLException {
+    public static URL pathToURL(String path) throws MalformedURLException, URISyntaxException {
         URL retval = null;
         if (path == null) {
             return null;
@@ -1004,7 +1006,7 @@ public class FileUtil {
         // switch from file separator to URL separator
         path = path.replace(java.io.File.separatorChar, '/');
 
-        retval = new URL("file:" + path);
+        retval = new URI("file:" + path).toURL();
         return retval;
     }
 
