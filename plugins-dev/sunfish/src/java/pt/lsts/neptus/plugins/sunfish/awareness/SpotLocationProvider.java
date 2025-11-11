@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -68,7 +69,7 @@ public class SpotLocationProvider implements ILocationProvider {
         if (!enabled)
             return;
         try {
-            URL urlSpot = new URL(url);
+            URL urlSpot = new URI(url).toURL();
             File tmp = File.createTempFile("neptus", "spots");
             FileUtils.copyURLToFile(urlSpot, tmp);
 

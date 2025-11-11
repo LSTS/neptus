@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Vector;
@@ -67,7 +68,7 @@ public class SunfishAssetProperties {
     
     public Collection<AssetDesc> fetchAssets() {
         try {
-            URL urlAssets = new URL(assets_url);
+            URL urlAssets = new URI(assets_url).toURL();
             File tmp = File.createTempFile("neptus", "assets");
             FileUtils.copyURLToFile(urlAssets, tmp);
             

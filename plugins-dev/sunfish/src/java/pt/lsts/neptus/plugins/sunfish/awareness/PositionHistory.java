@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -66,7 +67,7 @@ public class PositionHistory {
             return;
         }
         NeptusLog.pub().info("Downloading positions for day "+day+"...");
-        URL urlData = new URL(positions_url+day);
+        URL urlData = new URI(positions_url+day).toURL();
         HttpURLConnection conn = (HttpURLConnection) urlData.openConnection();
         if (authKey != null && !authKey.isEmpty()) {
             conn.setRequestProperty ("Authorization", authKey);
