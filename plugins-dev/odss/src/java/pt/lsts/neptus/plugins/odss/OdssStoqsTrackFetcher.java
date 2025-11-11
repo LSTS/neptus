@@ -37,7 +37,8 @@ import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -591,10 +592,9 @@ public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpda
         if (!fetchURL.endsWith("/"))
             fetchURL += "/";
         try {
-            new URL(fetchURL);
+            new URI(fetchURL).toURL();
             return null;
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             return e.getMessage();
         }
     }
