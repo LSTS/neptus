@@ -160,7 +160,7 @@ public class MathMiscUtils {
 	    if (Double.isInfinite(val) || Double.isNaN(val))
 	        return "" + val;
 	    
-	    Locale locale  = new Locale("en", "US");
+	    Locale locale  = Locale.US;
 	    DecimalFormat engNot = (DecimalFormat) NumberFormat.getNumberInstance(locale);
 		engNot.applyPattern("##0.###E0");
 		String pl = engNot.format(val);
