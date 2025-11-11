@@ -595,7 +595,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
                         //service.execute(VideoReader.this::connectStream);
                     }
                 });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK));
 
         popup.add(item = new JMenuItem(I18n.text("Close stream connection"),
                         ImageUtils.createImageIcon("images/menus/exit.png")))
@@ -611,7 +611,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
                         repaint(500);
                     }
                 });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK));
 
         popup.addSeparator();
 
@@ -625,7 +625,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
                         }
                     }
                 });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK));
 
         popup.add(item = new JMenuItem(I18n.text("Maximize window"),
                         ImageUtils.createImageIcon("images/menus/maximize.png")))
@@ -634,7 +634,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
                         maximizeVideoStreamPanel();
                     }
                 });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_DOWN_MASK));
 
         popup.addSeparator();
 
