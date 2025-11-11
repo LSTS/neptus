@@ -2,6 +2,8 @@
 package fr.cls.argos.dataxmldistribution.service;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -31,8 +33,8 @@ public class DixService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("http://ws-argos.cls.fr/argosDws/services/DixService?wsdl");
-        } catch (MalformedURLException ex) {
+            url = new URI("http://ws-argos.cls.fr/argosDws/services/DixService?wsdl").toURL();
+        } catch (MalformedURLException | URISyntaxException ex) {
             e = new WebServiceException(ex);
         }
         DIXSERVICE_WSDL_LOCATION = url;
