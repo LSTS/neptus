@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.cmdsenders;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -133,7 +134,7 @@ public class IridiumSender implements ITextMsgSender {
                 }
                 
                 try {
-                    URL url = new URL("https://secure.rock7mobile.com/rockblock");
+                    URL url = new URI("https://secure.rock7mobile.com/rockblock").toURL();
                     int len = url.openConnection().getContentLength();
                     if (len > 0)
                         lastSuccess = System.currentTimeMillis();
