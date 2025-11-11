@@ -624,7 +624,7 @@ public class VideoStream extends ConsolePanel {
         dialog.setSize(screenSize);
         // We call the resize with its own size to call componentResized
         // method of the componentAdapter set in the constructor
-        VideoStream.this.resize(VideoStream.this.getSize());
+        VideoStream.this.setSize(VideoStream.this.getSize());
     }
 
     // Read ipUrl.ini to find IPCam ON
