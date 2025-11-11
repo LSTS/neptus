@@ -132,7 +132,7 @@ public class MVProblemSpecification {
         commandBase.add(idx, (String.format("solution_%s.SOL", timestamp))
                 .replaceAll("/", System.getProperty("file.separator")));
 
-        String[] cmd = commandBase.toArray(new String[commandBase.size()]);
+        String[] cmd = commandBase.toArray(new String[0]);
         Process p = Runtime.getRuntime().exec(cmd, null, new File("log/pddl"));
         
         Thread monitor = new Thread() {
