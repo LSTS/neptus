@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.types.comm.protocol;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Vector;
 
@@ -64,7 +65,7 @@ public class HTTPArgs extends ProtocolArgs {
     {
         try
         {
-            url = new URL(elem.selectSingleNode("//url").getText());
+            url = new URI(elem.selectSingleNode("//url").getText()).toURL();
             String fmts = elem.selectSingleNode("//supported-formats").getText();
             for (String f : fmts.split(",")) {
             	formats.add(f.trim().toLowerCase());
