@@ -537,7 +537,7 @@ public class VideoStream extends ConsolePanel {
                                     openIPCamManagementPanel();
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Close connection"),
                                     ImageUtils.createImageIcon("images/menus/exit.png")))
@@ -552,7 +552,7 @@ public class VideoStream extends ConsolePanel {
                                     repaint(500);
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK));
 
                     popup.addSeparator();
 
@@ -574,7 +574,7 @@ public class VideoStream extends ConsolePanel {
                                     histogramFlag = !histogramFlag;
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK));
 
                     JCheckBoxMenuItem itemChecked;
                     popup.add(itemChecked = new JCheckBoxMenuItem("Save stream as images to disk", flagBuffImg));
@@ -587,7 +587,7 @@ public class VideoStream extends ConsolePanel {
                                     saveSnapshot = true;
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Maximize window"),
                                     ImageUtils.createImageIcon("images/menus/maximize.png")))
@@ -596,7 +596,7 @@ public class VideoStream extends ConsolePanel {
                                     maximizeVideoStreamPanel();
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_DOWN_MASK));
 
                     popup.addSeparator();
 
