@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -82,7 +83,7 @@ public class EnduranceWebApi {
 		return execute(new Callable<List<Asset>>() {
 			@Override
 			public List<Asset> call() throws Exception {
-				URL url = new URL(soiUrl);
+				URL url = new URI(soiUrl).toURL();
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 if (authKey != null && !authKey.isEmpty()) {
                     conn.setRequestProperty ("Authorization", authKey);
@@ -127,7 +128,7 @@ public class EnduranceWebApi {
 		return execute(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				URL url_ = new URL(url);
+				URL url_ = new URI(url).toURL();
 				HttpURLConnection conn = (HttpURLConnection) url_.openConnection();
 				byte[] data = json.getBytes(StandardCharsets.UTF_8);
 
