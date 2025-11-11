@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
@@ -80,10 +79,7 @@ import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.ImcStringDefs;
-import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PolygonVertex;
-import pt.lsts.imc.StateReport;
-import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
