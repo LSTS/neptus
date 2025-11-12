@@ -36,6 +36,7 @@ import foxtrot.AsyncWorker;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -107,6 +108,7 @@ public class IpCamManagementPanel extends JPanel {
         ipCamPing.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
         ipCamPing.setSize(440, 200);
         ipCamPing.setLocationRelativeTo(videoReader);
+        GuiUtils.reactEscapeKeyPress(ipCamPing);
 
         ImageIcon imgIPCam = ImageUtils.createImageIcon("images/menus/camera.png");
         if (imgIPCam != null) {
