@@ -118,9 +118,15 @@ public class SearchOpenCv {
                     resultState = true;
                     NeptusLog.pub().info("OpenCV found: "+libOpencv);
                     return true;
-                }
-                catch (Exception | Error e) {
-                    NeptusLog.pub().error("OpenCV not found - " + e.getMessage());
+                } catch (Exception | Error e) {
+                    try {
+                        System.load(pathStr + "/" + filename);
+                        resultState = true;
+                        NeptusLog.pub().info("OpenCV found: {}", libOpencv);
+                        return true;
+                    } catch (Exception | Error e1) {
+                        NeptusLog.pub().error("OpenCV not found - {}", e1.getMessage());
+                    }
                 }
             }
         }
