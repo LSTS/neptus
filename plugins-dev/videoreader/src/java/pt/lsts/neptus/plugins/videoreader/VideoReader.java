@@ -167,6 +167,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
     private ActionListener closeVideoStreamActionListener;
     private ActionListener toggleHistogramFilterActionListener;
     private ActionListener maximizeWindowActionListener;
+    private ActionListener showVehicleInformationActionListener;
 
     private final IpCamManagementPanel ipCamManagementPanel;
     // JTextField for IPCam name
@@ -300,6 +301,10 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
                 else if ((e.getKeyCode() == KeyEvent.VK_F)
                         && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK) {
                     maximizeWindowActionListener.actionPerformed(new ActionEvent(this, 351, "alt F"));
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_V)
+                        && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK) {
+                    showVehicleInformationActionListener.actionPerformed(new ActionEvent(this, 351, "alt V"));
                 }
             }
 
@@ -684,11 +689,13 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
 
         showInfoItem = new JCheckBoxMenuItem(I18n.text("Show vehicle information"));
 
-        showInfoItem.addActionListener(new ActionListener() {
+        showVehicleInformationActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showVehicleInformation();
             }
-        });
+        };
+        showInfoItem.addActionListener(showVehicleInformationActionListener);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.ALT_DOWN_MASK));
 
         popup.add(showInfoItem);
 
