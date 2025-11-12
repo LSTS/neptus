@@ -107,6 +107,10 @@ class PlayerOpenCv {
 
         if (findOpenCV()) {
             NeptusLog.pub().info(I18n.text("OpenCv-4.x.x found."));
+        } else {
+            String txt = "OpenCv-4.x.x NOT found. Please install OpenCV 4.4+ and its dependencies.";
+            NeptusLog.pub().warn(I18n.text(txt));
+            throw new RuntimeException(txt);
         }
     }
 
