@@ -38,6 +38,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
@@ -583,8 +584,7 @@ public class PlanTransitionsSimpleEditor extends JPanel {
         }
 
         @Override
-        protected int drawUnselectedText(Graphics graphics, int x, int y, int p0,
-                int p1) throws BadLocationException {
+        protected float drawUnselectedText(Graphics2D graphics, float x, float y, int p0, int p1) throws BadLocationException {
 
             Document doc = getDocument();
             String text = doc.getText(p0, p1 - p0);
