@@ -63,6 +63,7 @@ public class LsfStreams {
      * @param type The message types encoded as the representing class (varargs)
      * @return a Stream for the given message types
      */
+    @SafeVarargs
     public static Stream<IMCMessage> stream(LsfIndex index, Class<? extends IMCMessage>... types) {
         return StreamSupport.stream(multiSpliterator(index, types), true);
     }
@@ -73,6 +74,7 @@ public class LsfStreams {
      * @param types The message types to be iterated
      * @return Spliterator for the given message types
      */
+    @SafeVarargs
     public static Spliterator<IMCMessage> multiSpliterator(LsfIndex index, Class<? extends IMCMessage>... types) {
         int[] mgTypes = new int[types.length];
         for (int i = 0; i < types.length; i++)
