@@ -198,7 +198,7 @@ public class GuiUtils {
             if (x >= b.getMinX() && x < b.getMaxX() && y >= b.getMinY() && y < b.getMaxY())
                 return b;
         }
-        NeptusLog.pub().error("Error determinig the screen for the coordidate " + x + "," + y);
+        NeptusLog.pub().error("Error determining the screen for the coordinate " + x + "," + y);
         return bounds[0];
     }
 
