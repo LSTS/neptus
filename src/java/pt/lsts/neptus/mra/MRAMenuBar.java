@@ -117,6 +117,7 @@ public class MRAMenuBar {
     private boolean isTidesAdded = false;
 
     private AbstractAction openLsf, exit;
+    private AbstractAction openLogLocation;
     protected AbstractAction genReport;
     protected AbstractAction genReportCustomOptions;
     protected AbstractAction reportOptions;
@@ -224,6 +225,16 @@ public class MRAMenuBar {
         };
         openLsf.putValue(Action.SHORT_DESCRIPTION, I18n.text("Choose and Open a Lsf log") + ".");
 
+        openLogLocation = new AbstractAction(I18n.text("Open log location"),
+                ImageUtils.getIcon("images/menus/folder_arrow-in.png")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mra.getMraFilesHandler().openLogDirectory();
+            }
+        };
+        openLogLocation.putValue(Action.SHORT_DESCRIPTION, I18n.text("Open the directory containing the current log file in the system file explorer."));
+        openLogLocation.setEnabled(false);
+
         exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
 
             @Override
@@ -238,6 +249,7 @@ public class MRAMenuBar {
         exit.putValue(Action.SHORT_DESCRIPTION, I18n.text("Exit MRA") + ".");
 
         fileMenu.add(openLsf);
+        fileMenu.add(openLogLocation);
         fileMenu.addSeparator();
         fileMenu.add(exit);
     }
@@ -794,6 +806,14 @@ public class MRAMenuBar {
      */
     public AbstractAction getSetMissionMenuItem() {
         return this.setMission;
+    }
+
+    /**
+     * Gets openLogLocation MenuItem
+     * @return openLogLocation
+     */
+    public AbstractAction getOpenLogLocationMenuItem() {
+        return openLogLocation;
     }
 
     /**

@@ -182,6 +182,7 @@ public class MRAFilesHandler implements FileHandler {
         mra.getMRAMenuBar().getSetMissionMenuItem().setEnabled(true);
         mra.getMRAMenuBar().getGenReportMenuItem().setEnabled(true);
         mra.getMRAMenuBar().getGenReportCustomOptionsMenuItem().setEnabled(true);
+        mra.getMRAMenuBar().getOpenLogLocationMenuItem().setEnabled(true);
     }
 
     /**
@@ -489,6 +490,54 @@ public class MRAFilesHandler implements FileHandler {
         }
        // GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
        //         I18n.text("Opening file") +" "+ pdf);
+    }
+
+    /**
+     * Opens the log directory in the system file explorer.
+     */
+    public void openLogDirectory() {
+        if (mra.getMraPanel() == null || mra.getMraPanel().getSource() == null) {
+            GuiUtils.errorMessage(mra, I18n.text("Error"), I18n.text("No log file is currently open."));
+            return;
+        }
+
+        File logDir = mra.getMraPanel().getSource().getFile("");
+        if (logDir == null || !logDir.exists()) {
+            GuiUtils.errorMessage(mra, I18n.text("Error"), I18n.text("Could not find log directory."));
+            return;
+        }
+
+        try {
+            if (OsInfo.getName() == OsInfo.Name.WINDOWS) {
+                File dir = logDir;
+                if (dir.isDirectory()) {
+                    Runtime.getRuntime().exec(new String[]{"explorer.exe", dir.getAbsolutePath()});
+                } else {
+                    Runtime.getRuntime().exec(new String[]{"explorer.exe", "/select,", dir.getAbsolutePath()});
+                }
+            }
+            else { // Linux and others
+                String[] fileManagers = {"xdg-open", "nautilus", "thunar", "dolphin", "konqueror", "pcmanfm"};
+                String fileManager = null;
+
+                for (String manager : fileManagers) {
+                    if (Runtime.getRuntime().exec(new String[]{"which", manager}).waitFor() == 0) {
+                        fileManager = manager;
+                        break;
+                    }
+                }
+
+                if (fileManager != null) {
+                    Runtime.getRuntime().exec(new String[]{fileManager, logDir.getAbsolutePath()});
+                } else {
+                    throw new Exception(I18n.text("Could not find a file manager"));
+                }
+            }
+        } catch (Exception e) {
+            GuiUtils.errorMessage(mra, I18n.text("Error"),
+                    I18n.text("Could not open file explorer: ") + e.getMessage());
+            NeptusLog.pub().error(e);
+        }
     }
 
     // --- Recently opened files ---
