@@ -48,6 +48,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.IridiumTxStatus;
@@ -73,6 +74,11 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     protected static final int TIMESTAMP = 0, SYSTEM = 1, STATUS = 2, MSG_TYPE = 3;
     final private String[] statusTooltips = { "Message delivered to recipient(s)", "Error sending message",
             "No confirmation of reception", "Executing a SOICOMMAND or an IRIDIUMCOMMAND" };
+    private String jsonView;
+    private String hexView;
+    private String lastJsonData = null;
+    private String lastHexData = null;
+    private boolean hasJsonData;
 
     public enum IridiumCommsStatus {
         DELIVERED,
@@ -194,20 +200,53 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     }
 
     public String getMessageData(int row) throws Exception {
-        IridiumMessage msg = null;
-        synchronized (msgsList) {
-            msg = msgsList.get(row);
+        IridiumMessage msg;
+        synchronized(this.msgsList) {
+            msg = (IridiumMessage)this.msgsList.get(row);
         }
-        if (msg == null)
-            return "";
 
-        StringBuilder data = new StringBuilder();
-        for (IMCMessage message : msg.asImc()) {
-            data.append(message.toString());
-            data.append('\n');
+        if (msg == null) {
+            return "<html><b>No data</b></html>";
+        } else {
+            StringBuilder html = new StringBuilder("<html>");
+            StringBuilder jsonBuilder = new StringBuilder();
+
+            for(IMCMessage m : msg.asImc()) {
+                String part = IMCUtil.getAsHtml(m);
+                part = part.replace("<html>", "").replace("</html>", "");
+                html.append(part).append("<br/><hr/>");
+                jsonBuilder.append(m.asJSON()).append("\n");
+            }
+
+            String hex = new String(Hex.encodeHex(msg.serialize()));
+            String formattedHex = hex.replaceAll("(.{44})", "$1<br>");
+            html.append("<b>HEX Data:</b><br>");
+            html.append("<div style=\"background-color:#f5f5f5;padding:10px;font-family:monospace;white-space:pre-wrap;line-height:1.4;\">" + formattedHex + "</div>");
+            html.append("</html>");
+            return html.toString();
         }
-        data.append("HEX DATA: ").append(new String(Hex.encodeHex(msg.serialize()))).append("\n");
-        return data.toString();
+    }
+
+    public void populateMessageViews(int row) throws Exception {
+        IridiumMessage msg;
+        synchronized(this.msgsList) {
+            msg = (IridiumMessage)this.msgsList.get(row);
+        }
+
+        if (msg == null) {
+            this.jsonView = "";
+            this.hexView = "";
+        } else {
+            StringBuilder textBuilder = new StringBuilder();
+
+            for(IMCMessage message : msg.asImc()) {
+                textBuilder.append(message.toString());
+                textBuilder.append('\n');
+            }
+
+            this.hexView = new String(Hex.encodeHex(msg.serialize()));
+            this.jsonView = textBuilder.toString();
+        }
     }
 
     @Override
@@ -354,6 +393,38 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
             fireTableDataChanged();
         }
     }
+
+    public String getJsonView(int row) throws Exception {
+        populateMessageViews(row);
+        return jsonView;
+    }
+
+    public String getHexView(int row) throws Exception {
+        populateMessageViews(row);
+        return hexView;
+    }
+
+    /**
+     * @return The JSON representation of the last requested message, or empty string if not available
+     */
+    public String getLastJsonData() {
+        return lastJsonData != null ? lastJsonData : "";
+    }
+    
+    /**
+     * @return The HEX representation of the last requested message, or empty string if not available
+     */
+    public String getLastHexData() {
+        return lastHexData != null ? lastHexData : "";
+    }
+    
+    /**
+     * @return true if the last requested message has JSON data available
+     */
+    public boolean hasJsonData() {
+        return hasJsonData;
+    }
+
 }
 
 /**

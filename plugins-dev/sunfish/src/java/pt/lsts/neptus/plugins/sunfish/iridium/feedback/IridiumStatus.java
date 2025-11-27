@@ -37,8 +37,13 @@ package pt.lsts.neptus.plugins.sunfish.iridium.feedback;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -50,11 +55,14 @@ import java.util.Comparator;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -75,6 +83,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 @PluginDescription(name = "Iridium Communications Status",
         icon = "images/iridium/iridium-logo.png",
@@ -91,6 +100,7 @@ public class IridiumStatus extends ConsolePanel {
     private TableRowSorter<TableModel> rowSorter;
     private TableModelListener changes;
     private int highlight_init,highlight_block_size;
+    private JDialog currentDialog;
 
     @NeptusProperty(name = "Clear button", description = "Clear button parameter to cleanup old messages. (seconds)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public long secs = 3600;
@@ -350,26 +360,68 @@ public class IridiumStatus extends ConsolePanel {
                 NeptusLog.pub().error("Invalid row selected: {}", index);
                 return;
             }
-            String msg = iridiumCommsStatus.getMessageData(index); 
-            JTextArea data = new JTextArea();
-            data.setEditable(false);
-            data.setOpaque(true);
-            data.setMaximumSize(new Dimension(500,350));
-            data.setText(msg);
-            JScrollPane jscroll = new JScrollPane(data); 
-            jscroll.setPreferredSize(new Dimension(400,400));
-            String title = "Iridium Message Data";
-            JOptionPane.showMessageDialog(this, jscroll, title, JOptionPane.PLAIN_MESSAGE);
+
+            String html = this.iridiumCommsStatus.getMessageData(index);
+            if (this.currentDialog != null && this.currentDialog.isDisplayable()) {
+                this.currentDialog.dispose();
+            }
+
+            JDialog dialog = new JDialog((Window)ConfigFetch.getSuperParentFrame(), "Iridium Message Data", Dialog.ModalityType.MODELESS);
+            JEditorPane pane = new JEditorPane("text/html", html);
+            pane.setEditable(false);
+            pane.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        this.showMenu(e);
+                    }
+
+                }
+
+                public void mouseReleased(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        this.showMenu(e);
+                    }
+
+                }
+
+                private void showMenu(MouseEvent e) {
+                    JPopupMenu menu = new JPopupMenu();
+                    JMenuItem copyJson = new JMenuItem("Copy Message JSON");
+
+                    try {
+                        String json = IridiumStatus.this.iridiumCommsStatus.getJsonView(index);
+                        copyJson.setEnabled(json != null && !json.isEmpty());
+                        copyJson.addActionListener((ae) -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(json), (ClipboardOwner)null));
+                    } catch (Exception var7) {
+                        copyJson.setEnabled(false);
+                    }
+
+                    menu.add(copyJson);
+                    JMenuItem copyHex = new JMenuItem("Copy HEX Data");
+
+                    try {
+                        String hex = IridiumStatus.this.iridiumCommsStatus.getHexView(index);
+                        copyHex.addActionListener((ae) -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(hex), (ClipboardOwner)null));
+                    } catch (Exception var6) {
+                        copyHex.setEnabled(false);
+                    }
+
+                    menu.add(copyHex);
+                    menu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            });
+            JScrollPane scroll = new JScrollPane(pane);
+            scroll.setPreferredSize(new Dimension(401, 510));
+            dialog.getContentPane().add(scroll);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.getRootPane().registerKeyboardAction((e) -> dialog.dispose(), KeyStroke.getKeyStroke(27, 0), 2);
+            dialog.setVisible(true);
+            this.currentDialog = dialog;
+        } catch (Exception ex) {
+            GuiUtils.errorMessage(this.getConsole(), ex);
         }
-        catch (IndexOutOfBoundsException aioobe) {
-            NeptusLog.pub().error("Invalid row selected error: {}", aioobe.getMessage());
-        }
-        catch (NullPointerException npe) {
-            NeptusLog.pub().error("Error displaying message data", npe);
-        }
-        catch (Exception ex) {
-            GuiUtils.errorMessage(getConsole(), ex);
-        }
+
     }
 
     @SuppressWarnings("serial")
