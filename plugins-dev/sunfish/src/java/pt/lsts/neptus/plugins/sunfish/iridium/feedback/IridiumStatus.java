@@ -127,11 +127,18 @@ public class IridiumStatus extends ConsolePanel {
             }
         });
     }
-    
+
     private void closeMessageDialog() {
-        if (currentDialog != null && currentDialog.isDisplayable()) {
-            currentDialog.dispose();
-            currentDialog = null;
+        if (currentDialog != null) {
+            try {
+                if (currentDialog.isDisplayable()) {
+                    currentDialog.dispose();
+                }
+            } catch (Exception e) {
+                NeptusLog.pub().warn("Error closing message dialog: " + e.getMessage());
+            } finally {
+                currentDialog = null;
+            }
         }
     }
 
@@ -388,6 +395,14 @@ public class IridiumStatus extends ConsolePanel {
             closeMessageDialog();
             
             JDialog dialog = new JDialog((Window)ConfigFetch.getSuperParentFrame(), "Iridium Message Data", Dialog.ModalityType.MODELESS);
+            dialog.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    if (currentDialog == e.getWindow()) {
+                        currentDialog = null;
+                    }
+                }
+            });
             currentDialog = dialog;
             JEditorPane pane = new JEditorPane("text/html", html);
             pane.setEditable(false);
