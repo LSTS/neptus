@@ -45,9 +45,12 @@ import java.awt.Window;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -110,7 +113,26 @@ public class IridiumStatus extends ConsolePanel {
      */
     public IridiumStatus(ConsoleLayout console) {
         super(console);
-
+        addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+                Window window = SwingUtilities.getWindowAncestor(this);
+                if (window != null) {
+                    window.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent windowEvent) {
+                            closeMessageDialog();
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    private void closeMessageDialog() {
+        if (currentDialog != null && currentDialog.isDisplayable()) {
+            currentDialog.dispose();
+            currentDialog = null;
+        }
     }
 
     /* (non-Javadoc)
@@ -118,6 +140,7 @@ public class IridiumStatus extends ConsolePanel {
      */
     @Override
     public void cleanSubPanel() {
+        closeMessageDialog();
         iridiumCommsStatus.clear();
     }
 
@@ -362,11 +385,10 @@ public class IridiumStatus extends ConsolePanel {
             }
 
             String html = this.iridiumCommsStatus.getMessageData(index);
-            if (this.currentDialog != null && this.currentDialog.isDisplayable()) {
-                this.currentDialog.dispose();
-            }
-
+            closeMessageDialog();
+            
             JDialog dialog = new JDialog((Window)ConfigFetch.getSuperParentFrame(), "Iridium Message Data", Dialog.ModalityType.MODELESS);
+            currentDialog = dialog;
             JEditorPane pane = new JEditorPane("text/html", html);
             pane.setEditable(false);
             pane.addMouseListener(new MouseAdapter() {
@@ -421,7 +443,6 @@ public class IridiumStatus extends ConsolePanel {
         } catch (Exception ex) {
             GuiUtils.errorMessage(this.getConsole(), ex);
         }
-
     }
 
     @SuppressWarnings("serial")
