@@ -276,11 +276,11 @@ public class LogsDownloaderWorker {
     /* (non-Javadoc)
      * @see java.lang.Object#finalize()
      */
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        cleanup();
-    }
+    //@Override
+    //protected void finalize() throws Throwable {
+    //    super.finalize();
+    //    cleanup();
+    //}
 
     ArrayList<String> getServersList() {
         return serversList;

@@ -125,8 +125,10 @@ public class SubPlan extends Maneuver implements IMCSerialization {
     	for (Property p : properties) {
     		if (p.getName().equals("Plan to execute")) {
     			setPlanId((String)p.getValue());
-    			subplan = null;
-    			
+                if (subplan != null) {
+                    subplan.cleanup();
+                }
+                subplan = null;
     		}
     		else if (p.getName().equals("Starting Maneuver")) {
     			setStartNodeId((String)p.getValue());

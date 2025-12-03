@@ -369,7 +369,6 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
         startUpdatingDynamicElements();
     }
 
-
     /**
      * Creates the JToolbar to be added in the interface
      * @return The toolbar with all its sub-components
@@ -640,16 +639,19 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
         }			
     }
 
-    public void cleanup()
-    {
+    public void cleanup() {
         stopUpdatingDynamicElements();
         stopInterpolatingStates();
 
-        for(int i=0;i<renderers.length;i++)
-            if (renderers[i] != null)
-                renderers[i].cleanup();
+        for (Renderer renderer : renderers) {
+            if (renderer != null) {
+                renderer.cleanup();
+            }
+        }
 
-
+        if (po != null) {
+            po.cleanup();
+        }
     }
 
     public StateRenderer2D getRenderer2d() {

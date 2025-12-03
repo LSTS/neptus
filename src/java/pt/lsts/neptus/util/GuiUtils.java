@@ -198,7 +198,7 @@ public class GuiUtils {
             if (x >= b.getMinX() && x < b.getMaxX() && y >= b.getMinY() && y < b.getMaxY())
                 return b;
         }
-        NeptusLog.pub().error("Error determinig the screen for the coordidate " + x + "," + y);
+        NeptusLog.pub().error("Error determining the screen for the coordinate " + x + "," + y);
         return bounds[0];
     }
 
@@ -251,7 +251,13 @@ public class GuiUtils {
      * @param window A Frame to be centered in the user screen
      */
     public static void centerOnScreen(Window window) {
-        window.setLocationRelativeTo(null);
+        //window.setLocationRelativeTo(null);
+        Dimension size = window.getSize();
+        Point pt = window.getLocation();
+        Rectangle bounds = getScreenBounds(pt.x, pt.y);
+        int x = (int) ((bounds.getMaxX() - bounds.width / 2.0) - size.width / 2.0);
+        int y = (int) ((bounds.getMaxY() - bounds.height / 2.0) - size.height / 2.0);
+        window.setBounds(x, y, size.width, size.height);
     }
 
     /**

@@ -78,6 +78,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -162,6 +163,12 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
 
     // JPopup Menu
     private JPopupMenu popup;
+    private ActionListener connectToStreamActionListener;
+    private ActionListener closeVideoStreamActionListener;
+    private ActionListener toggleHistogramFilterActionListener;
+    private ActionListener maximizeWindowActionListener;
+    private ActionListener showVehicleInformationActionListener;
+
     private final IpCamManagementPanel ipCamManagementPanel;
     // JTextField for IPCam name
     private final JLabel streamNameJLabel;
@@ -216,6 +223,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
         removeAll();
 
         initPopupMenu();
+        addKeyListener();
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -268,6 +276,43 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
         streamWarnJLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         streamWarnJLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
         streamWarnJLabel.setText("⚠");
+    }
+
+    private void addKeyListener() {
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if ((e.getKeyCode() == KeyEvent.VK_I)
+                        && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
+                    connectToStreamActionListener.actionPerformed(new ActionEvent(this, 351, "alt I"));
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_X)
+                        && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
+                    closeVideoStreamActionListener.actionPerformed(new ActionEvent(this, 351, "alt X"));
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_H)
+                        && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
+                    toggleHistogramFilterActionListener.actionPerformed(new ActionEvent(this, 351, "alt H"));
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_F)
+                        && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK) {
+                    maximizeWindowActionListener.actionPerformed(new ActionEvent(this, 351, "alt F"));
+                }
+                else if ((e.getKeyCode() == KeyEvent.VK_V)
+                        && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK) {
+                    showVehicleInformationActionListener.actionPerformed(new ActionEvent(this, 351, "alt V"));
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+        });
+        this.setFocusable(true);
     }
 
     @Override
@@ -587,64 +632,70 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
         popup = new JPopupMenu();
         JMenuItem item;
 
+        connectToStreamActionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                openIPCamManagementPanel();
+                //service.execute(VideoReader.this::connectStream);
+            }
+        };
         popup.add(item = new JMenuItem(I18n.text("Connect to stream"),
                         ImageUtils.createImageIcon("images/menus/camera.png")))
-                .addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        openIPCamManagementPanel();
-                        //service.execute(VideoReader.this::connectStream);
-                    }
-                });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
+                .addActionListener(connectToStreamActionListener);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK));
 
-        popup.add(item = new JMenuItem(I18n.text("Close stream connection"),
-                        ImageUtils.createImageIcon("images/menus/exit.png")))
-                .addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        NeptusLog.pub().info("Closing video stream");
-                        service.execute(VideoReader.this::disconnectStream);
+        closeVideoStreamActionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                NeptusLog.pub().info("Closing video stream");
+                service.execute(VideoReader.this::disconnectStream);
 //                                    noVideoLogoState = false;
 //                                    isCleanTurnOffCam = true;
 //                                    state = false;
 //                                    ipCam = false;
 //                                    closeCapture(capture);
-                        repaint(500);
-                    }
-                });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
+                repaint(500);
+            }
+        };
+        popup.add(item = new JMenuItem(I18n.text("Close stream connection"),
+                        ImageUtils.createImageIcon("images/menus/exit.png")))
+                .addActionListener(closeVideoStreamActionListener);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_DOWN_MASK));
 
         popup.addSeparator();
 
+        toggleHistogramFilterActionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                histogramFlag = !histogramFlag;
+                if (player != null) {
+                    player.setHistogramFlag(histogramFlag);
+                }
+            }
+        };
         popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
                         ImageUtils.createImageIcon("images/menus/histogram.png")))
-                .addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        histogramFlag = !histogramFlag;
-                        if (player != null) {
-                            player.setHistogramFlag(histogramFlag);
-                        }
-                    }
-                });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
+                .addActionListener(toggleHistogramFilterActionListener);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK));
 
+        maximizeWindowActionListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                maximizeVideoStreamPanel();
+            }
+        };
         popup.add(item = new JMenuItem(I18n.text("Maximize window"),
                         ImageUtils.createImageIcon("images/menus/maximize.png")))
-                .addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        maximizeVideoStreamPanel();
-                    }
-                });
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
+                .addActionListener(maximizeWindowActionListener);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_DOWN_MASK));
 
         popup.addSeparator();
 
         showInfoItem = new JCheckBoxMenuItem(I18n.text("Show vehicle information"));
 
-        showInfoItem.addActionListener(new ActionListener() {
+        showVehicleInformationActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showVehicleInformation();
             }
-        });
+        };
+        showInfoItem.addActionListener(showVehicleInformationActionListener);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.ALT_DOWN_MASK));
 
         popup.add(showInfoItem);
 

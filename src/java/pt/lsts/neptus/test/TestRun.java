@@ -33,6 +33,8 @@
 package pt.lsts.neptus.test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;
 
@@ -57,7 +59,7 @@ public class TestRun
     {
         NeptusLog.pub().info("<###> "+System.getProperty("os.name"));
         Runtime rt = Runtime.getRuntime();
-        Process ps = rt.exec("notepad");
+        Process ps = rt.exec(List.of("notepad").toArray(new String[0]));
         ps.waitFor();
         NeptusLog.pub().info("<###> "+ps.exitValue());
     }

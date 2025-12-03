@@ -484,8 +484,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     ((JComponent) c).setBorder(new EmptyBorder(0, 0, 0, 0));
             }
             if (plan != null && !manager.canUndo()
-                    && getConsole().getMission().getIndividualPlansList().containsKey(plan.getId()))
+                    && getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
                 plan = null;
+            }
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = null;
             renderer.setToolTipText("");
             overlay = null;
@@ -921,6 +925,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         this.plan = plan;
         if (plan == null) {
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = null;
             return;
         }
@@ -932,6 +939,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             getPropertiesPanel().setManeuver(null);
             getPropertiesPanel().setManager(null);
             parsePlan();
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = new PlanElement(mapGroup, new MapType());
             planElem.setBeingEdited(true);
             planElem.setRenderer(renderer);
@@ -1565,7 +1575,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        Window parent = SwingUtilities.getWindowAncestor(getConsole());
+                        Window parent = getConsole();
                         if (parent == null)
                             parent = SwingUtilities.getWindowAncestor(ConfigFetch.getSuperParentAsFrame());
                         JDialog transitions = new JDialog(parent, I18n.textf("Edit '%planName' plan transitions",
@@ -1582,10 +1592,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         });
                         
                         transitions.setModalityType(ModalityType.DOCUMENT_MODAL);
-                        transitions.getContentPane().add(new PlanTransitionsSimpleEditor(plan));
+                        PlanTransitionsSimpleEditor planTransitionsSimpleEditor = new PlanTransitionsSimpleEditor(plan);
+                        transitions.getContentPane().add(planTransitionsSimpleEditor);
                         transitions.setSize(800, 500);
                         GuiUtils.centerParent(transitions, getConsole());
                         transitions.setVisible(true);
+                        // cleanup
+                        planTransitionsSimpleEditor.clean();
+
                         parsePlan();
                         renderer.repaint();
 

@@ -52,6 +52,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -206,6 +207,10 @@ public class MissionTreePanel extends ConsolePanel
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
         planDBListener.setDebugOn(debugOn);
         addClearPlanDbMenuItem();
+
+        // Using a javax.swing.Timer — runs on the Event Dispatch Thread (EDT) to force reload of the mission tree
+        // to clear a strange behavior at start (appears a space between transponders and plan branch)
+        new Timer(500, e -> browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole())).start();
     }
 
     private void addClearPlanDbMenuItem() {

@@ -41,7 +41,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
@@ -81,10 +79,7 @@ import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.ImcStringDefs;
-import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PolygonVertex;
-import pt.lsts.imc.StateReport;
-import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -1547,7 +1542,7 @@ public class IMCUtils {
     public static void testSysTypeResolution() throws Exception {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
 
-        URLConnection conn = new URL(address_url).openConnection();
+        URLConnection conn = new URI(address_url).toURL().openConnection();
         Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream(), (Charset) null));
         List<?> nodes = doc.getRootElement().selectNodes("address/@id");
         for (int i = 0; i < nodes.size(); i++) {

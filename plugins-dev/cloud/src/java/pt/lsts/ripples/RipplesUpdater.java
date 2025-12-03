@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -406,7 +407,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
         if (this.connected) {
             String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/assets";
             String authKey = GeneralPreferences.ripplesApiKey;
-            URL url = new URL(ripplesPostUrl);
+            URL url = new URI(ripplesPostUrl).toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setDoOutput(true);

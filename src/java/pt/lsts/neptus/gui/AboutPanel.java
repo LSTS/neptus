@@ -71,8 +71,9 @@ public class AboutPanel extends JDialog {
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
     private String contributorsDevelopers = "Manuel Ribeiro, "
-            + "Tiago Marques, Pedro Gonçalves, Keila Lima";
-    private String pastDevelopers = "José Braga, Ricardo Martins, Francisco Richardson, "
+            + "Pedro Gonçalves";
+    private String pastDevelopers = "Miguel Carvalho, Keila Lima, Tiago Marques, "
+            + "José Braga, Ricardo Martins, Francisco Richardson, "
             + "João Fortuna, José Loureiro, Hugo Queirós, Margarida Faria, "
             + "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
@@ -112,7 +113,7 @@ public class AboutPanel extends JDialog {
         this.setResizable(false);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setBackground(Color.WHITE);
-        this.setSize(506, 565);
+        this.setSize(506, 605);
         this.setContentPane(getContentPanel());
         this.setTitle(I18n.text("About"));
         this.addMouseListener(new MouseAdapter() {
@@ -237,7 +238,7 @@ public class AboutPanel extends JDialog {
     }
 
     /**
-     * @param iMG_FILE_NAME the iMG_FILE_NAME to set
+     * @param aboutImageFilePath the iMG_FILE_NAME to set
      */
     public static void setAboutImageFilePath(String aboutImageFilePath) {
         AboutPanel.aboutImageFilePath = aboutImageFilePath;

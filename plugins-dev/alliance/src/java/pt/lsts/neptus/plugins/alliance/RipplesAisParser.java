@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.alliance;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,7 +67,7 @@ public class RipplesAisParser {
         if (!ripplesBaseUrl.endsWith("/")) {
             ripplesBaseUrl += "/";
         }
-        URL url = new URL(ripplesBaseUrl + "ais");
+        URL url = new URI(ripplesBaseUrl + "ais").toURL();
         HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();    
         JsonArray val = Json.parse(new InputStreamReader(httpConnection.getInputStream())).asArray();
        

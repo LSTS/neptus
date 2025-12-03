@@ -35,9 +35,7 @@ package pt.lsts.neptus.planeditor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
@@ -50,7 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -73,6 +70,7 @@ import javax.swing.text.Utilities;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.ActionType;
@@ -156,29 +154,20 @@ public class PlanTransitionsSimpleEditor extends JPanel {
         scrollHolder = new JScrollPane(holder);
         add(scrollHolder);
         
-        Dimension buttonDimension = new Dimension(80, 30);
         okButton = new JButton(okAction);
-        okButton.setSize(buttonDimension);
         cancelButton = new JButton(cancelAction);
-        cancelButton.setSize(buttonDimension);
         addButton = new JButton(addAction);
-        addButton.setSize(buttonDimension);
         removeButton = new JButton(removeAction);
-        removeButton.setSize(buttonDimension);
         removeButton = new JButton(removeAction);
-        removeButton.setSize(buttonDimension);
         clearSelectionButton = new JButton(clearSelectionAction);
-        clearSelectionButton.setSize(buttonDimension);
-        
+
         buttonBarPanel = new JPanel();
-        buttonBarPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        buttonBarPanel.add(addButton);
-        buttonBarPanel.add(Box.createHorizontalStrut(10));
-        buttonBarPanel.add(removeButton);
-        buttonBarPanel.add(clearSelectionButton);
-        buttonBarPanel.add(Box.createHorizontalStrut(10));
-        buttonBarPanel.add(okButton);
-        buttonBarPanel.add(cancelButton);
+        buttonBarPanel.setLayout(new MigLayout("align right"));
+        buttonBarPanel.add(addButton, "sg btn");
+        buttonBarPanel.add(removeButton, "sg btn, gapleft 10");
+        buttonBarPanel.add(clearSelectionButton, "sg btn");
+        buttonBarPanel.add(okButton, "sg btn, gapleft 30");
+        buttonBarPanel.add(cancelButton, "sg btn");
         
         GuiUtils.reactEscapeKeyPress(cancelButton);
         
@@ -338,11 +327,11 @@ public class PlanTransitionsSimpleEditor extends JPanel {
     /* (non-Javadoc)
      * @see java.lang.Object#finalize()
      */
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        clean();
-    }
+    //@Override
+    //protected void finalize() throws Throwable {
+    //    super.finalize();
+    //    clean();
+    //}
     
     static class PlanTransitionGuiPanel extends JPanel {
         TransitionType transition = null;
@@ -583,8 +572,7 @@ public class PlanTransitionsSimpleEditor extends JPanel {
         }
 
         @Override
-        protected int drawUnselectedText(Graphics graphics, int x, int y, int p0,
-                int p1) throws BadLocationException {
+        protected float drawUnselectedText(Graphics2D graphics, float x, float y, int p0, int p1) throws BadLocationException {
 
             Document doc = getDocument();
             String text = doc.getText(p0, p1 - p0);

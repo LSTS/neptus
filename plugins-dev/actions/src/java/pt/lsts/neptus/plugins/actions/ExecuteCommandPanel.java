@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -60,7 +61,7 @@ public class ExecuteCommandPanel extends SimpleMenuAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            Runtime.getRuntime().exec(command);
+            Runtime.getRuntime().exec(List.of(command).toArray(new String[0]));
         }
         catch (Exception ex) {
             GuiUtils.showErrorPopup("Error executing command", ex.getMessage());

@@ -136,13 +136,10 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 
     /*
      * (non-Javadoc)
-     * 
-     * @see java.lang.Object#finalize()
+     *  Replacing the deprecated finalize method. NEED to be called to cleanup.
      */
-    @Override
-    protected void finalize() throws Throwable {
+    public void cleanup() {
         GeneralPreferences.removePreferencesListener(this);
-        super.finalize();
     }
 
     @Override

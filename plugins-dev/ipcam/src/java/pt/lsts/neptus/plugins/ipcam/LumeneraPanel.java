@@ -36,6 +36,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -101,7 +102,7 @@ public class LumeneraPanel extends JPanel {
     public void fetchNewImage() {
         URL url;
         try {
-            url = new URL(urltext);
+            url = new URI(urltext).toURL();
             HttpURLConnection con = ((HttpURLConnection) url.openConnection());
             image = ImageIO.read(con.getInputStream());
             revalidate();

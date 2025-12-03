@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -99,7 +100,7 @@ public class SimulatedMessenger implements IridiumMessenger {
         byte[] data = m.serialize();
         data = new String(Hex.encodeHex(data)).getBytes();
 
-        URL u = new URL(messagesUrl);
+        URL u = new URI(messagesUrl).toURL();
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");

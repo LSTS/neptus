@@ -273,6 +273,8 @@ public class TextCommands extends ConsolePanel {
         dialog.setModal(true);
         dialog.setTitle("Previewing "+cmd.getCommand()+" command");
         dialog.setVisible(true);
+
+        planElem.cleanup();
     }
 
     private void send() {

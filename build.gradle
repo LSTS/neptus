@@ -9,8 +9,8 @@ plugins {
     id 'application'
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
-    id "com.github.langmo.gradlensis" version "0.1.0"
-    id "de.undercouch.download" version "4.1.2"
+    id "io.github.androxyde.gradlensis" version "0.2.0"
+    id "de.undercouch.download" version "5.6.0"
 
     id "eclipse"
 }
@@ -81,12 +81,12 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
 def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
         FileCollection classpathCollection) {
-    return tasks.create("${taskPrefixName}StartScripts".toString(), CreateStartScripts) {
+    return tasks.register("${taskPrefixName}StartScripts".toString(), CreateStartScripts) {
         applicationName = "$applicationNameOpt"
         outputs.upToDateWhen { false }
         mainClass = "$mainclass"
         classpath =  classpathCollection
-        outputDir = file("$buildDir/scripts/$taskPrefixName")
+        outputDir = file("${layout.buildDirectory.get().asFile}/scripts/$taskPrefixName")
         executableDir = "$appHomeRelativePathOpt"
 
         defaultJvmOpts = [
@@ -134,14 +134,17 @@ apply plugin: 'distribution'
 apply plugin: "com.gorylenko.gradle-git-properties"
 apply plugin: 'eclipse'
 
-task buildClasspathJar(type: Jar) {
+tasks.register('buildClasspathJar', Jar) {
     archiveBaseName = "cp"
     archiveVersion = ''
     destinationDirectory = file("$rootDir")
+
+    def coreProjectConfigurations = project(':core').configurations
+
     doFirst {
         def configurationClasspath = configurations.runtimeClasspath
-        configurationClasspath -= project(':core').configurations.core.allArtifacts.files
-        subprojects.findAll({it.name != 'core'}).each {
+        configurationClasspath -= coreProjectConfigurations.core.allArtifacts.files
+        subprojects.findAll({ it.name != 'core' }).each {
             configurationClasspath -= it.configurations.plugin.allArtifacts.files
         }
 
@@ -159,7 +162,8 @@ task buildClasspathJar(type: Jar) {
 
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
-    '', 'RunOptions', files('SUBSTITUTE')).doLast {
+        '', 'RunOptions', files('SUBSTITUTE')).configure {
+    doLast {
         // def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
         // configurationClasspath -= project(':core').configurations.core.allArtifacts.files
         // subprojects.findAll({it.name != 'core'}).each {
@@ -174,8 +178,9 @@ generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMa
         unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
     }
+}
 
-task generateRunScripts(type: Copy) {
+tasks.register('generateRunScripts', Copy) {
     dependsOn buildClasspathJar
     from runStartScripts
     into file("$rootDir")
@@ -184,8 +189,13 @@ task generateRunScripts(type: Copy) {
 jar.dependsOn generateRunScripts
 jar.enabled = false
 
+
+import com.github.androxyde.gradlensis.GradleNsisTask
+import groovy.json.JsonSlurper
+
 import static org.apache.tools.ant.taskdefs.condition.Os.*
-task updateLibJNIPaths {
+
+tasks.register('updateLibJNIPaths') {
     def familyLst = []
     if (isFamily(FAMILY_WINDOWS))
         familyLst += 'win'
@@ -205,7 +215,7 @@ task updateLibJNIPaths {
         println "Family:       ${OS_NAME}"
         println "Version:      ${OS_VERSION}"
         println "Architecture: ${OS_ARCH}"
-        println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
+        println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':')}"
 
         // println ">>>>>>>> " + configurations.runtimeClasspath.asPath
     }
@@ -258,7 +268,7 @@ allprojects {
             dirs 'lib', "${rootProject.projectDir}/lib"
         }
         maven {
-            url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
+            url = 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
             content {
                 includeGroup "edu.ucar"
             }
@@ -280,23 +290,25 @@ allprojects {
 
     processResources {
         mustRunAfter(generateRunScripts)
-        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from (rootProject.projectDir) {
             include 'LICENSE.md'
         }
     }
 
     jar {
+        def projectExt = project.ext
+
         mustRunAfter(generateRunScripts)
         manifest {
             attributes(
                 'Specification-Title': rootProject.name.capitalize(),
-                'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+                'Specification-Version': "$project.version, ${-> projectExt.gitProps['git.commit.time']}",
                 'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version,
                 'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
-                'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+                'Build-Revision': "${rootProject.name}-${project.version}-git#${-> projectExt.gitProps['git.commit.id.describe']}",
                 'Built-By': "${System.properties['user.name']}",
                 'Built-On': "${new Date()}",
                 'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
@@ -330,22 +342,28 @@ allprojects {
     generateGitProperties.outputs.upToDateWhen { false }
     // If the subproject is on the same Git as the root,
     // just copy from it and don't run generateGitProperties
-    task copyGitPropertiesFromRoot {
+    def copyGitPropertiesFromRoot = tasks.register('copyGitPropertiesFromRoot') {
         if (project != rootProject)
             dependsOn rootProject.tasks.generateGitProperties
+
+        def projectExt = project.ext
+        def projectSourceSets = project.sourceSets
+
         doLast {
-            project.ext['gitProps'] = rootProject.ext.gitProps
+            projectExt['gitProps'] = rootProject.ext.gitProps
             copy {
-                from (rootProject.sourceSets.main.output.resourcesDir)
+                from(rootProject.sourceSets.main.output.resourcesDir)
                 include 'git.info'
-                into project.sourceSets.main.output.resourcesDir
+                into projectSourceSets.main.output.resourcesDir
             }
         }
     }
     if (file("${project.projectDir}/.git").exists()
             || file("${project.projectDir}/../.git").exists()
             && file("${project.projectDir}/../") != file("${rootProject.projectDir}"))
-        tasks.copyGitPropertiesFromRoot.enabled = false
+        copyGitPropertiesFromRoot.configure {
+            enabled = false
+        }
     else
         tasks.generateGitProperties.enabled = false
     generateGitProperties.dependsOn copyGitPropertiesFromRoot
@@ -364,8 +382,8 @@ project(':core') {
     }
 
     dependencies {
-        implementation name: 'libimc-5.90.7'
-        implementation name: 'libimcsender-5.90.7'
+        implementation name: 'libimc-5.90.8'
+        implementation name: 'libimcsender-5.90.8'
 
         implementation name: 'aisparser-2.0.0'
         implementation name: 'jssc' //dependency of aisparser, and serial port reader
@@ -585,7 +603,8 @@ project(':core') {
     }
 
     processResources {
-        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        def projectExt = project.ext
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         outputs.upToDateWhen{ false }
         from (project.sourceSets.main.resources.srcDirs) {
             include 'version.txt'
@@ -595,12 +614,12 @@ project(':core') {
             filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
             filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
             filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
-            filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
-            filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
+            filter{ it.replaceAll("@SCM_REV@", "${-> projectExt.gitProps['git.commit.id.describe']}") }
+            filter{ it.replaceAll("@SCM_PATH@", "${-> projectExt.gitProps['git.remote.origin.url']}") }
         }
     }
 
-    buildDir = file("$rootProject.rootDir/build/$project.name")
+    layout.buildDirectory.set(file("$rootProject.rootDir/build/$project.name"))
 
     eclipse {
         classpath {
@@ -631,7 +650,7 @@ project(':core') {
                     def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
                     assert rootProject.file(formaterFx).exists();
                     formaterFx.eachLine { String line ->
-                    def tks = line.split('=')
+                        def tks = line.split('=')
                         // set properties for the file org.eclipse.jdt.core.prefs
                         properties[tks[0]] = tks[1]
                     }
@@ -639,15 +658,17 @@ project(':core') {
             }
         }
     }
-    task createEclipseBuild {
+    def createEclipseBuild = tasks.register('createEclipseBuild') {
         doLast {
-            file("${rootProject.buildDir.getName()}/eclipse/main")
+            file("${rootProject.layout.buildDirectory.get().asFile.getName()}/eclipse/main")
             subprojects.each { project ->
-                file("${project.projectDir}/${rootProject.buildDir.getName()}/eclipse/main").mkdirs()
+                file("${project.projectDir}/${rootProject.layout.buildDirectory.get().asFile.getName()}/eclipse/main").mkdirs()
             }
         }
     }
-    tasks.eclipse.dependsOn cleanEclipse, createEclipseBuild
+    tasks.eclipse.configure {
+        dependsOn cleanEclipse, createEclipseBuild
+    }
 
     // jar.dependsOn generateRunScripts
     jar {
@@ -673,7 +694,7 @@ project(':core') {
 ////////////////////////////
 
 // Configure all tasks of type CreateStartScripts to use custom templates
-tasks.withType(CreateStartScripts) {
+tasks.withType(CreateStartScripts).configureEach {
     def unixTemplateName = rootProject.file('dist/scripts/unixStartScript.txt')
     assert project.file(unixTemplateName).exists();
     def winTemplateName = rootProject.file('dist/scripts/windowsStartScript.txt')
@@ -683,7 +704,7 @@ tasks.withType(CreateStartScripts) {
 }
 
 // Configure all tasks of type Tar to also GZIP it
-tasks.withType(Tar){
+tasks.withType(Tar).configureEach {
     compression = Compression.GZIP
     archiveExtension = 'tar.gz'
 }
@@ -726,7 +747,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
     }
 
     processResources {
-        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         outputs.upToDateWhen { false }
         from('.'){
             include 'plugins.lst'
@@ -742,7 +763,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
         compileOnly project(':core').sourceSets.main.runtimeClasspath
     }
 
-    buildDir = file("$rootProject.buildDir/plugins/$project.name")
+    layout.buildDirectory.set(file("${rootProject.layout.buildDirectory.get().asFile}/plugins/$project.name"))
 
     apply plugin: 'eclipse'
     eclipse {
@@ -790,13 +811,16 @@ configure(subprojects.findAll { it.name != 'core' }) {
     jar {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
-        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from sourceSets.main.output
 
         dependsOn configurations.runtimeClasspath
-        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+        def projectRuntimeClasspath = project.configurations.runtimeClasspath
+        def coreRuntimeClasspath = project(':core').sourceSets.main.runtimeClasspath
         from {
-            (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
+            (projectRuntimeClasspath - coreRuntimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
 
@@ -815,10 +839,10 @@ configure(subprojects.findAll { it.name != 'core' }) {
 // Build Section //
 ///////////////////
 
-task buildJars {
+tasks.register('buildJars') {
     description = "Generate $rootProject.name and plugins"
     group = 'Build'
-    dependsOn jar, subprojects.findAll().collect {it.tasks.withType(Jar).collect{it}}
+    dependsOn jar, subprojects.findAll().collect { it.tasks.withType(Jar).collect { it } }
 }
 run.dependsOn buildJars
 
@@ -827,7 +851,7 @@ run.dependsOn buildJars
 /////////////////////
 
 // Creates the bin/bundles neptus-worldmap.jar
-task buildWorldmapBundleJar(type: Jar) {
+tasks.register('buildWorldmapBundleJar', Jar) {
     dependsOn buildJars
     archiveBaseName = "${rootProject.name}"
     archiveClassifier = 'worldmap'
@@ -835,20 +859,22 @@ task buildWorldmapBundleJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/bin-bundles")
     includeEmptyDirs = false
+
+    def projectExt = project.ext
     manifest {
         attributes(
-            'Specification-Title': rootProject.name.capitalize(),
-            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
-            'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
-            'Implementation-Title': "${project.name}-worldmap",
-            'Implementation-Version': project.version,
-            'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
-            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
-            'Built-By': "${System.properties['user.name']}",
-            'Built-On': "${new Date()}",
-            'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-            'Main-Class': 'pt.lsts.neptus.app.tiles.WorldMapPanel',
-            )
+                'Specification-Title': rootProject.name.capitalize(),
+                'Specification-Version': "$project.version, ${-> projectExt.gitProps['git.commit.time']}",
+                'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
+                'Implementation-Title': "${project.name}-worldmap",
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
+                'Build-Revision': "${rootProject.name}-${project.version}-git#${-> projectExt.gitProps['git.commit.id.describe']}",
+                'Built-By': "${System.properties['user.name']}",
+                'Built-On': "${new Date()}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Main-Class': 'pt.lsts.neptus.app.tiles.WorldMapPanel',
+        )
     }
     dependsOn configurations.runtimeClasspath
     from {
@@ -890,16 +916,16 @@ task buildWorldmapBundleJar(type: Jar) {
         }.collect { zipTree(it) }
     }
 
-    from (sourceSets.main.output) {
+    from(sourceSets.main.output) {
         include 'LICEN*'
         include 'git.*'
         include 'version.*'
         include 'info*'
     }
-    from ("${rootProject.rootDir}/legal") {
+    from("${rootProject.rootDir}/legal") {
         into 'legal'
     }
-    from (project(':core').sourceSets.main.output) {
+    from(project(':core').sourceSets.main.output) {
         include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
@@ -915,7 +941,7 @@ task buildWorldmapBundleJar(type: Jar) {
 }
 
 // Creates the bin/bundles neptus-check.jar
-task buildCheckBundleJar(type: Jar) {
+def buildWorldmapBundleJar = tasks.register('buildCheckBundleJar', Jar) {
     dependsOn buildJars
     archiveBaseName = "${rootProject.name}"
     archiveClassifier = 'check'
@@ -923,20 +949,22 @@ task buildCheckBundleJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/bin-bundles")
     includeEmptyDirs = false
+
+    def projectExt = project.ext
     manifest {
         attributes(
             'Specification-Title': rootProject.name.capitalize(),
-            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+            'Specification-Version': "$project.version, ${-> projectExt.gitProps['git.commit.time']}",
             'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
             'Implementation-Title': "${project.name}-check",
             'Implementation-Version': project.version,
             'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
-            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> projectExt.gitProps['git.commit.id.describe']}",
             'Built-By': "${System.properties['user.name']}",
             'Built-On': "${new Date()}",
             'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
             'Main-Class': 'pt.lsts.neptus.gui.checklist.ChecklistPanel',
-            )
+        )
     }
     dependsOn configurations.runtimeClasspath
     from {
@@ -963,16 +991,16 @@ task buildCheckBundleJar(type: Jar) {
         }.collect { zipTree(it) }
     }
 
-    from (sourceSets.main.output) {
+    from(sourceSets.main.output) {
         include 'LICEN*'
         include 'git.*'
         include 'version.*'
         include 'info*'
     }
-    from ("${rootProject.rootDir}/legal") {
+    from("${rootProject.rootDir}/legal") {
         into 'legal'
     }
-    from (project(':core').sourceSets.main.output) {
+    from(project(':core').sourceSets.main.output) {
         include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
@@ -984,7 +1012,7 @@ task buildCheckBundleJar(type: Jar) {
     }
 }
 
-task buildBundleJars {
+def buildBundleJars = tasks.register('buildBundleJars') {
     description = "Generate the bundle Jars"
     group = 'Distribution'
 
@@ -1107,7 +1135,7 @@ tasks.withType(Sync).each {
 /////////////////////////////////////
 
 def createDownloadJre(String os, String arch) {
-    return rootProject.tasks.create("downloadJre${os.capitalize()}${arch.capitalize()}") {
+    return rootProject.tasks.register("downloadJre${os.capitalize()}${arch.capitalize()}") {
         description = "Downloads JRE from Adoptium.net for ${os.capitalize()}/$arch"
         group = 'Distribution'
 
@@ -1122,7 +1150,7 @@ def createDownloadJre(String os, String arch) {
         def jreMajorVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').split('\\.')[0]}"
         def jreVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '_')}"
         def jreVersionNumUrl = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '%2B')}"
-        def outFolder = "${rootProject.buildDir}/tmp/jredownload"
+        def outFolder = "${rootProject.layout.buildDirectory.get().asFile}/tmp/jredownload"
         def outJreFileName = "OpenJDK${jreMajorVersionNum}U-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.${extension}"
         def jreFile = "${outFolder}/${outJreFileName}"
         def jreFileTmp = "${outFolder}/${outJreFileName}.part"
@@ -1133,21 +1161,21 @@ def createDownloadJre(String os, String arch) {
 
         doLast {
             if (!file("${jreFile}").exists()) {
-                download {
+                download.run {
                     src "https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-${jreVersionNumUrl}?architecture=${arch.toLowerCase()}&heap_size=normal&image_type=jre&os=${os.toLowerCase()}&project=jdk"
                     dest metaInfoFile
                     overwrite true
                 }
-                def json = new groovy.json.JsonSlurper().parseText(new File("${metaInfoFile}").text)
+                def json = new JsonSlurper().parseText(new File("${metaInfoFile}").text)
                 def downloadJreUrlSha256 = json.binaries.package.checksum[0]
                 def downloadJreUrl = json.binaries.package.link[0]
                 file("${sha256InfoFile}").text = "${downloadJreUrlSha256}  ${outJreFileName}"
-                download {
+                download.run {
                     src "${downloadJreUrl}"
                     dest jreFileTmp
                     overwrite true
                 }
-                verifyChecksum {
+                verifyChecksum.run {
                     src new File("${jreFileTmp}")
                     algorithm 'SHA-256'
                     checksum "${downloadJreUrlSha256}"
@@ -1166,7 +1194,7 @@ createDownloadJre('windows', 'x64')
 ///////////////////////////////////////////
 
 def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
-    return rootProject.tasks.create("${distTarTask.name}WithJre", Tar) {
+    return rootProject.tasks.register("${distTarTask.name}WithJre", Tar) {
         description = "Takes the '${distTarTask.name}' output and adds a JRE from '${jreLinuxTarTask.name}'"
         group = 'Distribution'
 
@@ -1182,7 +1210,7 @@ def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
         destinationDirectory = file("${distTarTask.destinationDirectory.getAsFile().get()}")
         from tarTree(file("${tarNeptusFilePath}"))
         from(tarTree(file("${jreFileName}"))) {
-            includeEmptyDirs false
+            includeEmptyDirs = false
             into "${tarBasePath}/jre"
             eachFile {FileCopyDetails details ->
                 details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
@@ -1192,7 +1220,7 @@ def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
 }
 
 def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
-    return rootProject.tasks.create("${distZipTask.name}WithJre", Zip) {
+    return rootProject.tasks.register("${distZipTask.name}WithJre", Zip) {
         description = "Takes the '${distZipTask.name}' output and adds a JRE from '${jreWindowsZipTask.name}'"
         group = 'Distribution'
 
@@ -1208,7 +1236,7 @@ def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
         destinationDirectory = file("${distZipTask.destinationDirectory.getAsFile().get()}")
         from zipTree(file("${zipNeptusFilePath}"))
         from(zipTree(file("${jreFileName}"))) {
-            includeEmptyDirs false
+            includeEmptyDirs = false
             into "${zipBasePath}/jre"
             eachFile {FileCopyDetails details ->
                 details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
@@ -1244,8 +1272,8 @@ rootProject.findAll().each { sp ->
 // Distribution Installers Section - Linux //
 
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
-    return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
-        def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
+    return rootProject.tasks.register("installer${distName.capitalize()}LinuxDist") {
+        def workTmpDirectory = "${rootProject.layout.buildDirectory.get().asFile}/tmp/sfx/${distName}/"
         description = "Generate $distName Linux installer"
         group = 'Distribution'
 
@@ -1303,7 +1331,7 @@ nsis {
 }
 
 def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
-    return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
+    return rootProject.tasks.register("installer${distName.capitalize()}WindowsDist", GradleNsisTask) {
         description = "Generate $distName Windows installer"
         group = 'Distribution'
 
@@ -1311,6 +1339,8 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
         baseDir = "../../${baseDir}".replaceAll('/', '\\\\')
 
         def runInFolder = file("${rootProject.projectDir}/NSIS_release/install_scripts")
+
+        extractTo.get().getAsFile().mkdirs()
 
         doFirst {
             println """!!INFO!! If error on Linux run >> cd \"${runInFolder}\" &&
@@ -1367,8 +1397,8 @@ createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZipWithJre)
 // Tools Section //
 ///////////////////
 
-task agregateI18N(type: JavaExec) {
-    def emptyTemplateFile = file("${rootProject.buildDir}/tmp/pot/empty.pot")
+def aggregateI18N = tasks.register('aggregateI18N', JavaExec) {
+    def emptyTemplateFile = file("${rootProject.layout.buildDirectory.get().asFile}/tmp/pot/empty.pot")
     doFirst {
         emptyTemplateFile.getParentFile().mkdirs()
         emptyTemplateFile.text = """# Neptus POT file.
@@ -1403,7 +1433,7 @@ msgstr ""
     ]
 }
 
-task processI18N(type: Exec) {
+def processI18N = tasks.register('processI18N', Exec) {
     workingDir file(rootProject.rootDir)
     executable 'xgettext'
     args = [
@@ -1432,7 +1462,7 @@ task processI18N(type: Exec) {
     fileTree(dir: "$rootDir/plugins-dev", include: '**/*.java').each {
         args "${relativePath(it)}"
     }
-    ignoreExitValue true
+    ignoreExitValue = true
 
     doLast {
         if (executionResult.get().getExitValue() > 0) {
@@ -1440,12 +1470,14 @@ task processI18N(type: Exec) {
         }
     }
 }
-processI18N.mustRunAfter agregateI18N
+processI18N.configure {
+    mustRunAfter aggregateI18N
+}
 
-task generateI18N {
+tasks.register('generateI18N') {
     description = "Generate the I18N POT files (needs gettext installed)"
     group = 'Distribution'
-    dependsOn agregateI18N, processI18N
+    dependsOn aggregateI18N, processI18N
 }
 
 ///////////////////
@@ -1473,23 +1505,24 @@ cleanEclipse {
     }
 }
 
-task cleanEclipseBuild {
+tasks.register('cleanEclipseBuild') {
     description = "Cleanup build folders"
     group = 'IDE'
     doLast {
-        delete file("${rootProject.buildDir}/eclipse")
+        delete file("${rootProject.layout.buildDirectory.get().asFile}/eclipse")
         delete file("${project(':core').projectDir}/code")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
-                    file -> file.isDirectory() && (file.name ==~ 'build'
-                    || file.name ==~ 'bin'
-                    || file.name ==~ 'log')
-                } as FileFilter).each { delete it }
+                file ->
+                    file.isDirectory() && (file.name ==~ 'build'
+                            || file.name ==~ 'bin'
+                            || file.name ==~ 'log')
+            } as FileFilter).each { delete it }
         }
     }
 }
 
-task cleanIdeaBuild {
+tasks.register('cleanIdeaBuild') {
     description = "Cleanup build and project folders"
     group = 'IDE'
     doLast {
@@ -1498,13 +1531,13 @@ task cleanIdeaBuild {
         delete file("src/out")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
-                    file -> file.isDirectory() && file.name ==~ 'out'
-                } as FileFilter).each { delete it }
+                file -> file.isDirectory() && file.name ==~ 'out'
+            } as FileFilter).each { delete it }
         }
     }
 }
 
-task cleanVSCodeBuild {
+tasks.register('cleanVSCodeBuild') {
     doLast {
         delete file("$rootDir/.vscode")
     }

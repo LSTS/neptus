@@ -745,6 +745,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         Graphics2D g = img.createGraphics();
         r2d.update(g);
         g.dispose();
+
+        po.cleanup();
     }	
 
     /* (non-Javadoc)

@@ -447,7 +447,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             Thread.sleep(100);
 
             try {
-                URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + sessionID + "_NewActions.txt");
+                URL url = new URI("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + sessionID + "_NewActions.txt").toURL();
                 URLConnection conn = url.openConnection();
                 conn.setUseCaches(false);
                 conn.connect();

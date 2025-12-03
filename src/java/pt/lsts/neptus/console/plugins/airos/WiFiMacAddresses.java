@@ -41,6 +41,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedHashMap;
@@ -111,6 +112,6 @@ public class WiFiMacAddresses implements Serializable {
     public static void main(String[] args) throws Exception {
         String res = JOptionPane.showInputDialog("Please enter addresses URL");
         if (res != null)
-            downloadAddresses(new URL(res));        
+            downloadAddresses(new URI(res).toURL());
     }
 }

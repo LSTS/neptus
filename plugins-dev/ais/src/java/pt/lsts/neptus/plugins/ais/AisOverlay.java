@@ -243,8 +243,8 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
                 .setSSLSocketFactory(sslsf)
                 .setConnectionManager(cm)
                 .build()) {
-            URL url = new URL("http://www.marinetraffic.com/ais/getjson.aspx?sw_x=" + minLon + "&sw_y=" + minLat
-                    + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12" + "&fleet=&station=0&id=null");
+            URL url = new URI("http://www.marinetraffic.com/ais/getjson.aspx?sw_x=" + minLon + "&sw_y=" + minLat
+                    + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12" + "&fleet=&station=0&id=null").toURL();
 
             HttpGet get = new HttpGet(url.toURI());
             get.setHeader("Referer", "http://www.marinetraffic.com/ais/");

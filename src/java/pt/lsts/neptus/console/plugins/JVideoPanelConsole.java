@@ -140,7 +140,7 @@ public class JVideoPanelConsole extends ConsolePanel {
     @Override
     public void cleanSubPanel() {
         try {
-            jwc.finalize();
+            jwc.cleanup();
         }
         catch (Throwable e) {
             e.printStackTrace();

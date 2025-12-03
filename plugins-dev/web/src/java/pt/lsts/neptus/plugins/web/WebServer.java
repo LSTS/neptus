@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.web;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.net.URI;
 import java.net.URL;
 import java.util.LinkedHashMap;
 
@@ -216,9 +217,9 @@ public class WebServer {
      */
     protected static void registerUnregisterPath(boolean registerOrUnregister, String path) {
         try {
-            URL serURL = new URL("http://localhost:" + WebServer.port + 
+            URL serURL = new URI("http://localhost:" + WebServer.port +
                     (path.startsWith("/") ? "" : "/") + 
-                    (path.endsWith("*") ? path.replaceAll("\\*$", "") : path));
+                    (path.endsWith("*") ? path.replaceAll("\\*$", "") : path)).toURL();
             if (registerOrUnregister)
                 ImcMsgManager.getManager().registerService(serURL);
             else
