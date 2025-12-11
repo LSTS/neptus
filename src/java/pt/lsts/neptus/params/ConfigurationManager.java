@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -86,8 +85,6 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import pt.lsts.neptus.util.conf.ConfigFetch;
-
 /**
  * @author pdias
  * @author jqcorreia
@@ -97,9 +94,6 @@ public class ConfigurationManager {
     private static final String CONF_DIR = "/params/";
 
     private HashMap<String, HashMap<String, SystemProperty>> map = new LinkedHashMap<String, HashMap<String, SystemProperty>>();
-    private List<String> sections = new ArrayList<String>();
-    private Document doc;
-
     private static ConfigurationManager instance = null;
     private static boolean loading = false;
 
@@ -204,6 +198,7 @@ public class ConfigurationManager {
     private HashMap<String, SystemProperty> readConfiguration(File file) throws InvalidConfigurationException {
         LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
         SAXReader reader = new SAXReader();
+        Document doc = DocumentHelper.createDocument();
 
         try {
             doc = reader.read(file);
@@ -222,692 +217,702 @@ public class ConfigurationManager {
 
         for(Object osection : sectionList) {
             Element section = (Element) osection;
-            String sectionName = section.attributeValue("name");
-            if (sectionName == null) {
-                NeptusLog.pub().error("Error loading unnamed section for " + file.getName());
+            Map<String, SystemProperty> sectionProps = readSection(section, file.getName());
+            params.putAll(sectionProps);
+        }
+
+        return params;
+    }
+
+    private Map<String, SystemProperty> readSection(Element section, String originName) {
+        LinkedHashMap<String, SystemProperty> sectionParams = new LinkedHashMap<>();
+
+        LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
+
+        String sectionName = section.attributeValue("name");
+        if (sectionName == null) {
+            NeptusLog.pub().error("Error loading unnamed section for " + originName);
+            return sectionParams;
+        }
+
+        // i18n name
+        String sectionI18nName = section.attributeValue("name-i18n");
+        if (sectionI18nName == null)
+            sectionI18nName = sectionName;
+
+        // editable flag
+        boolean editableSection = true;
+        Node editableSectionNode = section.selectSingleNode("@editable");
+        if (editableSectionNode != null) {
+            Boolean vb = BooleanUtils.toBooleanObject(editableSectionNode.getText());
+            if (vb != null)
+                editableSection = vb;
+        }
+
+        // custom editor
+        Node editorNode = section.selectSingleNode("@editor");
+        CustomSystemPropertyEditor sectionCustomEditor = null;
+        if (editorNode != null) {
+            String editorStr = editorNode.getText();
+            try {
+                String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
+                Class<?> clazz = Class.forName(str);
+                try {
+                    sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            catch (ClassNotFoundException e) {
+                NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s (config: %s)", editorStr, e, originName));
+            }
+        }
+
+        for(Object oparam : section.selectNodes("*")) {
+            SystemProperty property;
+            Element param = (Element) oparam;
+
+            String paramName = param.attributeValue("name");
+            if (paramName == null) {
+                NeptusLog.pub().error("Error loading unnamed param for section " + sectionName + " for " + originName);
                 continue;
             }
 
-            LinkedHashMap<String, SystemProperty> sectionParams = new LinkedHashMap<>();
-            
-            String sectionI18nName = section.attributeValue("name-i18n");
-            if (sectionI18nName == null)
-                sectionI18nName = sectionName;
-
-            sections.add(sectionName);
-
-            boolean editableSection = true;
-            Node editableSectionNode = section.selectSingleNode("@editable");
-            if (editableSectionNode != null) {
-                Boolean vb = BooleanUtils.toBooleanObject(editableSectionNode.getText());
+            boolean editableParam = editableSection;
+            Node editableParamNode = param.selectSingleNode("@editable");
+            if (editableParamNode != null) {
+                Boolean vb = BooleanUtils.toBooleanObject(editableParamNode.getText());
                 if (vb != null)
-                    editableSection = vb;
+                    editableParam = vb;
             }
-            
-            Node editorNode = section.selectSingleNode("@editor");
-            CustomSystemPropertyEditor sectionCustomEditor = null;
-            if (editorNode != null) {
-                String editorStr = editorNode.getText();
-                try {
-                    String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
-                    Class<?> clazz = Class.forName(str);
-                    try {
-                        sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                catch (ClassNotFoundException e) {
-                    NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s (config: %s)", editorStr, e,
-                            file.getName()));
-                }
+
+            // standard fields
+            String paramI18nName = getTagContents(param, "name-i18n");
+            String scope = getTagContents(param, "scope");
+            String visibility = getTagContents(param, "visibility");
+            String type = getTagContents(param, "type");
+            String desc = getTagContents(param, "desc");
+            String units = getTagContents(param, "units");
+            String defaultValue = getTagContents(param, "default");
+
+            // Optional (may not exist)
+            // If exists is shown as a combobox (may have values-i18n sibling for string type).
+            Element pValues = (Element) param.selectSingleNode("values");
+            // If exists is shown as a combobox (or checkbos for boolean) but depends on some other parameter,
+            //  there are more than one, inside param equals|less|greater and values (may have values-i18n sibling for string type).
+            @SuppressWarnings("rawtypes")
+            List pValuesIfList = param.selectNodes("values-if");
+
+            // Optional (may not exist)
+            String minStr = getTagContents(param, "min");
+            String maxStr = getTagContents(param, "max");
+
+            // Optional (may not exist)
+            // This only exists for list:xxx types
+            String sizeList = getTagContents(param, "size");
+            String sizeMinList = getTagContents(param, "min-size");
+            String sizeMaxList = getTagContents(param, "max-size");
+
+            // Let us get the type and if is a list
+            ValueTypeEnum valueType = ValueTypeEnum.STRING;
+            boolean isList = false;
+            Class<?> clazz;
+            if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
+                clazz = Boolean.class;
+                valueType = ValueTypeEnum.BOOLEAN;
             }
-            
-            for(Object oparam : section.selectNodes("*")) {
-                SystemProperty property;
-                Element param = (Element) oparam;
-
-                String paramName = param.attributeValue("name");
-                if (paramName == null) {
-                    NeptusLog.pub().error("Error loading unnamed param for section " + sectionName + " for " + file.getName());
-                    continue;
-                }
-                
-                boolean editableParam = editableSection;
-                Node editableParamNode = param.selectSingleNode("@editable");
-                if (editableParamNode != null) {
-                    Boolean vb = BooleanUtils.toBooleanObject(editableParamNode.getText());
-                    if (vb != null)
-                        editableParam = vb;
-                }
-                
-                String paramI18nName = getTagContents(param, "name-i18n");
-                String scope = getTagContents(param, "scope");
-                String visibility = getTagContents(param, "visibility");
-                String type = getTagContents(param, "type");
-                String desc = getTagContents(param, "desc");
-                String units = getTagContents(param, "units");
-                String defaultValue = getTagContents(param, "default");
-
-                // Optional (may not exist)
-                // If exists is shown as a combobox (may have values-i18n sibling for string type).
-                Element pValues = (Element) param.selectSingleNode("values");
-                // If exists is shown as a combobox (or checkbos for boolean) but depends on some other parameter,
-                //  there are more than one, inside param equals|less|greater and values (may have values-i18n sibling for string type).
-                @SuppressWarnings("rawtypes")
-                List pValuesIfList = param.selectNodes("values-if");
-
-                // Optional (may not exist)
-                String minStr = getTagContents(param, "min");
-                String maxStr = getTagContents(param, "max");
-
-                // Optional (may not exist)
-                // This only exists for list:xxx types
-                String sizeList = getTagContents(param, "size");
-                String sizeMinList = getTagContents(param, "min-size");
-                String sizeMaxList = getTagContents(param, "max-size");
-
-                // Let us get the type and if is a list
-                ValueTypeEnum valueType = ValueTypeEnum.STRING;
-                boolean isList = false;
-                Class<?> clazz;
-                if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
-                    clazz = Boolean.class;
-                    valueType = ValueTypeEnum.BOOLEAN;
-                }
-                else if (type.endsWith(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                    clazz = Long.class;
-                    valueType = ValueTypeEnum.INTEGER;
-                    if (type.startsWith("list:")) {
-                        clazz = ArrayList.class;
-                        isList = true;
-                    }
-                }
-                else if (type.endsWith(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                    clazz = Double.class;
-                    valueType = ValueTypeEnum.REAL;
-                    if (type.startsWith("list:")) {
-                        clazz = ArrayList.class;
-                        isList = true;
-                    }
-                }
-                else if (type.equals("list:" + SystemProperty.ValueTypeEnum.STRING.getText())) {
+            else if (type.endsWith(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+                clazz = Long.class;
+                valueType = ValueTypeEnum.INTEGER;
+                if (type.startsWith("list:")) {
                     clazz = ArrayList.class;
-                    valueType = ValueTypeEnum.STRING;
                     isList = true;
                 }
-                else {
-                    if (type.startsWith("list:"))
-                        clazz = ArrayList.class;
-                    else
-                        clazz = String.class;
-                    valueType = ValueTypeEnum.STRING;
+            }
+            else if (type.endsWith(SystemProperty.ValueTypeEnum.REAL.getText())) {
+                clazz = Double.class;
+                valueType = ValueTypeEnum.REAL;
+                if (type.startsWith("list:")) {
+                    clazz = ArrayList.class;
+                    isList = true;
                 }
+            }
+            else if (type.equals("list:" + SystemProperty.ValueTypeEnum.STRING.getText())) {
+                clazz = ArrayList.class;
+                valueType = ValueTypeEnum.STRING;
+                isList = true;
+            }
+            else {
+                if (type.startsWith("list:"))
+                    clazz = ArrayList.class;
+                else
+                    clazz = String.class;
+                valueType = ValueTypeEnum.STRING;
+            }
 
-                // Lets get the default value
-                Object value = !isList ? getValueTypedFromString(defaultValue, valueType) :
-                        getListValueTypedFromString(defaultValue, valueType);
+            // Lets get the default value
+            Object value = !isList ? getValueTypedFromString(defaultValue, valueType) :
+                    getListValueTypedFromString(defaultValue, valueType);
 
-                AbstractPropertyEditor propEditor = null;
-                DefaultCellRenderer propRenderer = null;
+            AbstractPropertyEditor propEditor = null;
+            DefaultCellRenderer propRenderer = null;
 
-                // If in need of a bounded property
-                Double minV = null;
-                Double maxV = null;
-                String minMaxStr = "";
-                if (minStr != null) {
+            // If in need of a bounded property
+            Double minV = null;
+            Double maxV = null;
+            String minMaxStr = "";
+            if (minStr != null) {
+                try {
+                    minV = Double.parseDouble(minStr);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().debug(e.getMessage());
+                    minV = null;
+                }
+            }
+            if (maxStr != null) {
+                try {
+                    maxV = Double.parseDouble(maxStr);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().debug(e.getMessage());
+                    maxV = null;
+                }
+            }
+
+            String admisibleValuesTxt = "";
+            String valuesIfDescStr = "";
+
+            if (isList) {
+                int size = ArrayListEditor.UNLIMITED_SIZE;
+                int minSize = 0;
+                int maxSize = ArrayListEditor.UNLIMITED_SIZE;
+                if (sizeList != null) {
                     try {
-                        minV = Double.parseDouble(minStr);
+                        size = Integer.parseInt(sizeList);
                     }
-                    catch (Exception e) {
-                        NeptusLog.pub().debug(e.getMessage());
-                        minV = null;
+                    catch (NumberFormatException e) {
                     }
+                    minSize = maxSize = size;
                 }
-                if (maxStr != null) {
-                    try {
-                        maxV = Double.parseDouble(maxStr);
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().debug(e.getMessage());
-                        maxV = null;
-                    }
-                }
-
-                String admisibleValuesTxt = "";
-                String valuesIfDescStr = "";
-                
-                if (isList) {
-                    int size = ArrayListEditor.UNLIMITED_SIZE;
-                    int minSize = 0;
-                    int maxSize = ArrayListEditor.UNLIMITED_SIZE;
-                    if (sizeList != null) {
+                else if (sizeMinList != null || sizeMaxList != null) {
+                    if (sizeMinList != null) {
                         try {
-                            size = Integer.parseInt(sizeList);
+                            minSize = Integer.parseInt(sizeMinList);
                         }
                         catch (NumberFormatException e) {
-                        }
-                        minSize = maxSize = size;
-                    }
-                    else if (sizeMinList != null || sizeMaxList != null) {
-                        if (sizeMinList != null) {
-                            try {
-                                minSize = Integer.parseInt(sizeMinList);
-                            }
-                            catch (NumberFormatException e) {
-                                NeptusLog.pub().debug(e.getMessage());
-                            }
-                        }
-                        if (sizeMaxList != null) {
-                            try {
-                                maxSize = Integer.parseInt(sizeMaxList);
-                            }
-                            catch (NumberFormatException e) {
-                                NeptusLog.pub().debug(e.getMessage());
-                            }
+                            NeptusLog.pub().debug(e.getMessage());
                         }
                     }
-                    else {
-                        minSize = maxSize = size;
-                    }
-                    property = new SystemProperty();
-                    switch (valueType) {
-                        case INTEGER:
-                            // propEditor = ArrayListEditor.forgeLong(minSize, maxSize);
-                            propEditor = minV == null && maxV == null ? ArrayListEditor.forgeLong(minSize, maxSize)
-                                    : ArrayListEditor.forgeLong(minSize, maxSize,
-                                            minV == null ? null : minV.longValue(),
-                                            maxV == null ? null : maxV.longValue());
-                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
-                            String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
-                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue()
-                                    + units;
-                            break;
-                        case REAL:
-                            // propEditor = ArrayListEditor.forgeDouble(minSize, maxSize);
-                            propEditor = minV == null && maxV == null ? ArrayListEditor.forgeDouble(minSize, maxSize)
-                                    : ArrayListEditor.forgeDouble(minSize, maxSize,
-                                            minV == null ? null : minV.doubleValue(),
-                                            maxV == null ? null : maxV.doubleValue());
-                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
-                            commaSepStr = minMaxStr.length() != 0 ? ", " : "";
-                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue()
-                                    + units;
-                            break;
-                        default:
-                            String stringTypeStringNotString = type.replaceAll("^list:", "");
-                            if (stringTypeStringNotString.equals(I18n.textmark("ipv4-address")))
-                                propEditor = ArrayListEditor.forgeString(minSize, maxSize, ArrayListEditor.IP_ADDRESS_PATTERN);
-                            else
-                                propEditor = ArrayListEditor.forgeString(minSize, maxSize);
-                            break;
+                    if (sizeMaxList != null) {
+                        try {
+                            maxSize = Integer.parseInt(sizeMaxList);
+                        }
+                        catch (NumberFormatException e) {
+                            NeptusLog.pub().debug(e.getMessage());
+                        }
                     }
                 }
-                else if (pValues != null) {
-                    property = new SystemProperty();
+                else {
+                    minSize = maxSize = size;
+                }
+                property = new SystemProperty();
+                switch (valueType) {
+                    case INTEGER:
+                        // propEditor = ArrayListEditor.forgeLong(minSize, maxSize);
+                        propEditor = minV == null && maxV == null ? ArrayListEditor.forgeLong(minSize, maxSize)
+                                : ArrayListEditor.forgeLong(minSize, maxSize,
+                                        minV == null ? null : minV.longValue(),
+                                        maxV == null ? null : maxV.longValue());
+                        minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
+                        String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                        minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue()
+                                + units;
+                        break;
+                    case REAL:
+                        // propEditor = ArrayListEditor.forgeDouble(minSize, maxSize);
+                        propEditor = minV == null && maxV == null ? ArrayListEditor.forgeDouble(minSize, maxSize)
+                                : ArrayListEditor.forgeDouble(minSize, maxSize,
+                                        minV == null ? null : minV.doubleValue(),
+                                        maxV == null ? null : maxV.doubleValue());
+                        minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
+                        commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                        minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue()
+                                + units;
+                        break;
+                    default:
+                        String stringTypeStringNotString = type.replaceAll("^list:", "");
+                        if (stringTypeStringNotString.equals(I18n.textmark("ipv4-address")))
+                            propEditor = ArrayListEditor.forgeString(minSize, maxSize, ArrayListEditor.IP_ADDRESS_PATTERN);
+                        else
+                            propEditor = ArrayListEditor.forgeString(minSize, maxSize);
+                        break;
+                }
+            }
+            else if (pValues != null) {
+                property = new SystemProperty();
 //                    NeptusLog.pub().info("<###> "+pValues.getStringValue());
-                    String vlStr = pValues.getStringValue();
-                    ArrayList<?> values = extractStringListToArrayList(type, vlStr);
-                    ComboEditor<?> comboEditor = null;
+                String vlStr = pValues.getStringValue();
+                ArrayList<?> values = extractStringListToArrayList(type, vlStr);
+                ComboEditor<?> comboEditor = null;
 
-                    if (values != null) {
-                        if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                            if (!hasPairs(values))
-                                comboEditor = new ComboEditor<>(((ArrayList<Long>) values).toArray(new Long[0]));
-                        }
-                        else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                            if (!hasPairs(values))
-                                comboEditor = new ComboEditor<>(((ArrayList<Double>) values).toArray(new Double[0]));
-                        }
-                        else if (type.equals(ValueTypeEnum.BOOLEAN.getText())) {
-                            // Ignore
-                        }
-                        else { // if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
-                            ArrayList<?> valuesI18n = extractI18nValues(type, pValues, values);
-                            comboEditor = new ComboEditor<>(((ArrayList<String>) values).toArray(new String[0]),
-                                    valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]));
-
-                            // Prep. I18n renderer
-                            HashMap<String, String> i18nMapper = new HashMap<>();
-                            for (int i = 0; i < Math.min(values.size(), valuesI18n.size()); i++) {
-                                Object valObj = values.get(i);
-                                Object vaI18nlObj = valuesI18n.get(i);
-                                i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
-                            }
-                            if (i18nMapper.size() > 0)
-                                propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
-                        }
-                        propEditor = comboEditor;
+                if (values != null) {
+                    if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+                        if (!hasPairs(values))
+                            comboEditor = new ComboEditor<>(((ArrayList<Long>) values).toArray(new Long[0]));
                     }
-                }
-                else if (pValuesIfList != null && !pValuesIfList.isEmpty()) {
-                    property = new SystemProperty();
-                    ComboEditor<?> comboEditor = null;
-                    BooleanAsCheckBoxPropertyEditor boolEditor = null;
-                    PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pt = null;
+                    else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
+                        if (!hasPairs(values))
+                            comboEditor = new ComboEditor<>(((ArrayList<Double>) values).toArray(new Double[0]));
+                    }
+                    else if (type.equals(ValueTypeEnum.BOOLEAN.getText())) {
+                        // Ignore
+                    }
+                    else { // if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
+                        ArrayList<?> valuesI18n = extractI18nValues(type, pValues, values);
+                        comboEditor = new ComboEditor<>(((ArrayList<String>) values).toArray(new String[0]),
+                                valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]));
 
-                    StringBuilder valuesIfDescStrBuilder = new StringBuilder();
-                    
-                    {
                         // Prep. I18n renderer
                         HashMap<String, String> i18nMapper = new HashMap<>();
-
-                        for (Object obj : pValuesIfList) {
-                            Element elem = (Element) obj;
-                            Element paramComp = (Element) elem.selectSingleNode("param");
-                            Element eqParam = (Element) elem.selectSingleNode("equals");
-                            Element valuesParam = (Element) elem.selectSingleNode("values");
-                            if (paramComp == null || eqParam == null || valuesParam == null)
-                                continue;
-
-                            ArrayList<?> values = extractStringListToArrayList(type, valuesParam.getTextTrim());
-
-                            if (values != null && !values.isEmpty()) {
-                                boolean isPair = hasPairs(values);
-                                
-                                // Let us test what the test value type is
-                                ValueTypeEnum testValueType = null;
-                                double tv = 0;
-                                boolean bv = false;
-                                String sv = "";
-                                try {
-                                    tv = Double.parseDouble(eqParam.getTextTrim());
-                                    testValueType = SystemProperty.ValueTypeEnum.REAL;
-                                }
-                                catch (NumberFormatException e) {
-                                    Boolean bvt = BooleanUtils.toBooleanObject(eqParam.getTextTrim());
-                                    if (bvt != null) {
-                                        bv = bvt;
-                                        testValueType = SystemProperty.ValueTypeEnum.BOOLEAN;
-                                    }
-                                    else {
-                                        sv = eqParam.getTextTrim();
-                                        testValueType = SystemProperty.ValueTypeEnum.STRING;
-                                    }
-                                }
-
-                                if (pt == null)
-                                    pt = createPropertyWithDependencies(SystemProperty.ValueTypeEnum.fromString(type));
-
-                                if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
-                                    switch (testValueType) {
-                                        case REAL:
-                                        case INTEGER:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
-                                                        paramComp.getText(), tv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Boolean, Boolean>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
-                                                        paramComp.getText(), tv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Boolean>) values);
-                                            }
-                                            break;
-                                        case BOOLEAN:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
-                                                        paramComp.getText(), bv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Boolean, Boolean>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
-                                                        paramComp.getText(), bv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Boolean>) values);
-                                            }
-                                            break;
-                                        case STRING:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
-                                                        paramComp.getText(), sv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Boolean, Boolean>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
-                                                        paramComp.getText(), sv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Boolean>) values);
-                                            }
-                                            break;
-                                    }
-                                }
-                                else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                                    switch (testValueType) {
-                                        case REAL:
-                                        case INTEGER:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
-                                                        paramComp.getText(), tv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Long, Long>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
-                                                        paramComp.getText(), tv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Long>) values);
-                                            }
-                                            break;
-                                        case BOOLEAN:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
-                                                        paramComp.getText(), bv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Long, Long>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
-                                                        paramComp.getText(), bv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Long>) values);
-                                            }
-                                            break;
-                                        case STRING:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
-                                                        paramComp.getText(), sv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Long, Long>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
-                                                        paramComp.getText(), sv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Long>) values);
-                                            }
-                                            break;
-                                    }
-                                }
-                                else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                                    switch (testValueType) {
-                                        case REAL:
-                                        case INTEGER:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
-                                                        paramComp.getText(), tv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Double, Double>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
-                                                        paramComp.getText(), tv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Double>) values);
-                                            }
-                                            break;
-                                        case BOOLEAN:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
-                                                        paramComp.getText(), bv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Double, Double>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
-                                                        paramComp.getText(), bv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Double>) values);
-                                            }
-                                            break;
-                                        case STRING:
-                                            if (isPair) {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
-                                                        paramComp.getText(), sv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Pair<Double, Double>>) values);
-                                            }
-                                            else {
-                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
-                                                        paramComp.getText(), sv,
-                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                        (ArrayList<Double>) values);
-                                            }
-                                            break;
-                                    }
-                                }
-                                else if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
-                                    ArrayList<?> valuesI18n = extractI18nValues(type, valuesParam, values);
-
-                                    switch (testValueType) {
-                                        case REAL:
-                                        case INTEGER:
-                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
-                                                    paramComp.getText(), tv,
-                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                    (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
-                                            break;
-                                        case BOOLEAN:
-                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
-                                                    paramComp.getText(), bv,
-                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                    (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
-                                            break;
-                                        case STRING:
-                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
-                                                    paramComp.getText(), sv,
-                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
-                                                    (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
-                                            break;
-                                    }
-
-                                    // Prep. I18n renderer
-                                    for (int i = 0; i < Math.min(values.size(), valuesI18n.size()); i++) {
-                                        Object valObj = values.get(i);
-                                        Object vaI18nlObj = valuesI18n.get(i);
-                                        i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
-                                    }
-                                }
-                                else {
-                                    break;
-                                }
-
-                                valuesIfDescStrBuilder = buildValuesIfDescriptionAndAppend(valuesIfDescStrBuilder, paramComp,
-                                        eqParam, values);
-                            }
+                        for (int i = 0; i < Math.min(values.size(), valuesI18n.size()); i++) {
+                            Object valObj = values.get(i);
+                            Object vaI18nlObj = valuesI18n.get(i);
+                            i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
                         }
-                        if (valuesIfDescStrBuilder.length() != 0)
-                            valuesIfDescStr = valuesIfDescStrBuilder.toString();
-                            
-                        // Prep. I18n renderer
                         if (i18nMapper.size() > 0)
                             propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
                     }
+                    propEditor = comboEditor;
+                }
+            }
+            else if (pValuesIfList != null && !pValuesIfList.isEmpty()) {
+                property = new SystemProperty();
+                ComboEditor<?> comboEditor = null;
+                BooleanAsCheckBoxPropertyEditor boolEditor = null;
+                PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pt = null;
 
-                    ArrayList<?> values = pt.getValuesIfTests().size() > 0 ? pt.getValuesIfTests().get(0).values : null;
-                    ArrayList<?> valuesI18n = pt.getValuesI18nIfTests().size() > 0 ? pt.getValuesI18nIfTests().get(0).values : null;
-                    if (values != null && !values.isEmpty()) {
-                        if (hasPairs(pt)) {
-                            if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                                long minRange = minV == null ? null : minV.longValue();
-                                long maxRange = maxV == null ? null : maxV.longValue();
-                                propEditor = minV == null && maxV == null ? new NumberEditorWithDependencies<Long>(Long.class, (PropertyEditorChangeValuesIfDependencyAdapter<?, Long>) pt) : new NumberEditorWithDependencies<Long>(
-                                        Long.class, minRange, maxRange, (PropertyEditorChangeValuesIfDependencyAdapter<?, Long>) pt);
-                                minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
-                                String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
-                                minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + units;
+                StringBuilder valuesIfDescStrBuilder = new StringBuilder();
+
+                {
+                    // Prep. I18n renderer
+                    HashMap<String, String> i18nMapper = new HashMap<>();
+
+                    for (Object obj : pValuesIfList) {
+                        Element elem = (Element) obj;
+                        Element paramComp = (Element) elem.selectSingleNode("param");
+                        Element eqParam = (Element) elem.selectSingleNode("equals");
+                        Element valuesParam = (Element) elem.selectSingleNode("values");
+                        if (paramComp == null || eqParam == null || valuesParam == null)
+                            continue;
+
+                        ArrayList<?> values = extractStringListToArrayList(type, valuesParam.getTextTrim());
+
+                        if (values != null && !values.isEmpty()) {
+                            boolean isPair = hasPairs(values);
+
+                            // Let us test what the test value type is
+                            ValueTypeEnum testValueType = null;
+                            double tv = 0;
+                            boolean bv = false;
+                            String sv = "";
+                            try {
+                                tv = Double.parseDouble(eqParam.getTextTrim());
+                                testValueType = SystemProperty.ValueTypeEnum.REAL;
                             }
-                            else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                                double minRange = minV == null ? null : minV.doubleValue();
-                                double maxRange = maxV == null ? null : maxV.doubleValue();
-                                propEditor = minV == null && maxV == null ? new NumberEditorWithDependencies<Double>(Double.class, (PropertyEditorChangeValuesIfDependencyAdapter<?, Double>) pt) : new NumberEditorWithDependencies<Double>(
-                                        Double.class, minRange, maxRange, (PropertyEditorChangeValuesIfDependencyAdapter<?, Double>) pt);
-                                minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
-                                String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
-                                minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + units;
+                            catch (NumberFormatException e) {
+                                Boolean bvt = BooleanUtils.toBooleanObject(eqParam.getTextTrim());
+                                if (bvt != null) {
+                                    bv = bvt;
+                                    testValueType = SystemProperty.ValueTypeEnum.BOOLEAN;
+                                }
+                                else {
+                                    sv = eqParam.getTextTrim();
+                                    testValueType = SystemProperty.ValueTypeEnum.STRING;
+                                }
                             }
-                            else {
-                                comboEditor = new ComboEditorWithDependency<>(((ArrayList<String>) values).toArray(new String[0]),
-                                        valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
-                            }
-                        }
-                        else {
+
+                            if (pt == null)
+                                pt = createPropertyWithDependencies(SystemProperty.ValueTypeEnum.fromString(type));
+
                             if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
-                                Boolean startValue = ((ArrayList<Boolean>) values).stream().findFirst().orElseGet(() -> false);
-                                boolEditor = new BooleanAsCheckBoxPropertyEditorWithDependency<Boolean>(startValue, pt);
+                                switch (testValueType) {
+                                    case REAL:
+                                    case INTEGER:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
+                                                    paramComp.getText(), tv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Boolean, Boolean>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
+                                                    paramComp.getText(), tv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Boolean>) values);
+                                        }
+                                        break;
+                                    case BOOLEAN:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
+                                                    paramComp.getText(), bv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Boolean, Boolean>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
+                                                    paramComp.getText(), bv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Boolean>) values);
+                                        }
+                                        break;
+                                    case STRING:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
+                                                    paramComp.getText(), sv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Boolean, Boolean>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
+                                                    paramComp.getText(), sv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Boolean>) values);
+                                        }
+                                        break;
+                                }
                             }
                             else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
-                                comboEditor = new ComboEditorWithDependency<>(((ArrayList<Long>) values).toArray(new Long[0]), pt);
+                                switch (testValueType) {
+                                    case REAL:
+                                    case INTEGER:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
+                                                    paramComp.getText(), tv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Long, Long>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
+                                                    paramComp.getText(), tv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Long>) values);
+                                        }
+                                        break;
+                                    case BOOLEAN:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
+                                                    paramComp.getText(), bv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Long, Long>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
+                                                    paramComp.getText(), bv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Long>) values);
+                                        }
+                                        break;
+                                    case STRING:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Long, Long>>) pt).addValuesIf(
+                                                    paramComp.getText(), sv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Long, Long>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>) pt).addValuesIf(
+                                                    paramComp.getText(), sv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Long>) values);
+                                        }
+                                        break;
+                                }
                             }
                             else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
-                                comboEditor = new ComboEditorWithDependency<>(((ArrayList<Double>) values).toArray(new Double[0]), pt);
+                                switch (testValueType) {
+                                    case REAL:
+                                    case INTEGER:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
+                                                    paramComp.getText(), tv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Double, Double>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
+                                                    paramComp.getText(), tv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Double>) values);
+                                        }
+                                        break;
+                                    case BOOLEAN:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
+                                                    paramComp.getText(), bv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Double, Double>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
+                                                    paramComp.getText(), bv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Double>) values);
+                                        }
+                                        break;
+                                    case STRING:
+                                        if (isPair) {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Double, Double>>) pt).addValuesIf(
+                                                    paramComp.getText(), sv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Pair<Double, Double>>) values);
+                                        }
+                                        else {
+                                            ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>) pt).addValuesIf(
+                                                    paramComp.getText(), sv,
+                                                    PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                    (ArrayList<Double>) values);
+                                        }
+                                        break;
+                                }
+                            }
+                            else if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
+                                ArrayList<?> valuesI18n = extractI18nValues(type, valuesParam, values);
+
+                                switch (testValueType) {
+                                    case REAL:
+                                    case INTEGER:
+                                        ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
+                                                paramComp.getText(), tv,
+                                                PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
+                                        break;
+                                    case BOOLEAN:
+                                        ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
+                                                paramComp.getText(), bv,
+                                                PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
+                                        break;
+                                    case STRING:
+                                        ((PropertyEditorChangeValuesIfDependencyAdapter<Object, String>) pt).addValuesIf(
+                                                paramComp.getText(), sv,
+                                                PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
+                                        break;
+                                }
+
+                                // Prep. I18n renderer
+                                for (int i = 0; i < Math.min(values.size(), valuesI18n.size()); i++) {
+                                    Object valObj = values.get(i);
+                                    Object vaI18nlObj = valuesI18n.get(i);
+                                    i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
+                                }
                             }
                             else {
-                                comboEditor = new ComboEditorWithDependency<>(((ArrayList<String>) values).toArray(new String[0]),
-                                        valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
+                                break;
                             }
-                            propEditor = comboEditor == null ? boolEditor : comboEditor;
+
+                            valuesIfDescStrBuilder = buildValuesIfDescriptionAndAppend(valuesIfDescStrBuilder, paramComp,
+                                    eqParam, values);
                         }
                     }
-                }
-                else {
-                    property = new SystemProperty();
+                    if (valuesIfDescStrBuilder.length() != 0)
+                        valuesIfDescStr = valuesIfDescStrBuilder.toString();
+
+                    // Prep. I18n renderer
+                    if (i18nMapper.size() > 0)
+                        propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
                 }
 
-                // If the #propEditor is not set until here, the defaults will be created
-                if (propEditor == null) {
-                    ArrayList<?> admisibleValues = null;
-                    if (pValues != null) {
-                        String vlStr = pValues.getStringValue();
-                        admisibleValues = extractStringListToArrayList(type, vlStr);
-                        admisibleValuesTxt = buildValuesDescription(admisibleValues);                                
-                    }
-                        
-                    switch (valueType) {
-                        case BOOLEAN:
-                            propEditor = new BooleanAsCheckBoxPropertyEditor();
-                            break;
-                        case INTEGER:
-                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Long.class, admisibleValues) : new NumberEditor<>(
-                                    Long.class, minV == null ? null : minV.longValue(), maxV == null ? null : maxV.longValue(), admisibleValues);
+                ArrayList<?> values = pt.getValuesIfTests().size() > 0 ? pt.getValuesIfTests().get(0).values : null;
+                ArrayList<?> valuesI18n = pt.getValuesI18nIfTests().size() > 0 ? pt.getValuesI18nIfTests().get(0).values : null;
+                if (values != null && !values.isEmpty()) {
+                    if (hasPairs(pt)) {
+                        if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+                            long minRange = minV == null ? null : minV.longValue();
+                            long maxRange = maxV == null ? null : maxV.longValue();
+                            propEditor = minV == null && maxV == null ? new NumberEditorWithDependencies<Long>(Long.class, (PropertyEditorChangeValuesIfDependencyAdapter<?, Long>) pt) : new NumberEditorWithDependencies<Long>(
+                                    Long.class, minRange, maxRange, (PropertyEditorChangeValuesIfDependencyAdapter<?, Long>) pt);
                             minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
                             String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + units;
-                            break;
-                        case REAL:
-                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Double.class, admisibleValues) : new NumberEditor<>(
-                                    Double.class, minV == null ? null : minV.doubleValue(), maxV == null ? null : maxV.doubleValue(), admisibleValues);
+                        }
+                        else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
+                            double minRange = minV == null ? null : minV.doubleValue();
+                            double maxRange = maxV == null ? null : maxV.doubleValue();
+                            propEditor = minV == null && maxV == null ? new NumberEditorWithDependencies<Double>(Double.class, (PropertyEditorChangeValuesIfDependencyAdapter<?, Double>) pt) : new NumberEditorWithDependencies<Double>(
+                                    Double.class, minRange, maxRange, (PropertyEditorChangeValuesIfDependencyAdapter<?, Double>) pt);
                             minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
-                            commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                            String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + units;
-                            break;
-                        default:
-                            // So it is a string, let see if it is a special pattern
-                            String stringTypeStringNotString = type;
-                            if (stringTypeStringNotString.equals("ipv4-address")) {
-                                propEditor = new StringPatternEditor(ArrayListEditor.IP_ADDRESS_PATTERN);
-                            }
-                            else
-                                propEditor = new StringPatternEditor(".*");
-                            break;
-                    }
-                }
-
-                property.setValueType(valueType);
-                property.setName(paramName);
-                property.setDisplayName(paramI18nName);
-
-                if (value != null) {
-                    property.setValue(value);
-                    property.setDefaultValue(value);
-                }
-
-                property.setType(clazz);
-
-                String lstSizeTxt = "";
-                if (isList) {
-                    lstSizeTxt = "[";
-                    if (sizeList != null) {
-                        try {
-                            int sl = Integer.parseInt(sizeList);
-                            lstSizeTxt += sl;
                         }
-                        catch (NumberFormatException e) {
-                            e.printStackTrace();
-                            lstSizeTxt += "*";
+                        else {
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<String>) values).toArray(new String[0]),
+                                    valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
                         }
                     }
-                    else if (sizeMinList != null && sizeMaxList != null) {
-                        double minS;
-                        double maxS;
-                        try {
-                            minS = Double.parseDouble(sizeMinList);
+                    else {
+                        if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
+                            Boolean startValue = ((ArrayList<Boolean>) values).stream().findFirst().orElseGet(() -> false);
+                            boolEditor = new BooleanAsCheckBoxPropertyEditorWithDependency<Boolean>(startValue, pt);
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            minS = 0;
+                        else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<Long>) values).toArray(new Long[0]), pt);
                         }
-                        try {
-                            maxS = Double.parseDouble(sizeMaxList);
+                        else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<Double>) values).toArray(new Double[0]), pt);
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            maxS = ArrayListEditor.UNLIMITED_SIZE;
+                        else {
+                            comboEditor = new ComboEditorWithDependency<>(((ArrayList<String>) values).toArray(new String[0]),
+                                    valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
                         }
-                        if (minS < 0)
-                            minS = 0;
-                        if (maxS <= 0)
-                            maxS = ArrayListEditor.UNLIMITED_SIZE;
-                        if (minS > maxS)
-                            minS = 0;
-
-                        lstSizeTxt += (int) minS == (int) minS ? (int) minS : (int) minS + "," + (int) minS;
+                        propEditor = comboEditor == null ? boolEditor : comboEditor;
                     }
-                    else
-                        lstSizeTxt += "*";
-                    lstSizeTxt += "]";
                 }
-
-                String unitsTxt = units.length() > 0 ? "(" + units + ") " : "";
-                String typeTxt = type != null ? "["
-                        + (type.startsWith("list:") ? I18n.text(type.substring(0, 4)) + ":"
-                                + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "] " : "";
-                String defaultTxt = defaultValue != null ? "[" + I18n.text("default") + "=" + defaultValue + units + "] " : "";
-                String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "] " : "";
-                String descStr = (desc == null || desc.isEmpty() ? "" : desc + "\n");
-                descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + admisibleValuesTxt + "\n";
-                descStr += valuesIfDescStr;
-                descStr.replaceAll("\\n$", "");
-                descStr.replaceAll("(\\n){2}", "");
-                descStr = descStr.replaceAll("\\n", "<br/>");
-                property.setShortDescription(descStr);
-                property.setCategory(sectionI18nName);
-                property.setCategoryId(sectionName);
-                property.setScope(SystemProperty.Scope.fromString(scope));
-                property.setVisibility(SystemProperty.Visibility.fromString(visibility));
-                property.setEditable(editableParam);
-
-                // Setting editor
-                if (propEditor != null)
-                    property.setEditor(propEditor);
-
-                // Setting renderer
-                if (propRenderer != null) {
-                    property.setRenderer(propRenderer);
-                }
-                else if (valueType == ValueTypeEnum.BOOLEAN) {
-                    property.setRenderer(new BooleanSystemPropertyRenderer());
-                }
-                else if (units.length() > 0) {
-                    property.setRenderer(new SystemPropertyRenderer(units));
-                }
-                else {
-                    property.setRenderer(new SystemPropertyRenderer());
-                }
-
-                if (sectionCustomEditor != null) {
-                    property.setSectionCustomEditor(sectionCustomEditor);
-//                    sectionCustomEditor = null;
-                }
-                
-                params.put(sectionName + "." + paramName, property);
-                sectionParams.put(paramName, property);
             }
+            else {
+                property = new SystemProperty();
+            }
+
+            // If the #propEditor is not set until here, the defaults will be created
+            if (propEditor == null) {
+                ArrayList<?> admisibleValues = null;
+                if (pValues != null) {
+                    String vlStr = pValues.getStringValue();
+                    admisibleValues = extractStringListToArrayList(type, vlStr);
+                    admisibleValuesTxt = buildValuesDescription(admisibleValues);
+                }
+
+                switch (valueType) {
+                    case BOOLEAN:
+                        propEditor = new BooleanAsCheckBoxPropertyEditor();
+                        break;
+                    case INTEGER:
+                        propEditor = minV == null && maxV == null ? new NumberEditor<>(Long.class, admisibleValues) : new NumberEditor<>(
+                                Long.class, minV == null ? null : minV.longValue(), maxV == null ? null : maxV.longValue(), admisibleValues);
+                        minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
+                        String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                        minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + units;
+                        break;
+                    case REAL:
+                        propEditor = minV == null && maxV == null ? new NumberEditor<>(Double.class, admisibleValues) : new NumberEditor<>(
+                                Double.class, minV == null ? null : minV.doubleValue(), maxV == null ? null : maxV.doubleValue(), admisibleValues);
+                        minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
+                        commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                        minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + units;
+                        break;
+                    default:
+                        // So it is a string, let see if it is a special pattern
+                        String stringTypeStringNotString = type;
+                        if (stringTypeStringNotString.equals("ipv4-address")) {
+                            propEditor = new StringPatternEditor(ArrayListEditor.IP_ADDRESS_PATTERN);
+                        }
+                        else
+                            propEditor = new StringPatternEditor(".*");
+                        break;
+                }
+            }
+
+            property.setValueType(valueType);
+            property.setName(paramName);
+            property.setDisplayName(paramI18nName);
+
+            if (value != null) {
+                property.setValue(value);
+                property.setDefaultValue(value);
+            }
+
+            property.setType(clazz);
+
+            String lstSizeTxt = "";
+            if (isList) {
+                lstSizeTxt = "[";
+                if (sizeList != null) {
+                    try {
+                        int sl = Integer.parseInt(sizeList);
+                        lstSizeTxt += sl;
+                    }
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        lstSizeTxt += "*";
+                    }
+                }
+                else if (sizeMinList != null && sizeMaxList != null) {
+                    double minS;
+                    double maxS;
+                    try {
+                        minS = Double.parseDouble(sizeMinList);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        minS = 0;
+                    }
+                    try {
+                        maxS = Double.parseDouble(sizeMaxList);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        maxS = ArrayListEditor.UNLIMITED_SIZE;
+                    }
+                    if (minS < 0)
+                        minS = 0;
+                    if (maxS <= 0)
+                        maxS = ArrayListEditor.UNLIMITED_SIZE;
+                    if (minS > maxS)
+                        minS = 0;
+
+                    lstSizeTxt += (int) minS == (int) minS ? (int) minS : (int) minS + "," + (int) minS;
+                }
+                else
+                    lstSizeTxt += "*";
+                lstSizeTxt += "]";
+            }
+
+            String unitsTxt = units.length() > 0 ? "(" + units + ") " : "";
+            String typeTxt = type != null ? "["
+                    + (type.startsWith("list:") ? I18n.text(type.substring(0, 4)) + ":"
+                            + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "] " : "";
+            String defaultTxt = defaultValue != null ? "[" + I18n.text("default") + "=" + defaultValue + units + "] " : "";
+            String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "] " : "";
+            String descStr = (desc == null || desc.isEmpty() ? "" : desc + "\n");
+            descStr += unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt + admisibleValuesTxt + "\n";
+            descStr += valuesIfDescStr;
+            descStr.replaceAll("\\n$", "");
+            descStr.replaceAll("(\\n){2}", "");
+            descStr = descStr.replaceAll("\\n", "<br/>");
+            property.setShortDescription(descStr);
+            property.setCategory(sectionI18nName);
+            property.setCategoryId(sectionName);
+            property.setScope(SystemProperty.Scope.fromString(scope));
+            property.setVisibility(SystemProperty.Visibility.fromString(visibility));
+            property.setEditable(editableParam);
+
+            // Setting editor
+            if (propEditor != null)
+                property.setEditor(propEditor);
+
+            // Setting renderer
+            if (propRenderer != null) {
+                property.setRenderer(propRenderer);
+            }
+            else if (valueType == ValueTypeEnum.BOOLEAN) {
+                property.setRenderer(new BooleanSystemPropertyRenderer());
+            }
+            else if (units.length() > 0) {
+                property.setRenderer(new SystemPropertyRenderer(units));
+            }
+            else {
+                property.setRenderer(new SystemPropertyRenderer());
+            }
+
+            if (sectionCustomEditor != null) {
+                property.setSectionCustomEditor(sectionCustomEditor);
+//                    sectionCustomEditor = null;
+            }
+
+            params.put(sectionName + "." + paramName, property);
+            sectionParams.put(paramName, property);
         }
         return params;
     }
@@ -963,7 +968,7 @@ public class ConfigurationManager {
             OutputFormat format = OutputFormat.createPrettyPrint();
             format.setNewLineAfterDeclaration(false);
             format.setExpandEmptyElements(false);
-            XMLWriter writer = new XMLWriter(new FileWriter("/home/miguel/Documents/" + "genXML_" + system + ".xml"), format);
+            XMLWriter writer = new XMLWriter(new FileWriter("/home/joaocordeiro77/workspace/Documents/" + "genXML_" + system + ".xml"), format);
             writer.write(doc);
             writer.close();
         }
@@ -1566,6 +1571,10 @@ public class ConfigurationManager {
             clones.add(sp);
         }
         return clones;
+    }
+
+    public Map<String, SystemProperty> processSection(Element section, String originName) {
+        return readSection(section, originName);
     }
 
     public ArrayList<SystemProperty> getProperties(String system, Visibility vis, Scope scope) {
