@@ -1222,6 +1222,72 @@ public class ConfigurationManager {
         return validValuesStrBldr;
     }
 
+    public Map<String, SystemProperty> mergeSystemProperties(
+            Map<String, SystemProperty> localProps,
+            Map<String, SystemProperty> qtepProps) {
+
+        Map<String, SystemProperty> merged = new LinkedHashMap<>();
+
+        // local first to keep order
+        if (localProps != null || !localProps.isEmpty()) {
+            for (String key : localProps.keySet()) {
+
+                SystemProperty local = localProps.get(key);
+                SystemProperty qtep = qtepProps.get(key);
+
+                if (qtep == null) {
+                    merged.put(key, local);
+                }
+                else {
+                    merged.put(key, mergeSingleProperty(local, qtep));
+                }
+            }
+        }
+
+        // append with qtep created props
+        for (String key : qtepProps.keySet()) {
+            if (!merged.containsKey(key))
+                merged.put(key, qtepProps.get(key));
+        }
+
+        return merged;
+    }
+
+    private SystemProperty mergeSingleProperty(SystemProperty local, SystemProperty qtep) {
+
+        SystemProperty merged = new SystemProperty();
+
+        // UI metadata, priority to local props
+        merged.setName(local.getName());
+        merged.setDisplayName(local.getDisplayName());
+        merged.setCategory(local.getCategory());
+        merged.setCategoryId(local.getCategoryId());
+        merged.setSectionCustomEditor(local.getSectionCustomEditor());
+        merged.setEditable(local.isEditable() && qtep.isEditable());
+
+        // technical metadata, priority to qtep props
+        merged.setValueType(qtep.getValueType());
+        merged.setType(qtep.getType());
+        merged.setValue(qtep.getValue());
+        merged.setDefaultValue(qtep.getDefaultValue());
+        merged.setScope(qtep.getScope() != null ? qtep.getScope() : local.getScope());
+        merged.setVisibility(qtep.getVisibility() != null ? qtep.getVisibility() : local.getVisibility());
+
+        // priority to qtep if exists
+        merged.setEditor(qtep.getEditor() != null ? qtep.getEditor() : local.getEditor());
+
+        // priority to qtep if exists
+        merged.setRenderer(qtep.getRenderer() != null ? qtep.getRenderer() : local.getRenderer());
+
+        // priority to qtep
+        String desc = (qtep.getShortDescription() != null && !qtep.getShortDescription().isEmpty())
+                ? qtep.getShortDescription()
+                : local.getShortDescription();
+        merged.setShortDescription(desc);
+
+        return merged;
+    }
+
     /**
      * @param values
      * @return
@@ -1430,7 +1496,7 @@ public class ConfigurationManager {
                         dv.contains("x") ? 16 : 10) : 0L;
             }
             catch (NumberFormatException e) {
-                e.printStackTrace();
+                NeptusLog.pub().warn("No parseable default INTEGER value, using 0. String value: '" + valueStr + "' :: " + e.getMessage());
                 return 0L;
             }
         }
@@ -1439,7 +1505,7 @@ public class ConfigurationManager {
                 return valueStr != null ? Double.parseDouble(valueStr) : 0.0;
             }
             catch (NumberFormatException e) {
-                e.printStackTrace();
+                NeptusLog.pub().warn("No parseable default REAL value, using 0.0. String value: '" + valueStr + "' :: " + e.getMessage());
                 return 0.0;
             }
         }
@@ -1593,6 +1659,14 @@ public class ConfigurationManager {
         return str.replaceAll("^\\[", "").replaceAll("\\]$", "");
     }
 
+    public Map<String, SystemProperty> listToMap(List<SystemProperty> list) {
+        Map<String, SystemProperty> map = new LinkedHashMap<>();
+        for (SystemProperty sp : list) {
+            map.put(sp.getCategoryId() + "." + sp.getName(), sp);
+        }
+        return map;
+    }
+
     public static void main(String[] args) {
         GeneralPreferences.language = "en_US";
         ConfigurationManager confMan = new ConfigurationManager();
@@ -1604,10 +1678,10 @@ public class ConfigurationManager {
         
         ImcMsgManager mng = new ImcMsgManager(IMCDefinition.getInstance());
         SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel("seacat-mk1-01", Scope.GLOBAL, Visibility.USER, true,
-                true, true, mng);
+                true, true, mng, null);
         GuiUtils.testFrame(systemConfEditor);
         systemConfEditor = new SystemConfigurationEditorPanel("lauv-noptilus-1", Scope.GLOBAL, Visibility.USER, true,
-                true, true, mng);
+                true, true, mng, null);
         GuiUtils.testFrame(systemConfEditor);
     }
 }

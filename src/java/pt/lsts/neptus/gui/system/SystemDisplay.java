@@ -515,7 +515,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
             @Override
             void mouseClicked(MouseEvent e) {
                 systemConfEditor = new SystemConfigurationEditorPanel(id, Scope.GLOBAL,
-                        Visibility.USER, true, false, true, ImcMsgManager.getManager());
+                        Visibility.USER, true, false, true, ImcMsgManager.getManager(), null);
                 JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(SystemDisplay.this));
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(systemConfEditor);

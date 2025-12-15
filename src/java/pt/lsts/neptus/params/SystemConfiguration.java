@@ -73,7 +73,7 @@ public class SystemConfiguration extends ConsolePanel implements NeptusMessageLi
         removeAll();
         
         systemConfEditor = new SystemConfigurationEditorPanel(getMainVehicleId(), Scope.GLOBAL, Visibility.USER, true,
-                false, true, true, getConsole().getImcMsgManager());
+                false, true, true, getConsole().getImcMsgManager(), getConsole());
         
         setLayout(new BorderLayout());
         add(systemConfEditor);
@@ -94,7 +94,7 @@ public class SystemConfiguration extends ConsolePanel implements NeptusMessageLi
 
     @Override
     public String[] getObservedMessages() {
-        return new String[] { "EntityParameters" };
+        return new String[] { "EntityParameters", "QueryTypedEntityParameters" };
     }
 
     @Override

@@ -42,6 +42,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,10 +59,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -73,23 +76,31 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.propertysheet.PropertySheetTableModel.Item;
 import net.miginfocom.swing.MigLayout;
 
+import org.dom4j.Element;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.QueryEntityParameters;
+import pt.lsts.imc.QueryTypedEntityParameters;
 import pt.lsts.imc.SaveEntityParameters;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.admin.CommsAdmin;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.params.util.QtepToSectionConverter;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -107,10 +118,17 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     protected final LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
 
     private static boolean isAskForCategories = true;
+    List<String> expectedCategories = null;
+
+    // this variable can be null
+    private ConsoleLayout console;
 
     private JPanel swapPropertiesAndCategoriesPanel;
     private JPanel mainPanel;
     private JPanel categoriesPanel;
+    private JPanel vehiclePanel;
+    private JPanel uiPanel;
+    private JPanel settingsPanel;
 
     private JPanel propertiesPanel;
     private InfiniteProgressPanel progressPanel;
@@ -121,6 +139,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private JButton resetButton;
     private JButton collapseButton;
     private JButton expandButton;
+    private JButton syncDefinitionsButton;
+    private JButton generateXmlButton;
 
     private JLabel titleLabel;
     private JCheckBox checkAdvance;
@@ -137,7 +157,17 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     protected String systemId;
     protected ImcSystem sid = null;
-    
+    protected int reqId;
+
+    private final Map<String, SystemProperty> receivedQtepProps = new LinkedHashMap<>();
+    private boolean isSyncing = false;
+    private final Set<String> receivedEntities = Collections.synchronizedSet(new HashSet<>());
+    private long syncStartTime;
+    private static final long QTEPS_TIMEOUT_MS = 10000;
+    private long lastNotificationTime = 0;
+    private static final long NOTIFICATION_COOLDOWN_MS = 10000; // 10 seconds cooldown
+    private long lastQtepTimestamp = 0;
+
     protected ImcMsgManager imcMsgManager;
 
     // Category name, category label on gui
@@ -145,18 +175,20 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private Map<String, String> lastSelectedCategoriesList;
 
     public SystemConfigurationEditorPanel(String systemId, Scope scopeToUse, Visibility visibility,
-            boolean showSendButton, boolean showScopeCombo, boolean showResetButton, ImcMsgManager imcMsgManager) {
-        this(systemId, scopeToUse, visibility, showSendButton, showScopeCombo, showResetButton, false, imcMsgManager);
+            boolean showSendButton, boolean showScopeCombo, boolean showResetButton, ImcMsgManager imcMsgManager, ConsoleLayout console ) {
+        this(systemId, scopeToUse, visibility, showSendButton, showScopeCombo, showResetButton, false, imcMsgManager, console);
     }
 
     public SystemConfigurationEditorPanel(String systemId, Scope scopeToUse, Visibility visibility,
                                           boolean showSendButton, boolean showScopeCombo, boolean showResetButton,
-                                          boolean showFakeSyncButton, ImcMsgManager imcMsgManager) {
+                                          boolean showFakeSyncButton, ImcMsgManager imcMsgManager, ConsoleLayout console) {
         this.systemId = systemId;
         this.imcMsgManager = imcMsgManager;
         
         this.scopeToUse = scopeToUse;
         this.visibility = visibility;
+        this.console = console;
+        PeriodicUpdatesService.registerPojo(this);
 
         initialize(showSendButton, showScopeCombo, showResetButton, showFakeSyncButton);
     }
@@ -227,7 +259,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         swapPropertiesAndCategoriesPanel.add(categoriesPanel, CARD_CATEGORIES);
 
         add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%");
-        
+
+        vehiclePanel = new JPanel(new MigLayout("insets 0", "[grow, left]"));
+
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -243,7 +277,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         sendButton.setToolTipText(I18n.text("Send the modified properties."));
         if (showSendButton) {
-            mainPanel.add(sendButton, "sg buttons, split");
+            vehiclePanel.add(sendButton, "sg buttons1, split, gapbefore 5px");
         }
 
         refreshButton = new JButton(new AbstractAction(I18n.text("Refresh")) {
@@ -261,7 +295,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         });
         refreshButton.setToolTipText(I18n.text("Requests the entities sections parameters from the vehicle."));
-        mainPanel.add(refreshButton, "sg buttons, split");
+        vehiclePanel.add(refreshButton, "sg buttons1, split");
 
         saveButton = new JButton(new AbstractAction(I18n.text("Save")) {
             @Override
@@ -278,8 +312,42 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         saveButton.setToolTipText(I18n.text("Saves the visible entities sections in the vehicle."));
         if (showSendButton) {
-            mainPanel.add(saveButton, "sg buttons, split");
+            vehiclePanel.add(saveButton, "sg buttons1, split");
         }
+
+        resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetPropertiesOnPanel();
+            }
+        });
+        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
+        if (showResetButton)
+            vehiclePanel.add(resetButton, "sg buttons1, split");
+        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
+
+        fakeSyncButton = new JToggleButton(new AbstractAction(I18n.text("Consider Sync")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        // Inside the refreshPropertiesOnPanel we look at this button state and act accordingly
+                        refreshPropertiesOnPanel(false, false, false, new String[0]);
+                        return null;
+                    }
+                };
+                worker.execute();
+            }
+        });
+        fakeSyncButton.setToolTipText(I18n.text("Consider sync with the system, useful for reducing parameters to send."));
+        if (showFakeSyncButton) {
+            vehiclePanel.add(fakeSyncButton, "sg buttons1, split, gapbefore push, gapafter 5px");
+        }
+
+        mainPanel.add(vehiclePanel, "growx, wrap");
+
+        uiPanel = new JPanel(new MigLayout("insets 0", "[grow, left]"));
 
         collapseButton = new JButton(new AbstractAction(I18n.text("Collapse All")) {
             @Override
@@ -293,7 +361,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         });
         collapseButton.setToolTipText(I18n.text("Collapse all sections."));
-        mainPanel.add(collapseButton, "sg buttons, gapbefore unrel");
+        uiPanel.add(collapseButton, "sg buttons3, split, gapbefore 5px");
 
         expandButton = new JButton(new AbstractAction(I18n.text("Expand All")) {
             @Override
@@ -310,27 +378,50 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 }
             }
         });
+        uiPanel.add(expandButton, "sg buttons3, split");
         expandButton.setToolTipText(I18n.text("Expand all sections."));
-        mainPanel.add(expandButton, "sg buttons, split");
-        
-        resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
+
+        syncDefinitionsButton = new JButton(new AbstractAction(I18n.text("Sync Definitions")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                resetPropertiesOnPanel();
+                if (sid.isSimulated()){
+                    int option = GuiUtils.confirmDialog(SystemConfigurationEditorPanel.this, I18n.text("Request Parameters Definition"),
+                            I18n.text("The vehicle is simulated. Are you sure you want to proceed with synchronization?"));
+                    if(option == JOptionPane.YES_OPTION) {
+                        doSyncParameters();
+                    }
+                } else {
+                    doSyncParameters();
+                }
             }
         });
-        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
-        if (showResetButton)
-            mainPanel.add(resetButton, "sg buttons, gapbefore 30, split, wrap");
-        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
-                    
+        syncDefinitionsButton.setToolTipText(I18n.text("Synchronize local parameters configuration with vehicle configuration."));
+
+        uiPanel.add(syncDefinitionsButton, "sg buttons4, split, gapbefore push");
+        generateXmlButton = new JButton(new AbstractAction(I18n.text("Generate Definitions File")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    generateXMLFile();
+                }
+                catch (ParserConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        uiPanel.add(generateXmlButton, "sg buttons4, split, gapafter 5px");
+
+        mainPanel.add(uiPanel, "growx, wrap");
+
+        settingsPanel = new JPanel(new MigLayout("insets 0", "[grow, left]"));
+
         if (showScopeCombo)
-            mainPanel.add(scopeComboBox, "split, w :160:");
+            settingsPanel.add(scopeComboBox, "split, w :160:");
 
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
-        mainPanel.add(checkAdvance, "split, sg checkboxes");
+        settingsPanel.add(checkAdvance, "split, sg checkboxes, gapbefore 5px");
         checkAdvance.setSelected(visibility == Visibility.DEVELOPER);
         checkAdvance.addItemListener(e -> {
             if (checkAdvance.isSelected())
@@ -359,46 +450,179 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         checkSelection.setSelected(isAskForCategories);
         checkSelection.setFocusable(false);
-        mainPanel.add(checkSelection, "sg checkboxes");
+        settingsPanel.add(checkSelection, "sg checkboxes");
 
-        fakeSyncButton = new JToggleButton(new AbstractAction(I18n.text("Consider Sync")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        // Inside the refreshPropertiesOnPanel we look at this button state and act accordingly
-                        refreshPropertiesOnPanel(false, false, false, new String[0]);
-                        return null;
-                    }
-                };
-                worker.execute();
-            }
-        });
-        fakeSyncButton.setToolTipText(I18n.text("Consider sync with the system, useful for reducing parameters to send."));
-        if (showFakeSyncButton) {
-            mainPanel.add(fakeSyncButton, "sg buttons2, split");
-        }
-
-        JButton generateXmlButton = new JButton(new AbstractAction(I18n.text("Generate XML File")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    generateXMLFile();
-                }
-                catch (ParserConfigurationException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
-        mainPanel.add(generateXmlButton);
+        mainPanel.add(settingsPanel, "growx, wrap");
 
         // FIXME This might not make sense to not always ask for categories if no wifi
         refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
-        
+
         revalidate();
         repaint();
     }
+
+    private void doSyncParameters() {
+
+        if (isSyncing) {
+            return;
+        }
+
+        isSyncing = true;
+        syncStartTime = System.currentTimeMillis();
+
+        receivedQtepProps.clear();
+        receivedEntities.clear();
+
+        syncDefinitionsButton.setEnabled(false);
+        syncDefinitionsButton.setText(I18n.text("Syncing..."));
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    if (isAskForCategories) {
+                        expectedCategories = askForCategories("sync", lastSelectedCategoriesList).get();
+                        sendQtepRequests(expectedCategories, true);
+                    }
+                    else {
+                        expectedCategories =
+                                new ArrayList<>(EntitiesResolver.getEntities(systemId).values());
+                        sendQtepRequests(null, false);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                    e.printStackTrace();
+                    isSyncing = false;
+                    expectedCategories = null;
+                    SwingUtilities.invokeLater(() -> {
+                        syncDefinitionsButton.setEnabled(true);
+                        if (isAskForCategories) {
+                            syncDefinitionsButton.setText(I18n.text("Sync Definitions >"));
+                        } else {
+                            syncDefinitionsButton.setText(I18n.text("Sync Definitions"));
+                        }
+                    });
+                }
+                return null;
+            }
+        };
+
+        worker.execute();
+    }
+
+    private void reloadPropertiesOnPanel(Map<String, SystemProperty> merged) {
+
+        showWaiterUpdateProperties(true);
+
+        try {
+            List<String> openCategories = removeAllPropertiesFromPanel();
+            resetPropertiesEditorAndRendererFactories();
+            params.clear();
+
+            long now = System.currentTimeMillis();
+            Visibility currentVisibility = this.visibility;
+
+            for (SystemProperty sp : merged.values()) {
+                if (sp.getVisibility() == Visibility.DEVELOPER && currentVisibility == Visibility.USER) {
+                    continue;
+                }
+
+                params.put(sp.getCategoryId() + "." + sp.getName(), sp);
+                sp.addPropertyChangeListener(this);
+                psp.addProperty(sp);
+
+                if (sp.getEditor() != null) {
+                    per.registerEditor(sp, sp.getEditor());
+                }
+
+                if (sp.getRenderer() != null) {
+                    prr.registerRenderer(sp, sp.getRenderer());
+                }
+
+                // fake sync update with null check
+                if (fakeSyncButton != null && fakeSyncButton.isSelected()) {
+                    sp.setTimeFakeSync(now);
+                } else {
+                    sp.resetTimeFakeSync();
+                }
+            }
+
+            // Let us make sure all dependencies between properties are ok
+            for (SystemProperty spCh : params.values()) {
+                for (SystemProperty sp : params.values()) {
+                    PropertyChangeEvent evt = new PropertyChangeEvent(spCh, spCh.getName(), null, spCh.getValue());
+                    sp.propertyChange(evt);
+                }
+            }
+
+            // Close all categories
+            for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+                Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+                if (o.isVisible() && !o.hasToggle()) {
+                    if (!openCategories.contains(o.getParent().getName())) {
+                        o.getParent().toggle();
+                    }
+                }
+            }
+
+            revalidate();
+            repaint();
+
+        } finally {
+            showWaiterUpdateProperties(false);
+            // if flag donotoverwrie == false
+                // generatexml to conf params (replace the current one or overwrite)
+        }
+    }
+
+    private void sendQtepRequests(List<String> entities, boolean askForCategories) {
+        QueryTypedEntityParameters req = new QueryTypedEntityParameters();
+        reqId = IMCSendMessageUtils.getNextRequestId();
+        req.setOp(QueryTypedEntityParameters.OP.REQUEST);
+        req.setRequestId(reqId);
+        if (askForCategories && entities != null) {
+            for (String entity: entities) {
+                req.setEntityName(entity);
+                send(req, true, CommsAdmin.CommChannelType.WIFI.name);
+            }
+        } else {
+            req.setEntityName("");
+            send(req, true, CommsAdmin.CommChannelType.WIFI.name);
+        }
+    }
+
+    private void handleQtepReply(QueryTypedEntityParameters qtep) {
+        try {
+            // update the last received timestamp
+            lastQtepTimestamp = System.currentTimeMillis();
+
+            // convert QTEP to XML section
+            Element section = QtepToSectionConverter.convertToSection(qtep);
+            if (section == null) {
+                NeptusLog.pub().warn("Failed to convert QTEP to section");
+                return;
+            }
+
+            String entityName = qtep.getEntityName();
+
+            synchronized (receivedEntities) {
+                receivedEntities.add(entityName);
+            }
+
+            // Read. the section properties
+            Map<String, SystemProperty> sectionProps = ConfigurationManager.getInstance().processSection(section, getSystemId());
+
+            // Add to received properties
+            synchronized (receivedQtepProps) {
+                receivedQtepProps.putAll(sectionProps);
+            }
+
+        } catch (Exception e) {
+            NeptusLog.pub().error("Error handling QTEP reply", e);
+        }
+    }
+
 
     private void generateXMLFile() throws ParserConfigurationException {
         SystemProperty.Scope scopeToUse = SystemProperty.Scope.GLOBAL;
@@ -411,6 +635,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         actions.add(sendButton.getAction());
         actions.add(refreshButton.getAction());
         actions.add(saveButton.getAction());
+        actions.add(syncDefinitionsButton.getAction());
 
         String suffix = " >";
         for (Action action : actions) {
@@ -954,38 +1179,128 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
     
     public static void updatePropertyWithMessageArrived(SystemConfigurationEditorPanel systemConfEditor, IMCMessage message) {
-        if (systemConfEditor == null || message == null || !(message instanceof EntityParameters))
+        if (systemConfEditor == null || message == null)
             return;
-        
+
+        if (message.getSrc() != systemConfEditor.sid.getId().intValue()) {
+            return;
+        }
+
         try {
-            systemConfEditor.setRefreshing(true);
-            EntityParameters eps = EntityParameters.clone(message);
-            String section = eps.getName();
-            for(EntityParameter ep : eps.getParams()) {
-                SystemProperty p = systemConfEditor.getParams().get(section + "." + ep.getName());
-                if(p == null) {
-                    NeptusLog.pub().warn("Property not in config: " + section + " - " + ep.getName() + " from system with ID " + message.getSrc());
-                }
-                else {
-                    boolean isList = false;
-//                    NeptusLog.pub().info("<###>Prop type and if is list:: " + p.getType() + " " + (ArrayList.class.equals(p.getType())));
-                    if (ArrayList.class.equals(p.getType()))
-                        isList = true;
-                    //Object value = ConfigurationManager.getValueTypedFromString(ep.getValue(), p.getValueType());
-                    Object value = !isList ? ConfigurationManager.getValueTypedFromString(ep.getValue(),
-                            p.getValueType()) : ConfigurationManager.getListValueTypedFromString(ep.getValue(),
-                            p.getValueType());
-                    p.setValue(value);
-                    p.setTimeSync(System.currentTimeMillis());
+            if (message instanceof QueryTypedEntityParameters) {
+                QueryTypedEntityParameters qtep = (QueryTypedEntityParameters) message;
+                if (qtep.getOp() == QueryTypedEntityParameters.OP.REPLY) {
+                    if(qtep.getRequestId() == systemConfEditor.getReqId()) {
+                        systemConfEditor.receivedEntities.add(qtep.getEntityName());
+                        systemConfEditor.handleQtepReply(qtep);
+                    } else {
+                        // notification with human interaction
+                        systemConfEditor.showRateLimitedNotification();
+                    }
+                    return;
                 }
             }
-            systemConfEditor.revalidate();
-            systemConfEditor.repaint();
-            systemConfEditor.setRefreshing(false);
+            if (message instanceof EntityParameters) {
+                systemConfEditor.setRefreshing(true);
+                EntityParameters eps = EntityParameters.clone(message);
+                String section = eps.getName();
+                for(EntityParameter ep : eps.getParams()) {
+                    SystemProperty p = systemConfEditor.getParams().get(section + "." + ep.getName());
+                    if(p == null) {
+                        NeptusLog.pub().warn("Property not in config: " + section + " - " + ep.getName() + " from system with ID " + message.getSrc());
+                    }
+                    else {
+                        boolean isList = false;
+    //                    NeptusLog.pub().info("<###>Prop type and if is list:: " + p.getType() + " " + (ArrayList.class.equals(p.getType())));
+                        if (ArrayList.class.equals(p.getType()))
+                            isList = true;
+                        //Object value = ConfigurationManager.getValueTypedFromString(ep.getValue(), p.getValueType());
+                        Object value = !isList ? ConfigurationManager.getValueTypedFromString(ep.getValue(),
+                                p.getValueType()) : ConfigurationManager.getListValueTypedFromString(ep.getValue(),
+                                p.getValueType());
+                        p.setValue(value);
+                        p.setTimeSync(System.currentTimeMillis());
+                    }
+                }
+                systemConfEditor.revalidate();
+                systemConfEditor.repaint();
+                systemConfEditor.setRefreshing(false);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void showRateLimitedNotification() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastNotificationTime > NOTIFICATION_COOLDOWN_MS) {
+            lastNotificationTime = currentTime;
+            SwingUtilities.invokeLater(() -> {
+                Notification notification = Notification.warning(
+                        I18n.text("Synchronization Conflict"),
+                        I18n.text("Received parameters from another synchronization request. " +
+                                "Please wait for the current synchronization to complete.")
+                ).requireHumanAction(true);
+
+                if(console != null) {
+                    // Get the console from the parent component
+                    console.post(notification);
+                }
+            });
+        }
+    }
+
+    @Periodic (millisBetweenUpdates = 500)
+    public void checkQtepsCompletion() {
+
+        if (!isSyncing || expectedCategories == null)
+            return;
+
+        boolean allReceived = receivedEntities.containsAll(expectedCategories);
+        boolean timeout = System.currentTimeMillis() - syncStartTime > QTEPS_TIMEOUT_MS;
+
+        if (allReceived || timeout) {
+
+            isSyncing = false;
+
+            if (timeout) {
+                NeptusLog.pub().warn("Timeout", "Timeout waiting for all parameter categories.");
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    if (!receivedQtepProps.isEmpty()) {
+                        ConfigurationManager manager = ConfigurationManager.getInstance();
+                        List<SystemProperty> props =
+                                manager.getProperties(systemId, visibility, scopeToUse);
+                        Map<String, SystemProperty> local = manager.listToMap(props);
+                        Map<String, SystemProperty> merged =
+                                manager.mergeSystemProperties(local, receivedQtepProps);
+
+                        reloadPropertiesOnPanel(merged);
+                    }
+                } finally {
+                    syncDefinitionsButton.setEnabled(true);
+                    if (isAskForCategories) {
+                        syncDefinitionsButton.setText(I18n.text("Sync Definitions >"));
+                    } else {
+                        syncDefinitionsButton.setText(I18n.text("Sync Definitions"));
+                    }
+                }
+            });
+
+            expectedCategories = null;
+        }
+    }
+
+
+    private int getReqId() {
+        return reqId;
+    }
+
+    private List<String> getExpectedCategories() {
+        return expectedCategories;
     }
 
     public static void main(String[] args) {
@@ -997,10 +1312,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         
         GeneralPreferences.language = "en_US";
         
-        final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, true, true, true, ImcMsgManager.getManager());
-        final SystemConfigurationEditorPanel sc2 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, false, true, true, ImcMsgManager.getManager());
+        //final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
+              //  Visibility.USER, true, true, true, true, ImcMsgManager.getManager());
+        //final SystemConfigurationEditorPanel sc2 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
+               // Visibility.USER, true, false, true, true, ImcMsgManager.getManager());
         
 //        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
 //            @Override
@@ -1017,7 +1332,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //            }
 //        });
         
-        GuiUtils.testFrame(sc1);
-        GuiUtils.testFrame(sc2);
+     //   GuiUtils.testFrame(sc1);
+      //  GuiUtils.testFrame(sc2);
     }
 }
