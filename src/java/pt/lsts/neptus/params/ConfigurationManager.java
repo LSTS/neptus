@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.Objects;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dom4j.Document;
@@ -292,7 +293,7 @@ public class ConfigurationManager {
             String scope = getTagContents(param, "scope");
             String visibility = getTagContents(param, "visibility");
             String type = getTagContents(param, "type");
-            String desc = getTagContents(param, "desc");
+            String desc = getTagContents(param, "description");
             String units = getTagContents(param, "units");
             String defaultValue = getTagContents(param, "default");
 
@@ -965,10 +966,24 @@ public class ConfigurationManager {
                 addXmlTags(paramElement, sp);
             }
 
+            String fileName = "conf/params/" + system + ".en_US.xml";
+            File configFile = new File(fileName);
+            if (configFile.exists()) {
+                String backupPath = "conf/params/" + system + ".en_US.xml.backup";
+                File backupFile = new File(backupPath);
+
+                if (backupFile.exists()) {
+                    backupFile.delete();
+                }
+
+                FileUtils.copyFile(configFile, backupFile);
+                NeptusLog.pub().info("Created backup at: " + backupFile.getAbsolutePath());
+            }
+
             OutputFormat format = OutputFormat.createPrettyPrint();
             format.setNewLineAfterDeclaration(false);
             format.setExpandEmptyElements(false);
-            XMLWriter writer = new XMLWriter(new FileWriter("/home/joaocordeiro77/workspace/Documents/" + "genXML_" + system + ".xml"), format);
+            XMLWriter writer = new XMLWriter(new FileWriter(fileName), format);
             writer.write(doc);
             writer.close();
         }
@@ -1645,6 +1660,26 @@ public class ConfigurationManager {
 
     public ArrayList<SystemProperty> getProperties(String system, Visibility vis, Scope scope) {
         return getPropertiesByEntity(system, null, vis, scope);
+    }
+
+    public void setProperties(String systemId, Map<String, SystemProperty> props, boolean save) {
+        if (systemId == null || props == null || props.isEmpty())
+            return;
+
+        Map<String, SystemProperty> systemProps =
+                map.computeIfAbsent(systemId, k -> new HashMap<>());
+
+        systemProps.putAll(props);
+        if (save) {
+            if (save) {
+                try {
+                    generateXML(systemId, SystemProperty.Visibility.DEVELOPER, SystemProperty.Scope.GLOBAL);
+                }
+                catch (ParserConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
     }
 
     public boolean hasProperties(String system, Visibility vis, Scope scope) {
