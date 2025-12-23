@@ -491,7 +491,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                                 new ArrayList<>(EntitiesResolver.getEntities(systemId).values());
                         sendQtepRequests(null, false);
                     }
-                    qtepHandler.startSync(SystemConfigurationEditorPanel.this, systemId, expectedCategories, reqId);
+                    qtepHandler.startSync(SystemConfigurationEditorPanel.this, systemId, expectedCategories, reqId, true);
                 }
                 catch (Exception e) {
                     isSyncing = false;

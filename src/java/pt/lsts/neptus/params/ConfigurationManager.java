@@ -1670,16 +1670,6 @@ public class ConfigurationManager {
                 map.computeIfAbsent(systemId, k -> new HashMap<>());
 
         systemProps.putAll(props);
-        if (save) {
-            if (save) {
-                try {
-                    generateXML(systemId, SystemProperty.Visibility.DEVELOPER, SystemProperty.Scope.GLOBAL);
-                }
-                catch (ParserConfigurationException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        }
     }
 
     public boolean hasProperties(String system, Visibility vis, Scope scope) {

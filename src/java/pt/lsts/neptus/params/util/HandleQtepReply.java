@@ -89,9 +89,9 @@ public class HandleQtepReply implements NeptusMessageListener, MessageListener<M
     }
 
     public void startSync(SystemConfigurationEditorPanel owner, String systemId, List<String> expectedEntities,
-                          int requestId) {
+                          int requestId, boolean isSyncing) {
 
-        if (isSyncing)
+        if (!isSyncing)
             return;
 
         this.owner = owner;
@@ -102,7 +102,7 @@ public class HandleQtepReply implements NeptusMessageListener, MessageListener<M
 
         PeriodicUpdatesService.registerPojo(this);
 
-        isSyncing = true;
+        this.isSyncing = isSyncing;
         syncStartTime = System.currentTimeMillis();
 
         receivedEntities.clear();

@@ -37,6 +37,7 @@ import org.dom4j.Element;
 import pt.lsts.imc.TypedEntityParameter;
 import pt.lsts.imc.QueryTypedEntityParameters;
 import pt.lsts.imc.ValuesIf;
+import pt.lsts.neptus.gui.editor.ArrayListEditor;
 
 import static java.lang.Math.abs;
 
@@ -81,7 +82,7 @@ public class QtepToSectionConverter {
 
         p.addElement("name-i18n").setText(param.getName());
 
-        String type = covertType(param.getTypeVal());
+        String type = isIPv4AddressParam(param) ? "ipv4-address" : covertType(param.getTypeVal());
         p.addElement("type").setText(type);
 
         if (param.getVisibilityStr() != null)
@@ -161,6 +162,16 @@ public class QtepToSectionConverter {
             default:
                 return "string";
         }
+    }
+    
+    private static boolean isIPv4AddressParam(TypedEntityParameter param) {
+        if (param == null || param.getDefaultValue() == null) return false;
+        
+        String defaultValue = param.getDefaultValue().toString().trim();
+        
+        String ipv4Pattern = ArrayListEditor.IP_ADDRESS_PATTERN;
+
+        return defaultValue.matches(ipv4Pattern);
     }
 
     private static boolean isNumericType(int type) {
