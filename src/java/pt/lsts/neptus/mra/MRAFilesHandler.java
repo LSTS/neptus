@@ -517,7 +517,7 @@ public class MRAFilesHandler implements FileHandler {
                 }
             }
             else { // Linux and others
-                String[] fileManagers = {"xdg-open", "nautilus", "thunar", "dolphin", "konqueror", "pcmanfm"};
+                String[] fileManagers = {"xdg-open", "nautilus", "thunar", "dolphin", "konqueror", "pcmanfm", "open"};
                 String fileManager = null;
 
                 for (String manager : fileManagers) {
