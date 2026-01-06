@@ -41,6 +41,7 @@ import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
@@ -456,7 +457,59 @@ public class SystemPainterHelper {
         g2.dispose();
         return;
     }
-    
+
+    public static final void drawSystemDesiredHeading(StateRenderer2D renderer, Graphics2D g,
+                                                      ImcSystem sys, double iconWidth, boolean isLocationKnownUpToDate,
+                                                      double minimumSpeedToBeStopped) {
+        Object obj = sys.retrieveData(SystemUtils.DESIRED_HEADING_DEGS_KEY);
+        if (obj != null) {
+            double headingDegrees = (Integer) obj;
+            obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
+            double speed = (Double) obj;
+            if(obj != null) {
+                drawSystemDesiredHeading(renderer, g, headingDegrees, iconWidth,
+                        isLocationKnownUpToDate, minimumSpeedToBeStopped, speed);
+            }
+        }
+    }
+
+    public static final void drawSystemDesiredHeading(StateRenderer2D renderer, Graphics2D g,
+                                                      double headingDegrees, double iconWidth,
+                                                      boolean isLocationKnownUpToDate, double minimumSpeedToBeStopped, double speed) {
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);
+        if (useTransparency != 255)
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, useTransparency / 255f));
+
+        if (Double.isFinite(headingDegrees) && speed > minimumSpeedToBeStopped) {
+            int distanceFromCenter = (int) (iconWidth);
+            double arrowLength = iconWidth * 0.6;
+            double arrowAngle = Math.PI * 3 / 4;
+
+            g2.rotate(Math.toRadians(headingDegrees) - renderer.getRotation());
+            g2.translate(0, -distanceFromCenter);
+
+            g2.setColor(Color.YELLOW);
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+
+            double x1 = -Math.sin(arrowAngle) * arrowLength;
+            double y1 = -Math.cos(arrowAngle) * arrowLength;
+            double x2 = 0;
+            double y2 = 0;
+            double x3 = Math.sin(arrowAngle) * arrowLength;
+            double y3 = -Math.cos(arrowAngle) * arrowLength;
+
+            Path2D path = new Path2D.Double();
+            path.moveTo(x1, y1);
+            path.lineTo(x2, y2);
+            path.moveTo(x2, y2);
+            path.lineTo(x3, y3);
+
+            g2.draw(path);
+        }
+        g2.dispose();
+    }
     
     public static final void drawVesselDimentionsIconForSystem(StateRenderer2D renderer, Graphics2D g, double width,
             double length, double widthOffsetFromCenter, double lenghtOffsetFromCenter, double headingDegrees, 

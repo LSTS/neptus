@@ -39,6 +39,7 @@ import java.util.Vector;
 import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.DesiredHeading;
 import pt.lsts.imc.EmergencyControlState;
 import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.EstimatedState;
@@ -605,6 +606,19 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     long timeMillis = msg.getTimestampMillis();
                     EntityParameters entityParametersMsg = (EntityParameters) msg;
                     resSys.storeData(SystemUtils.ENTITY_PARAMETERS, entityParametersMsg, timeMillis, true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case DesiredHeading.ID_STATIC:
+                try {
+                    long timeMillis = msg.getTimestampMillis();
+                    double desiredHeadingRad = msg.getDouble("value");
+                    resSys.storeData(
+                            SystemUtils.DESIRED_HEADING_DEGS_KEY,
+                            (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(desiredHeadingRad), 0)),
+                            timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
