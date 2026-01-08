@@ -34,6 +34,7 @@ package pt.lsts.neptus.params.editor.custom;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -63,6 +64,14 @@ public class CustomSystemPropertyEditor implements PropertyChangeListener, Clone
 
     public void setSystemPropertiesList(Map<String, SystemProperty> paramList) {
         this.paramList = paramList;
+    }
+
+    public void updateParamList(Map<String, SystemProperty> newParams) {
+        if (this.paramList == null) {
+            this.paramList = new HashMap<>(newParams);
+        } else {
+            this.paramList.putAll(newParams);
+        }
     }
     
     /* (non-Javadoc)

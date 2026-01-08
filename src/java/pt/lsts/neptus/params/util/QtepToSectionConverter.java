@@ -36,6 +36,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import pt.lsts.imc.TypedEntityParameter;
 import pt.lsts.imc.QueryTypedEntityParameters;
+import pt.lsts.imc.TypedEntityParameterEditor;
+import pt.lsts.imc.TypedEntityParametersOptions;
 import pt.lsts.imc.ValuesIf;
 import pt.lsts.neptus.gui.editor.ArrayListEditor;
 
@@ -68,25 +70,47 @@ public class QtepToSectionConverter {
                 .addAttribute("name", sectionName)
                 .addAttribute("name-i18n", sectionName);
 
-        for (TypedEntityParameter param : qtep.getParameters()) {
-            addParameter(section, param);
+        for (TypedEntityParametersOptions param : qtep.getParameters()) {
+            if (param.getMgid() == TypedEntityParameterEditor.ID_STATIC) {
+                TypedEntityParameterEditor editor = (TypedEntityParameterEditor) param;
+                section.addAttribute("editor", editor.getValue());
+            }
+            else {
+                TypedEntityParameter tep = (TypedEntityParameter) param;
+                addParameter(section, tep);
+            }
         }
 
         return section;
     }
 
     private static void addParameter(Element section, TypedEntityParameter param) {
+        boolean isEditable = true;
 
         Element p = section.addElement("param")
                 .addAttribute("name", param.getName());
 
+        switch (param.getVisibility()) {
+            case USER_NOT_EDITABLE:
+                isEditable = false;
+            case USER:
+                p.addElement("visibility").setText("user");
+                break;
+            case DEVELOPER_NOT_EDITABLE:
+                isEditable = false;
+            case DEVELOPER:
+            default:
+                p.addElement("visibility").setText("developer");
+        }
+
+        if (!isEditable) {
+            p.addAttribute("editable", "false");
+        }
+
         p.addElement("name-i18n").setText(param.getName());
 
-        String type = isIPv4AddressParam(param) ? "ipv4-address" : covertType(param.getTypeVal());
+        String type = isIPv4AddressParam(param) ? "ipv4-address" : covertType(param.getType());
         p.addElement("type").setText(type);
-
-        if (param.getVisibilityStr() != null)
-            p.addElement("visibility").setText(param.getVisibilityStr().toLowerCase());
 
         if (param.getScopeStr() != null)
             p.addElement("scope").setText(param.getScopeStr().toLowerCase());
@@ -110,7 +134,7 @@ public class QtepToSectionConverter {
         }
 
         if (param.getDescription() != null && !param.getDescription().isEmpty())
-            p.addElement("description").setText(param.getDescription());
+            p.addElement("desc").setText(param.getDescription());
 
         if (isListType(param.getTypeVal())) {
 
@@ -141,23 +165,23 @@ public class QtepToSectionConverter {
         }
     }
 
-    private static String covertType(int typeVal) {
-        switch (typeVal) {
-            case 1:
+    private static String covertType(TypedEntityParameter.TYPE type) {
+        switch (type) {
+            case BOOL:
                 return "boolean";
-            case 2:
+            case INT:
                 return "integer";
-            case 3:
+            case FLOAT:
                 return "real";
-            case 4:
+            case STRING:
                 return "string";
-            case 5:
+            case LIST_BOOL:
                 return "list:boolean";
-            case 6:
+            case LIST_INT:
                 return "list:integer";
-            case 7:
+            case LIST_FLOAT:
                 return "list:real";
-            case 8:
+            case LIST_STRING:
                 return "list:string";
             default:
                 return "string";

@@ -250,26 +250,6 @@ public class ConfigurationManager {
                 editableSection = vb;
         }
 
-        // custom editor
-        Node editorNode = section.selectSingleNode("@editor");
-        CustomSystemPropertyEditor sectionCustomEditor = null;
-        if (editorNode != null) {
-            String editorStr = editorNode.getText();
-            try {
-                String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
-                Class<?> clazz = Class.forName(str);
-                try {
-                    sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            catch (ClassNotFoundException e) {
-                NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s (config: %s)", editorStr, e, originName));
-            }
-        }
-
         for(Object oparam : section.selectNodes("*")) {
             SystemProperty property;
             Element param = (Element) oparam;
@@ -293,7 +273,7 @@ public class ConfigurationManager {
             String scope = getTagContents(param, "scope");
             String visibility = getTagContents(param, "visibility");
             String type = getTagContents(param, "type");
-            String desc = getTagContents(param, "description");
+            String desc = getTagContents(param, "desc");
             String units = getTagContents(param, "units");
             String defaultValue = getTagContents(param, "default");
 
@@ -907,13 +887,33 @@ public class ConfigurationManager {
                 property.setRenderer(new SystemPropertyRenderer());
             }
 
-            if (sectionCustomEditor != null) {
-                property.setSectionCustomEditor(sectionCustomEditor);
-//                    sectionCustomEditor = null;
-            }
-
             params.put(sectionName + "." + paramName, property);
             sectionParams.put(paramName, property);
+        }
+
+        // custom editor
+        Node editorNode = section.selectSingleNode("@editor");
+        CustomSystemPropertyEditor sectionCustomEditor = null;
+        if (editorNode != null) {
+            String editorStr = editorNode.getText();
+            try {
+                String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
+                Class<?> clazz = Class.forName(str);
+                try {
+                    sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
+
+                    for (SystemProperty prop : sectionParams.values()) {
+                        prop.setSectionCustomEditor(sectionCustomEditor);
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            catch (ClassNotFoundException e) {
+                NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s (config: %s)",
+                        editorStr, e, originName));
+            }
         }
         return params;
     }
@@ -1277,7 +1277,6 @@ public class ConfigurationManager {
         merged.setDisplayName(local.getDisplayName());
         merged.setCategory(local.getCategory());
         merged.setCategoryId(local.getCategoryId());
-        merged.setSectionCustomEditor(local.getSectionCustomEditor());
         merged.setEditable(local.isEditable() && qtep.isEditable());
 
         // technical metadata, priority to qtep props
@@ -1294,6 +1293,15 @@ public class ConfigurationManager {
         // priority to qtep if exists
         merged.setRenderer(qtep.getRenderer() != null ? qtep.getRenderer() : local.getRenderer());
 
+        // keep local custom editor if exists
+        if (local.getSectionCustomEditor() != null) {
+            CustomSystemPropertyEditor editor = local.getSectionCustomEditor();
+            merged.setSectionCustomEditor(editor);
+
+            Map<String, SystemProperty> newParam = new HashMap<>();
+            newParam.put(merged.getName(), merged);
+            editor.updateParamList(newParam);
+        }
         // priority to qtep
         String desc = (qtep.getShortDescription() != null && !qtep.getShortDescription().isEmpty())
                 ? qtep.getShortDescription()
