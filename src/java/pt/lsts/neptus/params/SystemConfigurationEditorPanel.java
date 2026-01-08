@@ -43,6 +43,8 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -516,10 +518,21 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         if (!props.isEmpty()) {
             ConfigurationManager manager = ConfigurationManager.getInstance();
             Map<String, SystemProperty> local =
-                    manager.listToMap(manager.getProperties(systemId, visibility, scopeToUse));
+                    manager.listToMap(manager.getProperties(systemId, Visibility.DEVELOPER, scopeToUse));
+
+            Map<String, Object> currentValues = new HashMap<>();
+            for (SystemProperty sp : local.values()) {
+                currentValues.put(sp.getDisplayName(), sp.getValue());
+            }
 
             Map<String, SystemProperty> merged =
                     manager.mergeSystemProperties(local, props);
+
+            for (SystemProperty sp : merged.values()) {
+                if (currentValues.containsKey(sp.getDisplayName())) {
+                    sp.setValue(currentValues.get(sp.getDisplayName()));
+                }
+            }
 
             manager.setProperties(systemId, merged, isToSave);
             reloadPropertiesOnPanel(merged, isToSave);
@@ -542,7 +555,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
         Map<String, SystemProperty> local =
                 mgr.listToMap(mgr.getProperties(
-                        systemId, visibility, scopeToUse));
+                        systemId, Visibility.DEVELOPER, scopeToUse));
 
         Map<String, SystemProperty> merged =
                 mgr.mergeSystemProperties(local, props);
@@ -562,7 +575,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             long now = System.currentTimeMillis();
             Visibility currentVisibility = this.visibility;
 
-            for (SystemProperty sp : merged.values()) {
+            ArrayList<SystemProperty> pr = new ArrayList<>(merged.values());
+            pr.sort(Comparator
+                    .comparing(SystemProperty::getCategoryId)
+                    .thenComparing(SystemProperty::getName)
+            );
+
+            for (SystemProperty sp : pr) {
                 if (sp.getVisibility() == Visibility.DEVELOPER && currentVisibility == Visibility.USER) {
                     continue;
                 }
@@ -727,6 +746,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             resetPropertiesEditorAndRendererFactories();
 
             ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(systemId, visibility, scopeToUse);
+            pr.sort(Comparator
+                    .comparing(SystemProperty::getCategoryId)
+                    .thenComparing(SystemProperty::getName)
+            );
             ArrayList<String> secNames = new ArrayList<>();
             long now = System.currentTimeMillis();
             for (SystemProperty sp : pr) {

@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -929,6 +930,12 @@ public class ConfigurationManager {
 
             LinkedHashMap<String, Element> sections = new LinkedHashMap<>();
             ArrayList<SystemProperty> pr = getProperties(system, vis, scope);
+
+            pr.sort(Comparator
+                    .comparing(SystemProperty::getCategoryId)
+                    .thenComparing(SystemProperty::getName)
+            );
+
             for (SystemProperty sp : pr) {
                 String sectionName = sp.getCategoryId();
                 String sectionI18nName = sp.getCategory();
