@@ -503,7 +503,6 @@ public class SystemPainterHelper {
             Path2D path = new Path2D.Double();
             path.moveTo(x1, y1);
             path.lineTo(x2, y2);
-            path.moveTo(x2, y2);
             path.lineTo(x3, y3);
 
             g2.draw(path);
