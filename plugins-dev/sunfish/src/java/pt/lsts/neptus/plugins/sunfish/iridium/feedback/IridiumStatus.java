@@ -383,17 +383,8 @@ public class IridiumStatus extends ConsolePanel {
         });
     }
 
-    public void displayMessage(){
-        try {
-            int index = table.convertRowIndexToModel(table.getSelectedRow());
-            if (index < 0 || index >= iridiumCommsStatus.getRowCount()) {
-                NeptusLog.pub().error("Invalid row selected: {}", index);
-                return;
-            }
-
-            String html = this.iridiumCommsStatus.getMessageData(index);
-            closeMessageDialog();
-            
+    private JDialog createOrGetMessageDialog() {
+        if (currentDialog == null) {
             JDialog dialog = new JDialog((Window)ConfigFetch.getSuperParentFrame(), "Iridium Message Data", Dialog.ModalityType.MODELESS);
             dialog.addWindowListener(new WindowAdapter() {
                 @Override
@@ -403,58 +394,89 @@ public class IridiumStatus extends ConsolePanel {
                     }
                 }
             });
-            currentDialog = dialog;
-            JEditorPane pane = new JEditorPane("text/html", html);
+
+            JEditorPane pane = new JEditorPane();
+            pane.setContentType("text/html");
             pane.setEditable(false);
             pane.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
                     if (e.isPopupTrigger()) {
-                        this.showMenu(e);
+                        showContextMenu(e, pane);
                     }
-
                 }
 
                 public void mouseReleased(MouseEvent e) {
                     if (e.isPopupTrigger()) {
-                        this.showMenu(e);
+                        showContextMenu(e, pane);
                     }
-
-                }
-
-                private void showMenu(MouseEvent e) {
-                    JPopupMenu menu = new JPopupMenu();
-                    JMenuItem copyJson = new JMenuItem("Copy Message JSON");
-
-                    try {
-                        String json = IridiumStatus.this.iridiumCommsStatus.getJsonView(index);
-                        copyJson.setEnabled(json != null && !json.isEmpty());
-                        copyJson.addActionListener((ae) -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(json), (ClipboardOwner)null));
-                    } catch (Exception var7) {
-                        copyJson.setEnabled(false);
-                    }
-
-                    menu.add(copyJson);
-                    JMenuItem copyHex = new JMenuItem("Copy HEX Data");
-
-                    try {
-                        String hex = IridiumStatus.this.iridiumCommsStatus.getHexView(index);
-                        copyHex.addActionListener((ae) -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(hex), (ClipboardOwner)null));
-                    } catch (Exception var6) {
-                        copyHex.setEnabled(false);
-                    }
-
-                    menu.add(copyHex);
-                    menu.show(e.getComponent(), e.getX(), e.getY());
                 }
             });
+
             JScrollPane scroll = new JScrollPane(pane);
             scroll.setPreferredSize(new Dimension(401, 510));
             dialog.getContentPane().add(scroll);
             dialog.pack();
             dialog.setLocationRelativeTo(this);
             dialog.getRootPane().registerKeyboardAction((e) -> dialog.dispose(), KeyStroke.getKeyStroke(27, 0), 2);
-            dialog.setVisible(true);
-            this.currentDialog = dialog;
+
+            currentDialog = dialog;
+            currentDialog.setVisible(true);
+            return dialog;
+        }
+        return currentDialog;
+    }
+
+    private void showContextMenu(MouseEvent e, JEditorPane pane) {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem copyJson = new JMenuItem("Copy Message JSON");
+        JMenuItem copyHex = new JMenuItem("Copy HEX Data");
+
+        int index = table.convertRowIndexToModel(table.getSelectedRow());
+        if (index >= 0 && index < iridiumCommsStatus.getRowCount()) {
+            try {
+                String json = iridiumCommsStatus.getJsonView(index);
+                copyJson.setEnabled(json != null && !json.isEmpty());
+                copyJson.addActionListener((ae) -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(json), null));
+            } catch (Exception ex) {
+                copyJson.setEnabled(false);
+            }
+
+            try {
+                String hex = iridiumCommsStatus.getHexView(index);
+                copyHex.addActionListener((ae) -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(hex), null));
+            } catch (Exception ex) {
+                copyHex.setEnabled(false);
+            }
+        } else {
+            copyJson.setEnabled(false);
+            copyHex.setEnabled(false);
+        }
+
+        menu.add(copyJson);
+        menu.add(copyHex);
+        menu.show(e.getComponent(), e.getX(), e.getY());
+    }
+
+    public void displayMessage() {
+        try {
+            int index = table.convertRowIndexToModel(table.getSelectedRow());
+            if (index < 0 || index >= iridiumCommsStatus.getRowCount()) {
+                NeptusLog.pub().error("Invalid row selected: {}", index);
+                return;
+            }
+
+            String html = this.iridiumCommsStatus.getMessageData(index);
+            JDialog dialog = createOrGetMessageDialog();
+
+            JScrollPane scrollPane = (JScrollPane)dialog.getContentPane().getComponent(0);
+            JEditorPane editorPane = (JEditorPane)scrollPane.getViewport().getView();
+            editorPane.setText(html);
+
+            dialog.setTitle("Iridium Message Data");
+
+            dialog.toFront();
+            dialog.requestFocus();
+
         } catch (Exception ex) {
             GuiUtils.errorMessage(this.getConsole(), ex);
         }
