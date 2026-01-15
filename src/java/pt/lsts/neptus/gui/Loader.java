@@ -63,7 +63,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel jLabel = null;
     private JLabel jLabel2 = null;
     private String imgFileName = "images/neptus_version1.png";
-    private String imgFileName20 = "images/neptus-loader-20years.png";
+    private final String imgFileName20 = "images/neptus-loader-2026.png";
     private String typedString = "";
     private Color backColor = new Color(242, 251, 254);
     private Color frontColor = Color.GRAY;
