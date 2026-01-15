@@ -42,7 +42,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.HierarchyEvent;
@@ -388,10 +387,8 @@ public class IridiumStatus extends ConsolePanel {
             JDialog dialog = new JDialog((Window)ConfigFetch.getSuperParentFrame(), "Iridium Message Data", Dialog.ModalityType.MODELESS);
             dialog.addWindowListener(new WindowAdapter() {
                 @Override
-                public void windowClosed(WindowEvent e) {
-                    if (currentDialog == e.getWindow()) {
-                        currentDialog = null;
-                    }
+                public void windowClosing(WindowEvent e) {
+                    currentDialog = null;
                 }
             });
 
