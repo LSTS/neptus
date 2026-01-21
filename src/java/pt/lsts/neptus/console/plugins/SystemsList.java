@@ -277,6 +277,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawSystemLocAge = true;
 
+    @NeptusProperty(name = "Draw System Desired Heading", description = "Configures if this component will draw the system desired heading on the renderer",
+            category = "Renderer", userLevel = LEVEL.REGULAR)
+    public boolean drawSystemDesiredHeading = false;
+
     @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public boolean useMilStd2525LikeSymbols = false;
@@ -1934,6 +1938,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     minimumSpeedToBeStopped);
         }
 
+        // To draw the desired heading pointer
+        if (lod >= LOD_MIN_TO_SHOW_SPEED_VECTOR && drawSystemDesiredHeading) {
+            SystemPainterHelper.drawSystemDesiredHeading(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
+                    minimumSpeedToBeStopped);
+        }
+
         g2.dispose();
     }
 
@@ -2131,6 +2141,18 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 double gSpeed = ((Number) obj).doubleValue();
                 SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, color, iconWidth,
                         isLocationKnownUpToDate, minimumSpeedToBeStopped);
+            }
+        }
+
+        // To draw the desired heading pointer
+        obj = sys.retrieveData(SystemUtils.DESIRED_HEADING_DEGS_KEY);
+        if (lod >= (LOD_MIN_TO_SHOW_SPEED_VECTOR + LOD_MIN_OFFSET_FOR_EXTERNAL) && obj != null) {
+            double desiredHeadingDegrees = ((Number) obj).doubleValue();
+            obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
+            if (obj != null) {
+                double gSpeed = ((Number) obj).doubleValue();
+                SystemPainterHelper.drawSystemDesiredHeading(renderer, g2, desiredHeadingDegrees, iconWidth,
+                        isLocationKnownUpToDate, minimumSpeedToBeStopped, gSpeed);
             }
         }
 
