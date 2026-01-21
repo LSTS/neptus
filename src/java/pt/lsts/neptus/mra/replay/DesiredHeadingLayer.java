@@ -168,7 +168,7 @@ public class DesiredHeadingLayer implements LogReplayLayer {
 
     @Override
     public boolean getVisibleByDefault() {
-        return true;
+        return false;
     }
 
     @Override
