@@ -238,6 +238,9 @@ public abstract class AbstractElement
                     }
                     setPhi(val);
                 }
+                else {
+                    setPhi(0);
+                }
                 ndTemp = nd.selectSingleNode("theta");
                 if (ndTemp != null) {
                     String text = ndTemp.getText();
@@ -251,6 +254,9 @@ public abstract class AbstractElement
                     }
                     setTheta(val);
                 }
+                else {
+                    setTheta(0);
+                }
                 ndTemp = nd.selectSingleNode("psi");
                 if (ndTemp != null) {
                     String text = ndTemp.getText();
@@ -263,6 +269,9 @@ public abstract class AbstractElement
                         val = 0;
                     }
                     setPsi(val);
+                }
+                else {
+                    setPsi(0);
                 }
             }
             nd = doc.selectSingleNode("//filled");
@@ -296,7 +305,10 @@ public abstract class AbstractElement
                     val = 100;
                 
                 setTransparency((int)val);
-            }            
+            }
+            else {
+                setTransparency(0);
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().error(this + ":XML not recognized!!!");
@@ -347,7 +359,7 @@ public abstract class AbstractElement
         
         Element root = getCenterLocation().asElement(rootElementName);
         
-        if ( (phi != 0) || (theta != 0) || (psi != 0) ) {
+        if ( (phi != 0) || (theta != 0) || (psi != 0) || this instanceof RotatableElement) {
             Element att = root.addElement("attitude");
             if (phi != 0)
                 att.addElement("phi").addText(Double.toString(phi));
@@ -492,7 +504,7 @@ public abstract class AbstractElement
     public void setYawDeg(double yaw) {
         this.psi = yaw;
     }
-    
+
 
     /**
      * @return the current roll rotation in RADIANS!
@@ -783,6 +795,7 @@ public abstract class AbstractElement
      * @param takenNames
      */
     protected void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable, boolean idEditable) {
+        this.userCancel = false;
         this.takenNames = takenNames;
         this.parentMap = map;
         
