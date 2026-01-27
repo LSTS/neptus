@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,8 +44,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -985,7 +988,7 @@ public class FileUtil {
      * @return
      * @throws MalformedURLException
      */
-    public static URL pathToURL(String path) throws MalformedURLException {
+    public static URL pathToURL(String path) throws MalformedURLException, URISyntaxException {
         URL retval = null;
         if (path == null) {
             return null;
@@ -1003,7 +1006,7 @@ public class FileUtil {
         // switch from file separator to URL separator
         path = path.replace(java.io.File.separatorChar, '/');
 
-        retval = new URL("file:" + path);
+        retval = new URI("file:" + path).toURL();
         return retval;
     }
 
@@ -1042,9 +1045,9 @@ public class FileUtil {
                 return null;
 
         try {
-            return StreamUtil.copyStreamToTempFile(inStream).getPath();
+            return Objects.requireNonNull(StreamUtil.copyStreamToTempFile(inStream)).getPath();
         }
-        catch (RuntimeException e) {
+        catch (Exception e) {
             return null;
         }
     }
@@ -1058,15 +1061,22 @@ public class FileUtil {
      */
     public static InputStream getResourceAsStream(String name) {
         InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
-        if (inStream == null) {
-            Class<?> clazz = getCallerClass();
-            if (clazz == null)
-                return null;
-            inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
-            if (inStream == null)
-                return null;
-        }
-        
+        if (inStream != null)
+            return inStream;
+
+        inStream = FileUtil.class.getResourceAsStream("/" + name.replace('\\', '/'));
+        if (inStream != null)
+            return inStream;
+
+        Class<?> clazz = getCallerClass();
+        if (clazz == null)
+            return null;
+
+        inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+        if (inStream != null)
+            return inStream;
+
+        inStream = clazz.getResourceAsStream("/" + name.replace('\\', '/'));
         return inStream;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -60,6 +61,7 @@ import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer3d.Obj3D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
 
 /**
  * 
@@ -68,8 +70,13 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class ScatterPointsElement extends AbstractElement {
 
+    public static final Color COLOR_WHITE_A200 = new Color(255, 255, 255, 200);
+    public static final BasicStroke STROKE_POINTS = new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    // Dashed stroke for points
+    public static final BasicStroke STROKE_POINTS_DASHED = new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+            0, new float[] { 5 }, 0);
     private LocationType lt = new LocationType();
-    private List<Point3d> points = Collections.synchronizedList(new Vector<Point3d>());
+    private final List<Point3d> points = Collections.synchronizedList(new ArrayList<>());
     public static final int INFINITE_NUMBER_OF_POINTS = Integer.MAX_VALUE;
     private int numberOfPoints = INFINITE_NUMBER_OF_POINTS;
     private ColorMap cmap = ColorMapFactory.createGrayScaleColorMap();
@@ -78,6 +85,8 @@ public class ScatterPointsElement extends AbstractElement {
     protected Point3d lastAdded = null;
     protected Point3d lastRemoved = null;
     private int gradientcolor = 0;
+
+    int maxDistToChangeCenterMeters = 10_000;
 
     public ScatterPointsElement() {
         super();
@@ -140,27 +149,43 @@ public class ScatterPointsElement extends AbstractElement {
         g2.translate(ofs.getX(), ofs.getY());
         // g2.rotate(rotation);
 
-        g2.setColor(new Color(255, 255, 255, 200));
-        g2.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.setColor(COLOR_WHITE_A200);
+        g2.setStroke(STROKE_POINTS);
 
         // lock.lock();
         int curPoint = 0;
 
         synchronized (points) {
+            boolean firstPoint = true;
+            double lastX = 0, lastY = 0;
             for (Point3d pt : points) {
                 LocationType locT = new LocationType(getCenterLocation());
                 locT.translatePosition(pt.x, pt.y, pt.z);
                 locT.convertToAbsoluteLatLonDepth();
 
                 Point2D ofsT = renderer.getScreenPosition(locT);
-                if (!renderer.contains((int)ofsT.getX(), (int)ofsT.getY())) {
-                    continue;
-                }
+                //if (!renderer.contains((int)ofsT.getX(), (int)ofsT.getY())) {
+                //    continue; // Because of the lines connecting points, we need to draw all points
+                //}
                 double transX = ofsT.getX() - ofs.getX();
                 double transY = ofsT.getY() - ofs.getY();
 
-                g2.setColor(cmap.getColor(1.0 - ((double) curPoint++ / (double) points.size())));
+                Color color = cmap.getColor(1.0 - ((double) curPoint++ / (double) points.size()));
+                g2.setColor(color);
+                if (!firstPoint) {
+                    g2.setStroke(STROKE_POINTS_DASHED);
+                    g2.setColor(ColorUtils.setTransparencyToColor(color, 200));
+                    g2.draw(new Line2D.Double(lastX, lastY, transX, transY));
+                    g2.setStroke(STROKE_POINTS);
+                    g2.setColor(color);
+                }
                 g2.draw(new Line2D.Double(transX, transY, transX, transY));
+
+                if (firstPoint) {
+                    firstPoint = false;
+                }
+                lastX = transX;
+                lastY = transY;
             }
         }
         // lock.unlock();
@@ -198,10 +223,34 @@ public class ScatterPointsElement extends AbstractElement {
     }
 
     public void addPoint(LocationType loc) {
-        if (loc.getDistanceInMeters(getCenterLocation()) > 3000) {
+        double distanceInMeters = loc.getDistanceInMeters(getCenterLocation());
+        if (distanceInMeters > maxDistToChangeCenterMeters) {
+            NeptusLog.pub().warn("Point {} is too far away ({}m) from the center location ({}). Changing center location to the new point.",
+                    loc, distanceInMeters, getCenterLocation());
+            synchronized (points) {
+                // Iterate from the start to the end, removing points that are too far away
+                for (int i = 0; i < points.size(); i++) {
+                    Point3d pt = points.get(i);
+                    LocationType ptLoc = new LocationType(getCenterLocation());
+                    ptLoc.translatePosition(pt.x, pt.y, pt.z);
+                    double dist = ptLoc.getDistanceInMeters(loc);
+                    if (dist > maxDistToChangeCenterMeters * 3) {
+                        NeptusLog.pub().warn("Removing point {} at distance {}m from the new center location {}",
+                                pt, dist, loc);
+                        points.remove(i);
+                        i--; // Adjust index after removal
+                    } else {
+                        double[] offsets = ptLoc.getOffsetFrom(loc);
+                        pt.x = offsets[0];
+                        pt.y = offsets[1];
+                        pt.z = offsets[2];
+                    }
+                }
+            }
+
             setCenterLocation(loc);
             addPoint(0, 0, 0);
-            clearPoints();
+            // clearPoints();
         }
         else {
             double[] offsets = loc.getOffsetFrom(getCenterLocation());

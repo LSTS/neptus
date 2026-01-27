@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -369,7 +369,6 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
         startUpdatingDynamicElements();
     }
 
-
     /**
      * Creates the JToolbar to be added in the interface
      * @return The toolbar with all its sub-components
@@ -640,16 +639,19 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
         }			
     }
 
-    public void cleanup()
-    {
+    public void cleanup() {
         stopUpdatingDynamicElements();
         stopInterpolatingStates();
 
-        for(int i=0;i<renderers.length;i++)
-            if (renderers[i] != null)
-                renderers[i].cleanup();
+        for (Renderer renderer : renderers) {
+            if (renderer != null) {
+                renderer.cleanup();
+            }
+        }
 
-
+        if (po != null) {
+            po.cleanup();
+        }
     }
 
     public StateRenderer2D getRenderer2d() {

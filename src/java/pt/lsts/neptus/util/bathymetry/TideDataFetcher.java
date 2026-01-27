@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.util.bathymetry;
 
 import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -104,7 +105,7 @@ public class TideDataFetcher {
 
     private static String fetchCookies() throws Exception {
         // fetch cookies
-        URL url = new URL("http://www.hidrografico.pt/");
+        URL url = new URI("http://www.hidrografico.pt/").toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.connect();
         String cookies = "";
@@ -134,7 +135,7 @@ public class TideDataFetcher {
             throw new Exception("Harbor is unknown: "+port);
 
         // fetch tide data
-        URL url = new URL("http://www.hidrografico.pt/components/com_products/scripts/server/data_getportdetail.php");
+        URL url = new URI("http://www.hidrografico.pt/components/com_products/scripts/server/data_getportdetail.php").toURL();
         HttpURLConnection conn = (HttpURLConnection)url.openConnection(); 
 
         String post = "codp="+harbor.id_prim+"&porcodp="+harbor.id_sec+"&epoch="+aroundDate.getTime()/1000+"&detail=1&display=0";

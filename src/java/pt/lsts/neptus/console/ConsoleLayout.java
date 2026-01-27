@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -144,6 +144,8 @@ import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -2166,10 +2168,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         else {
             NeptusLog.pub().warn("Error starting IMC");
         }
+
+        PeriodicUpdatesService.registerPojo(this); // to update system pos and tail
     }
 
     public void imcOff() {
         imcMsgManager.removeStatusListener(imcManagerStatus == null ? this.setupImcListener() : imcManagerStatus);
+        PeriodicUpdatesService.unregisterPojo(this); // to update system pos and tail
+    }
+
+    @Periodic(millisBetweenUpdates = 500)
+    public void periodicUpdateConsoleSystemWithSystemPos() {
+        for (ConsoleSystem system : consoleSystems.values()) {
+            system.updatePositionWithSystemPos();
+        }
     }
 
     public CommManagerStatusChangeListener setupImcListener() {

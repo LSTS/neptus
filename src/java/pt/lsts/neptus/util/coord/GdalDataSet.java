@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -149,7 +149,11 @@ public class GdalDataSet {
         catch (IOException e) {
             throw new Exception("Unable to read source image: " + e.getMessage(), e);
         }
-        
+
+        if (!file.exists()) {
+            throw new Exception("Unable to write image to file " + file.getAbsolutePath());
+        }
+
         el.setImageFileName(file.getAbsolutePath());
         double[] mppx = getMetersPerPixel();
         el.setImageScale(mppx[0]);

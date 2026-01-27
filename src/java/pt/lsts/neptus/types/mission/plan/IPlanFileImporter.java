@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -27,20 +27,44 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jan 19, 2018
+ * Author: pdias
+ * 7/10/2024
  */
-package pt.lsts.neptus.comm.iridium;
+package pt.lsts.neptus.types.mission.plan;
+
+import pt.lsts.neptus.types.mission.MissionType;
+
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.ProgressMonitor;
+import java.io.File;
+import java.util.List;
 
 /**
- * @author zp
+ * @author pdias
  *
  */
-@IridiumProvider(id="ripples", name="Ripples Messenger", description="Sends Iridium messages directly to ripples app.")
-public class RipplesIridiumMessenger extends HubIridiumMessenger {
+public interface IPlanFileImporter {
 
-    public RipplesIridiumMessenger() {
-        serverUrl = "http://falkor.lsts.pt:9090/api/v1/";        
-    }
+    public String getImporterName();
+
+    /**
+     * @param mission
+     * @param in
+     * @param monitor Don't assume that it exists.
+     * @throws Exception
+     */
+    public List<PlanType> importFromFile(MissionType mission, File in, ProgressMonitor monitor) throws Exception;
     
+    public String[] validExtensions();
+    
+    /**
+     * @see {@link JFileChooser#setAccessory(JComponent)}
+     * 
+     * @param fileChooser
+     * @return
+     */
+    public default JComponent createFileChooserAccessory(JFileChooser fileChooser) {
+        return null;
+    }
 }

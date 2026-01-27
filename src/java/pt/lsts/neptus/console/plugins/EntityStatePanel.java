@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,8 +38,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -50,21 +52,34 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.RowSorter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.EntityList;
+import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
@@ -73,6 +88,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
  * @author pdias
@@ -91,6 +107,8 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     private final Color COLOR_RED = Color.RED;
 
     private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/buttons/clear.png", 16, 16);
+    private final Icon ICON_RQST = ImageUtils.getScaledIcon("images/buttons/log.png", 16, 16);
+    private final Icon ICON_UNKNOWN = ImageUtils.getScaledIcon("images/buttons/filter.png", 16, 16);
 
     // Events Data
     private LinkedHashMap<String, EntityStateType> dataMap = new LinkedHashMap<String, EntityStateType>();
@@ -104,6 +122,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     // GUI Components
     private JTable table = null;
     private StatusLed status;
+
+    private boolean filterUnknown = true;
+
+    private long timeSinceLastUpdateVoiceWarning = -1;
 
     /**
      * @param console
@@ -160,6 +182,23 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             }
         });
         clearButton.setToolTipText(I18n.text("Clear table"));
+        ToolbarButton rqstEntListButton = new ToolbarButton(new AbstractAction("request", ICON_RQST) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendEntityListRequestMsg();
+            }
+        });
+        rqstEntListButton.setToolTipText(I18n.text("Request entity list"));
+        ToolbarSwitch filterUnknownEntListSwitch = new ToolbarSwitch(new AbstractAction("filter unknown", ICON_UNKNOWN) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                filterUnknown = ((ToolbarSwitch) e.getSource()).isSelected();
+                etmodel.fireTableStructureChanged();
+                setPreferredTableColumnWidth();
+            }
+        });
+        filterUnknownEntListSwitch.setSelected(filterUnknown);
+        filterUnknownEntListSwitch.setToolTipText(I18n.text("Filter unknown"));
         status = new StatusLed();
         status.made5LevelIndicator();
         status.setLevel(StatusLed.LEVEL_OFF);
@@ -167,16 +206,21 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         wPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         wPanel.add(status);
         wPanel.add(clearButton);
+        wPanel.add(rqstEntListButton);
+        wPanel.add(filterUnknownEntListSwitch);
         this.add(wPanel, BorderLayout.NORTH);
 
+        setPreferredTableColumnWidth();
     }
 
     @Override
     public void initSubPanel() {
         getTimer().scheduleAtFixedRate(getTtask(), 100, 1000);
+        clearData();
     }
 
     private void setup() {
+        eColor.put(-1L, COLOR_OFF);
         eColor.put(0L, COLOR_BLUE);
         eColor.put(1L, COLOR_GREEN);
         eColor.put(2L, COLOR_YELLOW);
@@ -186,6 +230,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         eColor.put(6L, COLOR_OFF);
         eColor.put(7L, COLOR_OFF);
 
+        eLevel.put(-1L, StatusLed.LEVEL_NONE);
         eLevel.put(0L, StatusLed.LEVEL_1);
         eLevel.put(1L, StatusLed.LEVEL_0);
         eLevel.put(2L, StatusLed.LEVEL_2);
@@ -218,7 +263,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             timer = null;
         }
 
-        clearData(); // calling this to remove alarms
+        clearData(true); // calling this to remove alarms
     }
 
     /**
@@ -269,15 +314,38 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 
             // table.setRowSorter(new TableRowSorter<EntityStateTableModel>(etmodel)); //FIXME Problem with clear
             table.setAutoCreateRowSorter(true);
+            RowSorter<? extends TableModel> rs = table.getRowSorter();
+            if (rs instanceof TableRowSorter) {
+                ((TableRowSorter) rs).setRowFilter(new RowFilter<TableModel, Integer>() {
+                    @Override
+                    public boolean include(Entry<? extends TableModel, ? extends Integer> entry) {
+                        Object sel = entry.getValue(1);
+                        return !filterUnknown || !"Unknown".equalsIgnoreCase(sel.toString());
+                    }
+                });
+            }
 
-            TableColumn col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.STATE_COL);
-            col.setPreferredWidth(30);
-            col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.DONT_CARE_FLAG_COL);
-            col.setPreferredWidth(10);
-            col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.TIME_COL);
-            col.setPreferredWidth(20);
+            //clearData();
         }
+
+        setPreferredTableColumnWidth();
         return table;
+    }
+
+    private void setPreferredTableColumnWidth() {
+        TableColumn col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.ENTITY_COL);
+        col.setPreferredWidth(100);
+        col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.STATE_COL);
+        col.setPreferredWidth(60);
+        col.setMaxWidth(150);
+        col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.DONT_CARE_FLAG_COL);
+        col.setPreferredWidth(50);
+        col.setMaxWidth(50);
+        col = ((DefaultTableColumnModel) table.getColumnModel()).getColumn(EntityStateType.TIME_COL);
+        col.setPreferredWidth(60);
+        col.setMaxWidth(150);
+
+        table.repaint(20);
     }
 
     /*
@@ -326,9 +394,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             }
         }
         // short oldState = status.getLevel();
+        if (status == null)
+            return;
         status.setLevel(max);
         status.setMessage(I18n.textf("State '%state'", evtLabel));
-
     }
 
     @Subscribe
@@ -337,6 +406,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     }
 
     private void clearData() {
+        clearData(false);
+    }
+
+    private void clearData(boolean cleanAll) {
         if (data.size() != 0)
             etmodel.fireTableRowsDeleted(0, data.size() - 1);
         data.clear();
@@ -344,6 +417,32 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 //        etmodel.fireTableDataChanged();
         etmodel.fireTableStructureChanged();
         calcTotalState();
+        if (!cleanAll) {
+            fillEmptyData();
+            etmodel.fireTableStructureChanged();
+            calcTotalState();
+            setPreferredTableColumnWidth();
+        }
+    }
+
+    private void fillEmptyData() {
+        Map<Integer, String> entList = EntitiesResolver.getEntities(getMainVehicleId());
+        if (entList != null) {
+            for (Map.Entry<Integer, String> entry : entList.entrySet()) {
+                String entityName = entry.getValue();
+                EntityStateType eType = new EntityStateType(entityName, new Enumerated(
+                        getStatePossibleValues(), -1), "", -1);
+                data.add(eType);
+                dataMap.put(entityName, eType);
+            }
+        }
+        setPreferredTableColumnWidth();
+    }
+
+    private LinkedHashMap<Long, String> getStatePossibleValues() {
+        LinkedHashMap<Long, String> pf = new EntityState().getMessageType().getFieldPossibleValues("state");
+        pf.put(-1L, I18n.text("Unknown"));
+        return pf;
     }
 
     @Override
@@ -358,20 +457,27 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             EntityStateType eType = dataMap.get(entityName);
             Integer index = eType == null ? null : data.indexOf(eType);
 
+            boolean wasChange = false;
+            boolean triggerStructChange = false;
+
             // Updating (not the first time receiving for this entity)
             if (index != null) {
                 eType = data.get(index);
                 if (message.getLong("state") != eType.getState().longValue()) { // Means it has changed, time to post a
-//                    msg_type type = msg_type.info;
+                    // msg_type type = msg_type.info;
+                    wasChange = true;
+                    if (eType.getState().longValue() == -1)
+                        triggerStructChange = true;
                 }
-                eType.update(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues("state"),
-                        message.getLong("state")), message.getString("description"), System.currentTimeMillis());
+                eType.update(entityName, new Enumerated(getStatePossibleValues(), message.getLong("state")),
+                        message.getString("description"), System.currentTimeMillis());
                 data.set(index, eType);
                 etmodel.fireTableRowsUpdated(index, index);
             }
             else {
-                eType = new EntityStateType(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues(
-                        "state"), message.getLong("state")), getDescription(), System.currentTimeMillis());
+                wasChange = true;
+                eType = new EntityStateType(entityName, new Enumerated(getStatePossibleValues(),
+                        message.getLong("state")), getDescription(), System.currentTimeMillis());
 
                 if (data.add(eType)) {
                     index = data.indexOf(eType);
@@ -380,7 +486,86 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
                 }
             }
             calcTotalState();
+
+            if (triggerStructChange) {
+                etmodel.fireTableStructureChanged();
+                setPreferredTableColumnWidth();
+            }
+            if (wasChange) {
+                speakUpdateEntityState();
+            }
         }
+    }
+
+    void sendEntityListRequestMsg() {
+        try {
+            NeptusLog.pub().debug("Sending '" + getConsole().getMainSystem() + " | "
+                    + " EntityList request...");
+            EntityList msg = new EntityList();
+            msg.setOp(EntityList.OP.QUERY);
+            boolean ret = IMCSendMessageUtils.sendMessage(msg, ImcMsgManager.TRANSPORT_TCP,
+                    createDefaultMessageDeliveryListener(), this, I18n.text("Error requesting EntityList"),
+                    true, "", true, true, true,
+                    getConsole().getMainSystem());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+    }
+
+    private synchronized void speakUpdateEntityState() {
+        if (System.currentTimeMillis() - timeSinceLastUpdateVoiceWarning > Duration.ofSeconds(10).toMillis()) {
+            timeSinceLastUpdateVoiceWarning = System.currentTimeMillis();
+            String msg = I18n.text("Entity state");
+            SpeechUtil.readSimpleText(msg);
+        }
+    }
+
+    private MessageDeliveryListener createDefaultMessageDeliveryListener() {
+        return (new MessageDeliveryListener() {
+
+            private String  getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery timeout",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                //                post(Notification.success(
+                //                        I18n.text("Delivering Message"),
+                //                        I18n.textf("Message %messageType to %destination delivery success",
+                //                                message.getAbbrev(), getDest(message))));
+            }
+        });
     }
 
     /**
@@ -663,6 +848,10 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
 
         public Component getTableCellRendererComponent(JTable table, Object timems, boolean isSelected,
                 boolean hasFocus, int row, int column) {
+            if (timems == null || !(timems instanceof Long) || (Long) timems == -1L) {
+                setText("");
+                return this;
+            }
             Long enu = System.currentTimeMillis() - (Long) timems;
             setText(DateTimeUtil.milliSecondsToFormatedString(enu / 1000 * 1000));
             return this;

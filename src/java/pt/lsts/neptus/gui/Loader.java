@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,6 +63,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel jLabel = null;
     private JLabel jLabel2 = null;
     private String imgFileName = "images/neptus_version1.png";
+    private final String imgFileName20 = "images/neptus-loader-2026.png";
     private String typedString = "";
     private Color backColor = new Color(242, 251, 254);
     private Color frontColor = Color.GRAY;
@@ -74,6 +75,9 @@ public class Loader extends JFrame implements ActionListener {
      */
     public Loader() {
         super();
+        this.imgFileName = this.imgFileName20;
+        backColor = new Color(39, 50, 81);
+        frontColor = Color.LIGHT_GRAY;
         initialize();
     }
 
@@ -112,7 +116,8 @@ public class Loader extends JFrame implements ActionListener {
             jLabel2 = new JLabel();
             jLabel2.setText("Neptus " + ConfigFetch.getNeptusVersion());
             jLabel2.setFont(new Font("Arial", Font.PLAIN, 10));
-            jLabel2.setForeground(new Color(150, 150, 150));
+            // jLabel2.setForeground(new Color(150, 150, 150));
+            jLabel2.setForeground(frontColor);
             jLabel2.setBackground(backColor);
             jLabel2.setAutoscrolls(true);
         }

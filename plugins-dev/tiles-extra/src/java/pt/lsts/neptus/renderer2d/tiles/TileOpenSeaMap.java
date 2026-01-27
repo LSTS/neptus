@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -82,7 +82,7 @@ public class TileOpenSeaMap extends TileHttpFetcher {
         // http://c.tile.openstreetmap.org/14/7801/6129.png
         // http://tiles.openseamap.org/seamark/15/17485/10492.png
         String urlGet = "http://www.openptmap.org/tiles/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
-        urlGet = "http://tiles.openseamap.org/seamark/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
+        urlGet = "https://tiles.openseamap.org/seamark/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
         return urlGet;
     }
     

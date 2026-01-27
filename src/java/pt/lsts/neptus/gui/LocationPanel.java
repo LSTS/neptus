@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
@@ -308,13 +309,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 */
 	private JButton getBtnCopy() {
 		if (btnCopy == null) {
-			btnCopy = new JButton();
-			btnCopy.setMargin(new Insets(0,0,0,0));
-			btnCopy.setSize(new Dimension(20,20));
-			btnCopy.setLocation(new Point(16,360));
-			btnCopy.setToolTipText(I18n.text("Copy this location to the clipboard"));
-			btnCopy.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
-			btnCopy.addActionListener(new ActionListener() {
+            btnCopy = createCopyButton();
+            btnCopy.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					btnPaste.setEnabled(isEditable());
 					ClipboardOwner owner = new ClipboardOwner() {
@@ -327,22 +323,26 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		return btnCopy;
 	}
 
+    private static JButton createCopyButton() {
+        JButton btnCopy = new JButton();
+        btnCopy.setMargin(new Insets(0,0,0,0));
+        btnCopy.setSize(new Dimension(20,20));
+        btnCopy.setLocation(new Point(16,360));
+        btnCopy.setToolTipText(I18n.text("Copy this location to the clipboard"));
+        btnCopy.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
+        return btnCopy;
+    }
 
-	/**
+
+    /**
 	 * This method initializes jButton	
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
 	private JButton getBtnPaste() {
 		if (btnPaste == null) {
-			btnPaste = new JButton();
-			btnPaste.setPreferredSize(new Dimension(20,20));
-			btnPaste.setEnabled(isEditable());// && LocationPanel.clipboard != null);	
-			btnPaste.setMargin(new Insets(0,0,0,0));
-			btnPaste.setBounds(new java.awt.Rectangle(42,360,20,20));
-			btnPaste.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
-			btnPaste.setToolTipText(I18n.text("Paste from clipboard"));
-			btnPaste.addActionListener(arg0 -> {
+            btnPaste = createPasteButton(isEditable());
+            btnPaste.addActionListener(arg0 -> {
                 btnPaste.setEnabled(isEditable());
 
                 @SuppressWarnings({ "unused" })
@@ -370,8 +370,19 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		return btnPaste;
 	}
 
+    private static JButton createPasteButton(boolean isEditable) {
+        JButton btnPaste = new JButton();
+        btnPaste.setPreferredSize(new Dimension(20,20));
+        btnPaste.setEnabled(isEditable);// && LocationPanel.clipboard != null);
+        btnPaste.setMargin(new Insets(0,0,0,0));
+        btnPaste.setBounds(new Rectangle(42,360,20,20));
+        btnPaste.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
+        btnPaste.setToolTipText(I18n.text("Paste from clipboard"));
+        return btnPaste;
+    }
 
-	/**
+
+    /**
 	 * This method initializes jButton	
 	 * 	
 	 * @return javax.swing.JButton	
@@ -570,8 +581,39 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         PointSelector pointSel = new PointSelector();
         pointSel.setZSelectable(false);
         pointSel.setLocationType(location);
-        pointSel.setPreferredSize(new Dimension(420,150));
-        int result = JOptionPane.showConfirmDialog(parent, pointSel, title, JOptionPane.OK_CANCEL_OPTION);
+        pointSel.setPreferredSize(new Dimension(430,150));
+
+        JButton copyButton = LocationPanel.createCopyButton();
+        JButton pasteButton = LocationPanel.createPasteButton(true);
+        copyButton.addActionListener(e -> {
+            ClipboardOwner owner = (clipboard, contents) -> {};
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(location.getClipboardText()), owner);
+        });
+        pasteButton.addActionListener(e -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable contents = clipboard.getContents(null);
+            boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+            if (hasTransferableText) {
+                try {
+                    String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
+                    LocationType lt = new LocationType();
+                    lt.fromClipboardText(text);
+                    lt.convertToAbsoluteLatLonDepth();
+                    pointSel.setLocationType(lt);
+                } catch (Exception ex) {
+                    NeptusLog.pub().error(ex);
+                }
+            }
+        });
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(pointSel, BorderLayout.CENTER);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttons.add(copyButton);
+        buttons.add(pasteButton);
+        panel.add(buttons, BorderLayout.SOUTH);
+
+        int result = JOptionPane.showConfirmDialog(parent, panel, title, JOptionPane.OK_CANCEL_OPTION);
         
         if (result != JOptionPane.OK_OPTION) {
             return null;

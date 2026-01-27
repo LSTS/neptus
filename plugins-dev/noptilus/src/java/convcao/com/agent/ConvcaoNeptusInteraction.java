@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -447,7 +447,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             Thread.sleep(100);
 
             try {
-                URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + sessionID + "_NewActions.txt");
+                URL url = new URI("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + sessionID + "_NewActions.txt").toURL();
                 URLConnection conn = url.openConnection();
                 conn.setUseCaches(false);
                 conn.connect();

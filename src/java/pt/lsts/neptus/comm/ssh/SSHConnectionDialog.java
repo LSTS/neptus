@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -257,7 +257,11 @@ public class SSHConnectionDialog extends JPanel {
             jDialog.setSize(this.getWidth() + 5, this.getHeight() + 35);
             jDialog.getContentPane().setLayout(new BorderLayout());
             jDialog.getContentPane().add(this, BorderLayout.CENTER);
-            GuiUtils.centerOnScreen(jDialog);
+            if (parentWindow != null) {
+                jDialog.setLocationRelativeTo(parentWindow);
+            } else {
+                GuiUtils.centerOnScreen(jDialog);
+            }
             //jDialog.setModal(true);
             jDialog.setModalityType(parentWindow != null ? ModalityType.DOCUMENT_MODAL : ModalityType.APPLICATION_MODAL);
             jDialog.setAlwaysOnTop(true);

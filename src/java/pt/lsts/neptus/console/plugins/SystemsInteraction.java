@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -272,6 +273,10 @@ public class SystemsInteraction extends ConsoleInteraction {
                     sb.append("<br/>").append("<b>").append(I18n.text("Status")).append(": ").append("</b>")
                         .append(navStatus);
 
+                    long locationTimeMillis = sys.getLocationTimeMillis();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Updated")).append(": ").append("</b>")
+                            .append(new Date(locationTimeMillis));
+
                     sb.append("</font>");
                 }
                 else if (idx < imcSystems.size() + extSystems.size()) {
@@ -331,6 +336,10 @@ public class SystemsInteraction extends ConsoleInteraction {
                         Object navStatus = sys.retrieveData(SystemUtils.NAV_STATUS_KEY);
                         sb.append("<br/>").append("<b>").append(I18n.text("Status")).append(": ").append("</b>")
                             .append(navStatus != null ? navStatus : "-");
+
+                        long locationTimeMillis = sys.getLocationTimeMillis();
+                        sb.append("<br/>").append("<b>").append(I18n.text("Updated")).append(": ").append("</b>")
+                                .append(new Date(locationTimeMillis));
                     }
 
                     sb.append("</font>");

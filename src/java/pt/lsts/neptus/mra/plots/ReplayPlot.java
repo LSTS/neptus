@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -109,7 +109,7 @@ public class ReplayPlot extends MRATimeSeriesPlot implements TimelineChangeListe
     public String getName() {
         StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
         sb.append(" Timeline");
-        return sb.toString();
+        return parseChartTitle(sb);
     }    
 
     @Override

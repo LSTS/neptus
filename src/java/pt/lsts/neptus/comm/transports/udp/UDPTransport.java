@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -466,7 +467,8 @@ public class UDPTransport {
 
                         try {
                             if (useMulticast) {
-                                ((MulticastSocket) sock).joinGroup(resolveAddress(getMulticastAddress()));
+                                NetworkInterface netIf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+                                ((MulticastSocket) sock).joinGroup(new InetSocketAddress(resolveAddress(getMulticastAddress()), 0), netIf);
                                 multicastGroup = getMulticastAddress();
                             }
                             setMulticastActive(useMulticast);
@@ -554,8 +556,8 @@ public class UDPTransport {
 
                     if (isMulticastActive()) {
                         try {
-                            // ((MulticastSocket)sock).leaveGroup(((MulticastSocket)sock).getInetAddress());
-                            ((MulticastSocket) sock).leaveGroup(resolveAddress(multicastGroup));
+                            NetworkInterface netIf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+                            ((MulticastSocket) sock).leaveGroup(new InetSocketAddress(resolveAddress(multicastGroup), 0), netIf);
                         }
                         catch (IOException e) {
                             e.printStackTrace();

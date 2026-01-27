@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -132,7 +132,7 @@ public class MVProblemSpecification {
         commandBase.add(idx, (String.format("solution_%s.SOL", timestamp))
                 .replaceAll("/", System.getProperty("file.separator")));
 
-        String[] cmd = commandBase.toArray(new String[commandBase.size()]);
+        String[] cmd = commandBase.toArray(new String[0]);
         Process p = Runtime.getRuntime().exec(cmd, null, new File("log/pddl"));
         
         Thread monitor = new Thread() {

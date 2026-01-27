@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.ParseException;
@@ -161,7 +162,7 @@ public class RipplesPositions extends ConsoleLayer {
 
         try {
             JsonParser parser = new JsonParser();
-            URL url = new URL(positionsApiUrl);
+            URL url = new URI(positionsApiUrl).toURL();
 
             URLConnection con = url.openConnection();
             if (authKey != null && !authKey.isEmpty()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -124,25 +125,38 @@ public class ConfigurationManager {
     private void loadConfigurations() {
         String lang = GeneralPreferences.language;
 
-        File fx = new File(ConfigFetch.getConfFolder() + CONF_DIR);
+        String filePath = ConfigFetch.getConfFolder() + CONF_DIR;
+        File fx = new File(filePath);
         if (fx.exists()) {
-            for(File f : fx.listFiles(getFileFilterForConfigurationFiles())) {
-                if (!f.isFile())
-                    continue;
-                String fname = f.getName();
-                String fext = FileUtil.getFileExtension(fname);
-                if (!fname.replaceAll("." + fext + "$", "").endsWith(lang))
-                    continue;
+            try {
+                for (File f : Objects.requireNonNull(fx.listFiles(getFileFilterForConfigurationFiles()))) {
+                    try {
+                        if (!f.isFile()) {
+                            continue;
+                        }
+                        String fname = f.getName();
+                        String fext = FileUtil.getFileExtension(fname);
+                        if (!fname.replaceAll("." + fext + "$", "").endsWith(lang)) {
+                            continue;
+                        }
 
-                NeptusLog.pub().debug("Loading vehicle configuration from " + f.getName());
-                String systemName = f.getName().split("\\.")[0];
-                try {
-                    map.put(systemName, readConfiguration(f));
-                } 
-                catch (InvalidConfigurationException e) {
-                    NeptusLog.pub().error(e.getMessage());
-                    e.printStackTrace();
-               }
+                        NeptusLog.pub().debug("Loading vehicle configuration from " + f.getName());
+                        String systemName = f.getName().split("\\.")[0];
+                        try {
+                            map.put(systemName, readConfiguration(f));
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error processing systems parameters at '{}'", f);
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("No systems parameters found to process incide '{}'", filePath);
             }
         }
     }
@@ -435,6 +449,9 @@ public class ConfigurationManager {
                         else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
                             if (!hasPairs(values))
                                 comboEditor = new ComboEditor<>(((ArrayList<Double>) values).toArray(new Double[0]));
+                        }
+                        else if (type.equals(ValueTypeEnum.BOOLEAN.getText())) {
+                            // Ignore
                         }
                         else { // if (type.equals(SystemProperty.ValueTypeEnum.STRING.getText())) {
                             ArrayList<?> valuesI18n = extractI18nValues(type, pValues, values);
@@ -848,6 +865,11 @@ public class ConfigurationManager {
                 descStr.replaceAll("\\n$", "");
                 descStr.replaceAll("(\\n){2}", "");
                 descStr = descStr.replaceAll("\\n", "<br/>");
+                // replace also a table (even with other attributes) html tag with style to configure css for more modern table style
+                descStr = descStr.replaceAll("<table(.*?)border=\"\\d+\"(.*?)>", "<table\1\2>");
+                descStr = descStr.replaceAll("<table(.*?)>", "<table style=\"border-collapse:separate;border-spacing:8px 0;\">");
+                descStr = descStr.replaceAll("<th(.*?)>", "<th style=\"background-color:#C1C1C1;padding:6px 12px;border-right:2px solid #E1E1E1;\">");
+                descStr = descStr.replaceAll("<td(.*?)>", "<td style=\"border-bottom: 1px dotted #333;padding:3px 8px;\">");
                 property.setShortDescription(descStr);
                 property.setCategory(sectionI18nName);
                 property.setCategoryId(sectionName);

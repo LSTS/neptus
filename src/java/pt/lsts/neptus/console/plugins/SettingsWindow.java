@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -66,7 +66,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author Margarida Faria
  * @author pdias
  */
-@Popup(icon = "images/menus/settings.png", name = "Console Settings", pos = POSITION.CENTER, accelerator = KeyEvent.VK_F3, height = 400, width = 600)
+@Popup(icon = "images/menus/settings.png", name = "Console Settings", pos = POSITION.CENTER, accelerator = KeyEvent.VK_F3,
+        height = 400, width = 600, modality = ModalityType.DOCUMENT_MODAL, alwaysResetPopupPosition = true)
 public class SettingsWindow extends ConsolePanel implements SubPanelChangeListener {
 
     private static final long serialVersionUID = 1L;
@@ -179,8 +180,6 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         settingsPanel.reset();
         
         getConsole().addSubPanelListener(this);
-        
-        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
     }
 
     @Override

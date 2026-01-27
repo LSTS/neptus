@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -127,13 +127,13 @@ public class MonitorIMCComms extends
     private ImcStatePanel commonSystemStatePanel = null;
     private JPanel addCommonImcMsgPanel = null;
     private JLabel commonImcMsgInfoLabel = null;
-    private JScrollPane commonImcMsgScrollPane = null;
+    private JPanel commonImcMsgScrollPane = null;
 
     private ImcSystemState selSystemState = null;
     private ImcStatePanel selSystemStatePanel = null;
     private JPanel addSystemImcMsgPanel = null;
     private JLabel systemImcMsgInfoLabel = null;
-    private JScrollPane systemImcMsgScrollPane = null;
+    private JPanel systemImcMsgScrollPane = null;
 
     private SystemsList systemsListPanel = null;
 
@@ -168,7 +168,7 @@ public class MonitorIMCComms extends
             commonImcMsgInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
             addCommonImcMsgPanel = new JPanel();
             addCommonImcMsgPanel.setLayout(new BorderLayout());
-            commonImcMsgScrollPane = new JScrollPane();
+            commonImcMsgScrollPane = new JPanel(new BorderLayout());
             addCommonImcMsgPanel.add(commonImcMsgScrollPane, BorderLayout.CENTER);
             addCommonImcMsgPanel.add(commonImcMsgInfoLabel, BorderLayout.NORTH);
         }
@@ -187,7 +187,7 @@ public class MonitorIMCComms extends
 
             commonSystemState = st;
             commonSystemStatePanel = new ImcStatePanel(commonSystemState);
-            commonImcMsgScrollPane.setViewportView(commonSystemStatePanel);
+            commonImcMsgScrollPane.add(commonSystemStatePanel, BorderLayout.CENTER);
         }
     }
 
@@ -198,7 +198,7 @@ public class MonitorIMCComms extends
             systemImcMsgInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
             addSystemImcMsgPanel = new JPanel();
             addSystemImcMsgPanel.setLayout(new BorderLayout());
-            systemImcMsgScrollPane = new JScrollPane();
+            systemImcMsgScrollPane = new JPanel(new BorderLayout());
             addSystemImcMsgPanel.add(systemImcMsgScrollPane, BorderLayout.CENTER);
             addSystemImcMsgPanel.add(systemImcMsgInfoLabel, BorderLayout.NORTH);
         }
@@ -211,7 +211,7 @@ public class MonitorIMCComms extends
         ImcId16 idImc = selectedSystem;
         if (idImc == null) {
             systemImcMsgInfoLabel.setText(I18n.text("No system selected"));
-            systemImcMsgScrollPane.setViewportView(new JLabel());
+            systemImcMsgScrollPane.add(new JLabel(), BorderLayout.CENTER);
             if (selSystemState != null)
                 selSystemState = null;
             if (selSystemStatePanel != null) {
@@ -238,7 +238,7 @@ public class MonitorIMCComms extends
                 
                 selSystemState = st;
                 selSystemStatePanel = new ImcStatePanel(selSystemState);
-                systemImcMsgScrollPane.setViewportView(selSystemStatePanel);
+                systemImcMsgScrollPane.add(selSystemStatePanel, BorderLayout.CENTER);
             }
         }
     }

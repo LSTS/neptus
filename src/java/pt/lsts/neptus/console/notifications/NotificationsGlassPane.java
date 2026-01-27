@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,15 +47,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.text.View;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.notifications.Notification.NotificationType;
+import pt.lsts.neptus.gui.swing.ActionLabel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -67,12 +71,30 @@ import pt.lsts.neptus.util.ImageUtils;
 public class NotificationsGlassPane extends JPanel {
     private static final long serialVersionUID = -1397790967075620867L;
     private static final int MARGIN_BOTTOM = 5;
-    private static final int MARGIN_RIGHT = 2;
+    private static final int MARGIN_RIGHT = 10;
     private static final int BOTTOM_GAP = 25;
     private static final int VISIBLE_GLASS_NOTIFICATIONS = 3;
 
+    private static final ImageIcon IMAGE_ICON_SUCCESS = ImageUtils.createImageIcon("images/icons/noty-success.png");
+    private static final ImageIcon IMAGE_ICON_ERROR = ImageUtils.createImageIcon("images/icons/noty-error.png");
+    private static final ImageIcon IMAGE_ICON_WARNING = ImageUtils.createImageIcon("images/icons/noty-warning.png");
+    private static final ImageIcon IMAGE_ICON_INFO = ImageUtils.createImageIcon("images/icons/noty-info.png");
+
+    private static final Color COLOR_BG_SUCCESS = new Color(0xDFF0D8);
+    private static final Color COLOR_FG_SUCCESS = new Color(0x333333);
+    private static final Color COLOR_BRD_SUCCESS = new Color(0x468847);
+    public static final Color COLOR_BG_ERROR = new Color(0xF2DEDE);
+    public static final Color COLOR_FG_ERROR = new Color(0x333333);
+    public static final Color COLOR_BRD_ERROR = new Color(0xB94A48);
+    public static final Color COLOR_BG_WARNING = new Color(0xFCF8E3);
+    public static final Color COLOR_FG_WARNING = new Color(0x333333);
+    public static final Color COLOR_BRD_WARNING = new Color(0xC09853);
+    public static final Color COLOR_BG_INFO = new Color(0xD9EDF7);
+    public static final Color COLOR_FG_INFO = new Color(0x333333);
+    public static final Color COLOR_BRD_INFO = new Color(0x3A87AD);
+
     private final JFrame frame;
-    private List<Notification> list = new ArrayList<>();
+    private final List<Notification> list = new ArrayList<>();
     private int currentHeight = BOTTOM_GAP;
 
     public NotificationsGlassPane(JFrame frame) {
@@ -114,8 +136,9 @@ public class NotificationsGlassPane extends JPanel {
             list.remove(0);
             this.remove(0);
         }
-        if (noty.getType() == NotificationType.INFO)
+        if (!noty.needsHumanAction() && noty.getType() == NotificationType.INFO)
             return;
+
         frame.setGlassPane(this);
         this.setVisible(true);
         list.add(noty);
@@ -132,11 +155,13 @@ public class NotificationsGlassPane extends JPanel {
         this.setVisible(true);
         list.add(noty);
         this.add(build(noty, true));
+        this.invalidate();
+        this.validate();
         this.repaint();
     }
 
-    private JLabel build(final Notification noty, boolean atomic) {
-        final JLabel label;
+    private ActionLabel build(final Notification noty, boolean atomic) {
+        final ActionLabel label;
         Border paddingBorder = BorderFactory.createEmptyBorder(6, 10, 6, 10);
         Border border;
         String html;
@@ -144,52 +169,86 @@ public class NotificationsGlassPane extends JPanel {
         switch (noty.getType()) {
             case SUCCESS:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt+ "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-success.png"),
-                        SwingConstants.LEFT);
-                label.setBackground(new Color(0xDFF0D8));
-                label.setForeground(new Color(0x333333));
-                border = new LineBorder(new Color(0x468847), 1);
+                label = new ActionLabel(html, IMAGE_ICON_SUCCESS, SwingConstants.LEFT);
+                label.setBackground(COLOR_BG_SUCCESS);
+                label.setForeground(COLOR_FG_SUCCESS);
+                border = new LineBorder(COLOR_BRD_SUCCESS, 1);
                 break;
             case ERROR:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-error.png"), SwingConstants.LEFT);
-                label.setBackground(new Color(0xF2DEDE));
-                label.setForeground(new Color(0x333333));
-                border = new LineBorder(new Color(0xB94A48), 1);
+                label = new ActionLabel(html, IMAGE_ICON_ERROR, SwingConstants.LEFT);
+                label.setBackground(COLOR_BG_ERROR);
+                label.setForeground(COLOR_FG_ERROR);
+                border = new LineBorder(COLOR_BRD_ERROR, 1);
                 break;
             case WARNING:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-warning.png"),
-                        SwingConstants.LEFT);
-                label.setBackground(new Color(0xFCF8E3));
-                label.setForeground(new Color(0x333333));
-                border = new LineBorder(new Color(0xC09853), 1);
+                label = new ActionLabel(html, IMAGE_ICON_WARNING, SwingConstants.LEFT);
+                label.setBackground(COLOR_BG_WARNING);
+                label.setForeground(COLOR_FG_WARNING);
+                border = new LineBorder(COLOR_BRD_WARNING, 1);
                 break;
             case INFO:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-info.png"), SwingConstants.LEFT);
-                label.setBackground(new Color(0xD9EDF7));
-                label.setForeground(new Color(0x333333));
-                border = new LineBorder(new Color(0x3A87AD), 1);
-                break;
             default:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/info.png"), SwingConstants.LEFT);
-                label.setBackground(new Color(0xD9EDF7));
-                label.setForeground(new Color(0x333333));
-                border = new LineBorder(new Color(0x3A87AD), 1);
+                label = new ActionLabel(html, IMAGE_ICON_INFO, SwingConstants.LEFT);
+                label.setBackground(COLOR_BG_INFO);
+                label.setForeground(COLOR_FG_INFO);
+                border = new LineBorder(COLOR_BRD_INFO, 1);
                 break;
         }
+
+        if (noty.getActionListener() != null) {
+            label.addActionButton(I18n.text("apply"), e -> {
+                noty.setActionTriggered(true);
+                try {
+                    noty.getActionListener().actionPerformed(e);
+                } catch (Exception ex) {
+                    NeptusLog.pub().error("Error executing notification action: {}", noty.getTitle(), ex);
+                }
+                label.getActionButton().setEnabled(!noty.isActionTriggered());
+                if (label.getActionSecondButton() != null) {
+                    label.getActionSecondButton().setEnabled(!noty.isActionTriggered());
+                }
+                refresh();
+                repaint();
+            });
+
+            if (noty.isActionTriggered()) {
+                label.getActionButton().setEnabled(false);
+            }
+        }
+
+        if (noty.getDismissActionListener() != null) {
+            label.addSecondActionButton(I18n.text("dismiss"), e -> {
+                noty.setActionTriggered(true);
+                try {
+                    noty.getDismissActionListener().actionPerformed(e);
+                } catch (Exception ex) {
+                    NeptusLog.pub().error("Error executing dismiss notification action: {}", noty.getTitle(), ex);
+                }
+                label.getActionSecondButton().setEnabled(!noty.isActionTriggered());
+                if (label.getActionButton() != null) {
+                    label.getActionButton().setEnabled(!noty.isActionTriggered());
+                }
+                refresh();
+                repaint();
+            });
+        }
+
         label.setBorder(BorderFactory.createCompoundBorder(border, paddingBorder));
         label.setOpaque(true);
-        label.setFont(new Font("Arial", Font.PLAIN, 12));
-        label.setIconTextGap(10);
+        label.getLabel().setFont(new Font("Arial", Font.PLAIN, 12));
+        label.getLabel().setIconTextGap(10);
 
-        View view = (View) label.getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
-        view.setSize(500, 0);
+        int iconWidth = 32 + 10; // icon width + gap
+        int wBtn = getActionButtonPreferredWidth(label);
+        View view = (View) label.getLabel().getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
+        view.setSize(500 - wBtn - iconWidth, 0);
         float w = view.getPreferredSpan(View.X_AXIS);
         float h = view.getPreferredSpan(View.Y_AXIS);
-        label.setSize(new Dimension((int) Math.ceil(w), (int) Math.ceil(h) + 30));
+        label.setSize(new Dimension((int) Math.ceil(w) + wBtn + iconWidth, (int) Math.ceil(h) + 30));
+        label.getLabel().setSize(new Dimension((int) Math.ceil(w), (int) Math.ceil(h) + 30));
 
         label.setLocation(this.getWidth() - (label.getWidth() + MARGIN_RIGHT), (this.getHeight()
                 - (label.getHeight() + MARGIN_BOTTOM) - currentHeight));
@@ -238,6 +297,30 @@ public class NotificationsGlassPane extends JPanel {
             }
         }
         return label;
+    }
+
+    private static int getActionButtonPreferredWidth(JButton aButton) {
+        int wBtn = 0;
+        if (aButton != null) {
+            aButton.setFont(new Font("Arial", Font.PLAIN, 10));
+            View view = (View) aButton.getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
+            if (view != null) {
+                view.setSize(0, 0);
+                wBtn = (int) Math.ceil(view.getPreferredSpan(View.X_AXIS));
+            } else {
+                wBtn = aButton.getPreferredSize().width;
+            }
+            wBtn += 10; // padding
+        }
+        return wBtn;
+    }
+
+    private static int getActionButtonPreferredWidth(ActionLabel label) {
+        JButton aButton = label.getActionButton();
+        JButton a2Button = label.getActionSecondButton();
+        int wBtn = getActionButtonPreferredWidth(aButton);
+        int wBtnSecond = getActionButtonPreferredWidth(a2Button);
+        return Math.max(wBtn, wBtnSecond);
     }
 
     private void setupListeners() {

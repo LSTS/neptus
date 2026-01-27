@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,7 +32,11 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -57,7 +61,7 @@ public class GenericPlot extends MRATimeSeriesPlot {
         this.postfixTile = postfixTile;
         StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
         sb.append(" " + this.postfixTile);
-        this.name = sb.toString();
+        this.name = parseChartTitle(sb);
         this.fieldsToPlot = fieldsToPlot;
 
     }
@@ -117,12 +121,16 @@ public class GenericPlot extends MRATimeSeriesPlot {
                             + field;
                 }
 
-                if (m.getMessageType().getFieldUnits(variable) != null && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
-                    // Special case for angles in radians
-                    addValue(m.getTimestampMillis(), seriesName, Math.toDegrees(m.getDouble(variable)));
+                if (Double.isFinite(m.getDouble(variable))) {
+                    if (m.getMessageType().getFieldUnits(variable) != null && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
+                        // Special case for angles in radians
+                        addValue(m.getTimestampMillis(), seriesName, Math.toDegrees(m.getDouble(variable)));
+                    }
+                    else {
+                        addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
+                    }
+
                 }
-                else
-                    addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
             }
         }
     }

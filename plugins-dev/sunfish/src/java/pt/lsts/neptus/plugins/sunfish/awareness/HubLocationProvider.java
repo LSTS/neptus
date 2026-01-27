@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -134,7 +135,7 @@ public class HubLocationProvider implements ILocationProvider {
         
         try {
             Gson gson = new Gson();
-            URL url = new URL(systemsUrl);
+            URL url = new URI(systemsUrl).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             if (authKey != null && !authKey.isEmpty()) {
                 conn.setRequestProperty ("Authorization", authKey);

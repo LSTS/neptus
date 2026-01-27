@@ -1,0 +1,4 @@
+dependencies {
+    //implementation 'io.humble:humble-video-all:0.3.0' // Needs to be in the core because of the dll/so libs
+}
+

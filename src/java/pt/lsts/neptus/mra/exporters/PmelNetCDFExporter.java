@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -75,7 +75,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
     private static final double DEPTH_SCALE = 0.001;
 
     @SuppressWarnings("serial")
-    public static final SimpleDateFormat dateTimeFormatterISO8601NoMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormatterISO8601NoMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     
 //    @NeptusProperty(name = "Write Enumerated and Bitfield as String", editable = true)
 //    private boolean flagWriteEnumeratedAndBitfieldAsString = true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -75,7 +76,7 @@ public class GpsPlotter extends ConsoleLayer {
         
         System.out.println(scr);
         try {
-            Process p = Runtime.getRuntime().exec(scr);
+            Process p = Runtime.getRuntime().exec(List.of(scr).toArray(new String[0]));
             StringBuilder result = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = reader.readLine();

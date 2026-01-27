@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -29,10 +29,13 @@
  *
  * Author: Pedro Gonçalves
  */
-
 package pt.lsts.neptus.plugins.videostream;
 
+import org.apache.commons.io.FileUtils;
 import org.opencv.core.Size;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -44,6 +47,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,8 +61,31 @@ import java.util.concurrent.TimeUnit;
  * @category OpenCV-Vision
  */
 public class UtilVideoStream {
-
     private UtilVideoStream() {
+    }
+
+    public static String getHostFromURI(String camUrl) {
+        try {
+            URI uri = new URI(camUrl);
+            if (uri == null) return null;
+
+            return uri.getHost();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static URI getCamUrlAsURI(String camUrl) {
+        try {
+            URI uri = new URI(camUrl);
+            return uri;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
+        }
+        return null;
     }
 
     public static ArrayList<Camera> readIpUrl(File nameFile) {
@@ -76,11 +103,9 @@ public class UtilVideoStream {
         String[] splits;
         try {
             while ((line = br.readLine()) != null) {
-                if (!line.isEmpty()) {
-                    splits = line.split("#");
-                    if (splits.length == 3) {
-                        cameraList.add(new Camera(splits[0], splits[1], splits[2]));
-                    }
+                Camera cam = parseLineCamera(line);
+                if (cam != null) {
+                    cameraList.add(cam);
                 }
             }
         }
@@ -97,39 +122,143 @@ public class UtilVideoStream {
         return cameraList;
     }
 
-    public static void removeLineFromFile(int lineToRemove, String fileName) {
+    static Camera parseLineCamera(String line) {
+        if (line.isEmpty() || line.trim().startsWith("#")) return null;
+
+        String[] splits = line.split("#");
+        if (splits.length == 3) {
+            if (splits[0].trim().isEmpty()) return null;
+            if (splits[1].trim().isEmpty()) return null;
+            if (splits[2].trim().isEmpty()) return null;
+            if (UtilVideoStream.getHostFromURI(splits[2].trim().trim()) == null) return null;
+
+            return new Camera(splits[0], splits[1], splits[2]);
+        }
+        else if (splits.length == 2) {
+            if (splits[0].trim().isEmpty()) return null;
+            if (splits[1].trim().isEmpty()) return null;
+            String host = UtilVideoStream.getHostFromURI(splits[1].trim().trim());
+            if (host == null) return null;
+
+            return new Camera(splits[0], host, splits[1]);
+        }
+
+        return null;
+    }
+
+    public static void removeCamFromFile(Camera camToRemove, String fileName) {
         File confIni = new File(fileName);
-        File tempFile = new File("/tmp/urlIp.ini-temp");
-
-        String currentLine;
-
-        // Can't remove the Select Device line
-        if (lineToRemove == 0) {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("neptus_", "tmp", new File(ConfigFetch.getNeptusTmpDir()));
+            tempFile.deleteOnExit();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
             return;
         }
 
-        // The file doesn't include the Select Device line so we need to
-        // decrease the line number to match the lines in the file
-        lineToRemove--;
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(confIni));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-            int lineNumber = 0;
+        String currentLine;
+        try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             while ((currentLine = reader.readLine()) != null) {
-                if (lineToRemove != lineNumber) {
+                boolean writeLine = false;
+
+                if (currentLine.isEmpty() || currentLine.trim().startsWith("#")) {
+                    writeLine = true;
+                }
+
+                if (writeLine == false) {
+                    Camera cam = parseLineCamera(currentLine.trim());
+                    if (cam != null) {
+                        if (!cam.getName().equalsIgnoreCase(camToRemove.getName())) {
+                            writeLine = true;
+                        }
+                    }
+                }
+
+                if (writeLine) {
                     writer.write(currentLine.trim() + System.getProperty("line.separator"));
                 }
-                lineNumber++;
             }
-            writer.close();
-            reader.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
 
-        tempFile.renameTo(confIni);
+        try {
+            FileUtils.copyFile(tempFile, confIni);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addCamToFile(Camera camToAdd, String fileName) {
+        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(VideoStream.BASE_FOLDER_FOR_URL_INI);
+
+        File confIni = new File(fileName);
+        if (!confIni.exists()) {
+            FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
+        }
+
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("neptus_", "tmp", new File(ConfigFetch.getNeptusTmpDir()));
+            tempFile.deleteOnExit();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        ArrayList<Camera> camsList = readIpUrl(confIni);
+        boolean updateValueLine = camsList.stream().anyMatch(c -> camToAdd.getName().equalsIgnoreCase(c.getName()));
+
+        if (!updateValueLine) {
+            String str = String.format("%s#%s\n", camToAdd.getName().trim(), camToAdd.getUrl().trim());
+            FileUtil.saveToFile(confIni.getAbsolutePath(), str, "UTF-8", true);
+            return;
+        }
+
+        String currentLine;
+        try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            while ((currentLine = reader.readLine()) != null) {
+                boolean writeLine = false;
+
+                if (currentLine.isEmpty() || currentLine.trim().startsWith("#")) {
+                    writeLine = true;
+                }
+
+                if (writeLine == false) {
+                    Camera cam = parseLineCamera(currentLine.trim());
+                    if (cam != null) {
+                        if (cam.getName().equalsIgnoreCase(camToAdd.getName())) {
+                            String str = String.format("%s#%s\n", camToAdd.getName().trim(), camToAdd.getUrl().trim());
+                            writer.write(str);
+                        }
+                        else {
+                            writeLine = true;
+                        }
+                    }
+                }
+
+                if (writeLine) {
+                    writer.write(currentLine.trim() + System.getProperty("line.separator"));
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileUtils.copyFile(tempFile, confIni);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /*

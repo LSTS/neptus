@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,6 +56,7 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.RemoteSensorInfo;
@@ -517,9 +518,9 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             throw new Exception(host+":"+port+" is unreacheable.");
     }
 
-    Collection<ImcIridiumMessage> wrap(IMCMessage msg) throws Exception {
+    Collection<ImcIridiumMessage> wrap(int dstImcId, IMCMessage msg) throws Exception {
         msg.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
-        return IridiumManager.iridiumEncode(msg);
+        return IridiumManager.iridiumEncode(dstImcId, msg);
     }
 
     void sendToVehicle(String vehicle, IMCMessage msg) throws Exception {
@@ -535,16 +536,17 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         }
 
         NeptusLog.pub().info("Send "+msg.getAbbrev()+" to "+vehicle+" ("+msg.getDst()+") using "+connection_type);
+        int dst = IMCDefinition.getInstance().getResolver().resolve(vehicle);
         switch (connection_type) {
             case IMC:
                 ImcMsgManager.getManager().sendMessageToSystem(msg, vehicle, this);
                 break;
             case HubIridium:
-                for (ImcIridiumMessage m : wrap(msg))                
+                for (ImcIridiumMessage m : wrap(dst, msg))
                     getHubMessenger().sendMessage(m);
                 break;
             case MantaIridium:
-                for (ImcIridiumMessage m : wrap(msg))                
+                for (ImcIridiumMessage m : wrap(dst, msg))
                     getDuneMessenger().sendMessage(m);
                 break;
             default:

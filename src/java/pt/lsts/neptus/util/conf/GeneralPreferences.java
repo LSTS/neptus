@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -122,7 +122,7 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If enable allows the announce msg request to use the sender IP to be use in future comms. to the sender system.")
     public static boolean imcChangeBySourceIpRequest = true;
 
-    @NeptusProperty(name = "IMC Unicast Annonce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
+    @NeptusProperty(name = "IMC Unicast Announce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
             description = "To send announce also by Unicast. Enable or disable")
     public static boolean imcUnicastAnnounceEnable = true;
 
@@ -132,9 +132,21 @@ public class GeneralPreferences implements PropertiesProvider {
                     " A value too high will create inbound messages delay.")
     public static int imcReachabilityTestTimeout = 50;
 
+    @NeptusProperty(name = "Communication - Send Use New Multi-Channels", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "To use the new multichannel comms. Enable or disable")
+    public static boolean imcUseNewMultiChannelCommsEnable = true;
+
+    @NeptusProperty(name = "IMC Channels to Use", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "Comma separated transports list. Valid values are (WiFi, Acoustic, GSM, Satellite). (The order implies preference of use.)")
+    public static String imcChannelsToUse = "WiFi, Acoustic, Satellite";
+
+    @NeptusProperty(name = "IMC Channel - Max Acoustic Distance (m)", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "The maximum distance in meters to use the acoustic channel.")
+    public static int imcChannelMaxAcousticDistanceMeters = 2_000;
+
     // -------------------------------------------------------------------------
 
-    @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
+    @NeptusProperty(name = "Logs Downloader - Enable Partial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED,
             description = "Enable the partial logs downloads (resume partial downloads). NOTE: THE DOWNLOAD BOXES ONLY READ THIS OPTION UPON CREATION.")
     public static boolean logsDownloaderEnablePartialDownload = true;
 
@@ -160,7 +172,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
 
     @NeptusProperty(name = "Number Of Shown Trails Points", category = "Map", userLevel = LEVEL.REGULAR)
-    public static int numberOfShownPoints = 500;
+    public static int numberOfShownPoints = 400;
 
     // -------------------------------------------------------------------------
 
@@ -197,15 +209,15 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "Select the comms. queues size.")
     public static int commsQueueSize = 1024;
 
-    @NeptusProperty(name = "Comms. Messsage Separation Time (ms)", category = "Communications", userLevel = LEVEL.ADVANCED, 
-            description = "Select the comms. separation time in miliseconds that a message (by type) should be warn. Use \"-1\" for always warn.")
+    @NeptusProperty(name = "Comms. Message Separation Time (ms)", category = "Communications", userLevel = LEVEL.ADVANCED,
+            description = "Select the comms. separation time in milliseconds that a message (by type) should be warn. Use \"-1\" for always warn.")
     public static int commsMsgSeparationMillis = -1;
 
     @NeptusProperty(name = "Filter UDP Redirect Also By Port", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static boolean filterUdpAlsoByPort = false;
 
     @NeptusProperty(name = "Redirect Unknown Comms. To First Vehicle In Comm. List", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED,
-            description = "Any messages comming from unknown vehicle will be redirect to the first on comm. list.")
+            description = "Any messages coming from unknown vehicle will be redirect to the first on comm. list.")
     public static boolean redirectUnknownIdsToFirstCommVehicle = false;
     
 
@@ -234,7 +246,41 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Iridium Messenger", category="Iridium Communications", userLevel = LEVEL.REGULAR,
         description = "Iridium messaging implementation")
     public static IridiumMessengerEnum iridiumMessenger = IridiumMessengerEnum.HubIridiumMessenger;
-    
+    @NeptusProperty(name = "Iridium Messenger Poll Messages", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "Iridium messaging poll messages in minutes. Valid values between 0.17 (~10s) and 30. Doesn't need restart to apply",
+            units = "minutes")
+    public static double iridiumMessengerPollMinutes = 5;
+
+    @NeptusProperty(name = "Iridium Messenger Poll Window Hours", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "Iridium messaging poll window in hours. Valid values between 0.17 (~10m) and 24. Doesn't need restart to apply",
+            units = "minutes")
+    public static double iridiumMessengerPollWindowHours = 1;
+
+    @NeptusProperty(name = "Iridium Modem Default Index To Use", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "The default index to use for the iridium modem. This is used when there are multiple modems available. "
+                    + "Use 0 for automatically selection. Use 1 for the first modem, 2 for the second, etc. "
+                    + "If the index is higher than the number of modems available, it will use the last one available. "
+                    + "Only valid for Iridium gateway that supports multiple modems.")
+    public static int iridiumModemDefaultIndexToUse = 0;
+
+    @NeptusProperty(name = "Minutes To Dump All Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "Minutes to dump all fragments. Valid values are positive values between 10 and 240. Doesn't need restart to apply",
+            units = "minutes")
+    public static long minutesToDumpAllFragments = 60;
+
+    @NeptusProperty(name = "Minutes To Request Missing Received Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "Minutes to request missing received fragments. Valid values are positive values between 1 and 60. Doesn't need restart to apply",
+            units = "minutes")
+    public static long minutesToRequestMissingReceivedFragments = 10;
+
+    @NeptusProperty(name = "Automatically Resend Missing Sent Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "If true, the system will automatically resend missing sent fragments. If false, it will need operator intervention.")
+    public static boolean isAutomaticallyResendMissingSentFragments = false;
+
+    @NeptusProperty(name = "Automatically Resend Missing Received Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "If true, the system will automatically resend missing received fragments. If false, it will need operator intervention.")
+    public static boolean isAutomaticallyResendMissingReceivedFragments = false;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,
@@ -244,25 +290,17 @@ public class GeneralPreferences implements PropertiesProvider {
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Place Main Vehicle Combobox On Menu Or Status Bar", category="Console", userLevel = LEVEL.REGULAR,
-            description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Unity hidding menus).")
+            description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Unity hiding menus).")
     public static boolean placeMainVehicleComboOnMenuOrStatusBar = true;
 
     @NeptusProperty(name = "Use Main Vehicle Combo on Consoles", category="Console", userLevel = LEVEL.ADVANCED,
-            description = "Needs console retarts.")
+            description = "Needs console restarts.")
     public static boolean useMainVehicleComboOnConsoles = true;
 
     @NeptusProperty(name = "Place Notification Button on Console Status Bar", category="Console", userLevel = LEVEL.ADVANCED,
-            description = "Needs console retarts.")
+            description = "Needs console restarts.")
     public static boolean placeNotificationButtonOnConsoleStatusBar = true;
 
-    // -------------------------------------------------------------------------
-
-    @NeptusProperty(name = "AIS MMSI Query Prefix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
-    public static String aisMmsiQueryUrlPrefix = "http://api.ais.owm.io/1.2/vessels/";
-    
-    @NeptusProperty(name = "AIS MMSI Query Sufix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
-    public static String aisMmsiQueryUrlSufix = ".json?api_key=f7a0da8eacb49740eb45b5e74d130459";
-    
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
@@ -277,8 +315,8 @@ public class GeneralPreferences implements PropertiesProvider {
     
     @NeptusProperty(name = "Preferred Z Units Array", category = "Z Value", userLevel = LEVEL.ADVANCED, 
             editable = false, rendererClass = ArrayAsStringRenderer.class,
-            description = "This lists the valid Z units to show. This can be overided by the per vehicle settings. "
-                    + "Leeave it empty for no restrictions.")
+            description = "This lists the valid Z units to show. This can be override by the per vehicle settings. "
+                    + "Leave it empty for no restrictions.")
     public static ManeuverLocation.Z_UNITS[] validZUnits = {};
 
     // -------------------------------------------------------------------------
@@ -392,7 +430,23 @@ public class GeneralPreferences implements PropertiesProvider {
     public static String validateMaximumSizePlanNameForAcoustics(int value) {
         return new IntegerMinMaxValidator(1, 255).validate(value);
     }
-    
+
+    public static String validateIridiumMessengerPoolMinutes(double value) {
+        return new DoubleMinMaxValidator(0.17, 30).validate(value);
+    }
+
+    public static String validateMinutesToDumpAllFragments(long value) {
+        return new LongMinMaxValidator(10, 240).validate(value);
+    }
+
+    public static String validateMinutesToRequestMissingReceivedFragments(long value) {
+        return new LongMinMaxValidator(1, 60).validate(value);
+    }
+
+    public static String validateIridiumMessengerPollWindowHours(double value) {
+        return new DoubleMinMaxValidator(0.17, 24).validate(value);
+    }
+
     // -------------------------------------------------------------------------
 
     /*

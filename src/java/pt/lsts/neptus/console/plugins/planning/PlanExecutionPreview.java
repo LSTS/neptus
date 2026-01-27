@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -166,8 +167,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
 
         if (simulators.containsKey(src) && lastStateTimes.containsKey(getConsole().getMainSystem())) {
-
-            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+            long lastStateTime = getLastStateTimeForMainSystem();
 
             if (System.currentTimeMillis() - lastStateTime < 1000)
                 return;
@@ -189,8 +189,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
 
         if (simulators.containsKey(src)) {
-
-            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+            long lastStateTime = getLastStateTimeForMainSystem();
 
             if (System.currentTimeMillis() - lastStateTime < 1000)
                 return;
@@ -212,16 +211,23 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         if (mainSimulator == null)
             return;
 
-        long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+        long lastStateTime = getLastStateTimeForMainSystem();
 
         if (System.currentTimeMillis() - lastStateTime < 1000)
             return;
-        else {
-            mainSimulator.setPositionEstimation(estimate.getEstimation(), 8);
-            updateFutureState(getConsole().getMainSystem());
-        }
+
+        mainSimulator.setPositionEstimation(estimate.getEstimation(), 8);
+        updateFutureState(getConsole().getMainSystem());
     }
-    
+
+    private long getLastStateTimeForMainSystem() {
+        long lastStateTime = 0;
+        if (lastStateTimes.containsKey(getConsole().getMainSystem()) && lastStateTimes.get(getConsole().getMainSystem()) != null) {
+            lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+        }
+        return lastStateTime;
+    }
+
     protected void updateFutureState(String system) {
         PlanSimulator simulator = simulators.get(system);
         if (simulator == null)
@@ -361,8 +367,8 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return null;
 
         for (String planId : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] str = planId.getBytes();
-            if (IMCUtil.computeCrc16(str, 0, str.length) == checksum)
+            byte[] str = planId.getBytes(StandardCharsets.UTF_8);
+            if (IMCUtil.computeCrc16(str, 0, 0) == checksum)
                 return planId;
         }
         return null;
@@ -387,7 +393,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 EstimatedState current = sim.getState().toEstimatedState();
                 current.setLat(Math.toRadians(msg.getLatitude()));
                 current.setLon(Math.toRadians(msg.getLongitude()));
-                current.setDepth(msg.getDepth()/10.0);
+                current.setDepth(msg.getDepth() == 0xFFFF ? -1 : msg.getDepth()/10.0);
                 double ellapsedTime = Math.abs(System.currentTimeMillis()/1000.0 - msg.getStime()) * 3;
                 sim.setPositionEstimation(current, ellapsedTime);
             }

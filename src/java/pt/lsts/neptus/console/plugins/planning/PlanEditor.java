@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -181,6 +181,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         MissionChangeListener, ConfigurationListener {
+
+    public static boolean exposePlanTemplatesA = true;
 
     private static final long serialVersionUID = 1L;
     private final String defaultCondition = "ManeuverIsDone";
@@ -482,8 +484,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     ((JComponent) c).setBorder(new EmptyBorder(0, 0, 0, 0));
             }
             if (plan != null && !manager.canUndo()
-                    && getConsole().getMission().getIndividualPlansList().containsKey(plan.getId()))
+                    && getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
                 plan = null;
+            }
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = null;
             renderer.setToolTipText("");
             overlay = null;
@@ -919,6 +925,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         this.plan = plan;
         if (plan == null) {
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = null;
             return;
         }
@@ -930,6 +939,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             getPropertiesPanel().setManeuver(null);
             getPropertiesPanel().setManager(null);
             parsePlan();
+            if (planElem != null) {
+                planElem.cleanup();
+            }
             planElem = new PlanElement(mapGroup, new MapType());
             planElem.setBeingEdited(true);
             planElem.setRenderer(renderer);
@@ -1150,7 +1162,50 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             };
             copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
             popup.add(copy);
-            
+
+            if (planElem.getPlan() != null && !planElem.getPlan().isEmpty()) {
+                AbstractAction focusPlan = new AbstractAction(I18n.text("Focus plan")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (planElem.getPlan() == null || planElem.getPlan().isEmpty())
+                            return;
+
+                        Maneuver[] mansList = planElem.getPlan().getGraph().getAllManeuvers();
+                        if (mansList.length == 0)
+                            return;
+
+                        double nlat = 0, slat = 0;
+                        double wlon = 0, elon = 0;
+
+                        for (Maneuver man : mansList) {
+                            if (man instanceof LocatedManeuver) {
+                                Collection<ManeuverLocation> wpslst = ((LocatedManeuver) man).getWaypoints();
+                                for (ManeuverLocation wp : wpslst) {
+                                    if (wp.getLatitudeDegs() == 0 && wp.getLongitudeDegs() == 0)
+                                        continue;
+                                    LocationType absll = wp.getNewAbsoluteLatLonDepth();
+                                    if (nlat == 0 || absll.getLatitudeDegs() > nlat)
+                                        nlat = absll.getLatitudeDegs();
+                                    if (slat == 0 || absll.getLatitudeDegs() < slat)
+                                        slat = absll.getLatitudeDegs();
+                                    if (wlon == 0 || absll.getLongitudeDegs() < wlon)
+                                        wlon = absll.getLongitudeDegs();
+                                    if (elon == 0 || absll.getLongitudeDegs() > elon)
+                                        elon = absll.getLongitudeDegs();
+                                }
+                            }
+                        }
+                        double clat = (nlat + slat) / 2.0;
+                        double clon = (wlon + elon) / 2.0;
+                        renderer.setCenter(new LocationType(clat, clon));
+
+                        CoordinateUtil.copyToClipboard(renderer.getRealWorldLocation(mousePoint));
+                    }
+                };
+                focusPlan.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/zoom.png")));
+                popup.add(focusPlan);
+            }
+
             JCheckBoxMenuItem showSim = new JCheckBoxMenuItem(I18n.text("View Simulation"));
             showSim.setSelected(showSimulation);
             
@@ -1520,7 +1575,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        Window parent = SwingUtilities.getWindowAncestor(getConsole());
+                        Window parent = getConsole();
                         if (parent == null)
                             parent = SwingUtilities.getWindowAncestor(ConfigFetch.getSuperParentAsFrame());
                         JDialog transitions = new JDialog(parent, I18n.textf("Edit '%planName' plan transitions",
@@ -1537,10 +1592,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         });
                         
                         transitions.setModalityType(ModalityType.DOCUMENT_MODAL);
-                        transitions.getContentPane().add(new PlanTransitionsSimpleEditor(plan));
+                        PlanTransitionsSimpleEditor planTransitionsSimpleEditor = new PlanTransitionsSimpleEditor(plan);
+                        transitions.getContentPane().add(planTransitionsSimpleEditor);
                         transitions.setSize(800, 500);
                         GuiUtils.centerParent(transitions, getConsole());
                         transitions.setVisible(true);
+                        // cleanup
+                        planTransitionsSimpleEditor.clean();
+
                         parsePlan();
                         renderer.repaint();
 
@@ -2472,13 +2531,20 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public void initSubPanel() {
         this.mission = getConsole().getMission();
 
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."), ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
+        if (exposePlanTemplatesA) {
+            addMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."), ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    new PlanTemplatesDialog(getConsole()).showDialog();
+                }
+            });
+        }
+    }
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new PlanTemplatesDialog(getConsole()).showDialog();
-            }
-        });
+    @Override
+    public void cleanSubPanel() {
+        super.cleanSubPanel();
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."));
     }
 
     public void updateSelected(Maneuver m) {

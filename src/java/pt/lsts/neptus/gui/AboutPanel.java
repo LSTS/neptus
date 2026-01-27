@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,12 +67,13 @@ public class AboutPanel extends JDialog {
     private static String aboutImageFilePath = "images/nep-about.jpg";
     private static String additionalHTML = "";
 
-    private static final String COPY_YEARS = "2004-2023";
+    private static final String COPY_YEARS = "2004-2026";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
     private String contributorsDevelopers = "Manuel Ribeiro, "
-            + "Tiago Marques, Pedro Gonçalves, Keila Lima";
-    private String pastDevelopers = "José Braga, Ricardo Martins, Francisco Richardson, "
+            + "Pedro Gonçalves";
+    private String pastDevelopers = "Miguel Carvalho, Keila Lima, Tiago Marques, "
+            + "José Braga, Ricardo Martins, Francisco Richardson, "
             + "João Fortuna, José Loureiro, Hugo Queirós, Margarida Faria, "
             + "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
@@ -112,7 +113,7 @@ public class AboutPanel extends JDialog {
         this.setResizable(false);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setBackground(Color.WHITE);
-        this.setSize(506, 565);
+        this.setSize(506, 605);
         this.setContentPane(getContentPanel());
         this.setTitle(I18n.text("About"));
         this.addMouseListener(new MouseAdapter() {
@@ -123,6 +124,7 @@ public class AboutPanel extends JDialog {
         });
         this.fillText();
         GuiUtils.centerOnScreen(this);
+        GuiUtils.reactEscapeKeyPress(this);
     }
 
     /**
@@ -236,7 +238,7 @@ public class AboutPanel extends JDialog {
     }
 
     /**
-     * @param iMG_FILE_NAME the iMG_FILE_NAME to set
+     * @param aboutImageFilePath the iMG_FILE_NAME to set
      */
     public static void setAboutImageFilePath(String aboutImageFilePath) {
         AboutPanel.aboutImageFilePath = aboutImageFilePath;

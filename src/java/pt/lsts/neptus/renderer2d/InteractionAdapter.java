@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,6 +67,7 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.RenderStringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -111,20 +112,29 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 LocationType end = source.getRealWorldLocation(lastDragPoint);
                 double distance = end.getDistanceInMeters(firstDragPoint);
                 String txt = String.format("%.2f m", distance);
+                if (distance/1000 >= 1) {
+                    double distanceKm = distance/1000;
+                    txt = String.format("%.2f km", distanceKm);
+                }
+                double distanceNMiles = distance/1852;
+                String milesTxt = String.format("%.2f NM", distanceNMiles);
+
                 g.setStroke(new BasicStroke(5.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.setColor(new Color(0, 0, 0, 100));
                 Point2D start = source.getScreenPosition(firstDragPoint);
+                Point2D endPoint = source.getScreenPosition(end);
 
                 double[] offsets = end.getOffsetFrom(firstDragPoint);
                 int angle = (int) Math.toDegrees(Math.atan2(offsets[1], offsets[0]));
                 if (angle < 0)
                     angle += 360;
-                String angleTxt = String.format("%dº", angle);
+                String angleTxt = String.format("%d°", angle);
                 g.fillArc((int) start.getX() - 30, (int) start.getY() - 30, 60, 60,
                           (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
                 
                 Stroke origStroke = g.getStroke();
-                double diameter = distance * source.getZoom() * 2;
+                // double diameterOld = distance * source.getZoom() * 2; // Using zoom here introduces errors in painting
+                double diameter = start.distance(endPoint) * 2;
                 g.setColor(Color.black);
                 g.setStroke(dashed2);
                 g.drawOval((int) (start.getX() - diameter / 2), (int) (start.getY() - diameter / 2), (int) diameter, (int) diameter);
@@ -140,28 +150,12 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.setColor(Color.green.brighter().brighter());
                 g.draw(new Line2D.Double(start, lastDragPoint));
                 g.setStroke(origStroke);
-                
-                g.setFont(new Font("Arial", Font.BOLD, 17));
-                g.setColor(new Color(0, 0, 0, 100));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 11));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 12));
 
-                g.drawString(txt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 8));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 9));
+                Font font = new Font("Arial", Font.BOLD, 17);
+                RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, txt + " / " + milesTxt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 10);
 
-                g.setFont(new Font("Arial", Font.BOLD, 15));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 31));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 13), (int) (lastDragPoint.getY() + 31));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 29));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 8), (int) (lastDragPoint.getY() + 29));
-
-                g.setFont(new Font("Arial", Font.BOLD, 15));
-                g.setColor(Color.white);
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 10), (int) (lastDragPoint.getY() + 30));
-
-                g.setColor(Color.white);
-                g.setFont(new Font("Arial", Font.BOLD, 17));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 10), (int) (lastDragPoint.getY() + 10));
+                font = new Font("Arial", Font.BOLD, 15);
+                RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, angleTxt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 30);
             }
             g.drawImage(rulerIcon, 20, 50, null);
         }

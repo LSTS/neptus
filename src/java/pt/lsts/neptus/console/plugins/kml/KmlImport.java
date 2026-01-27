@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -353,9 +355,9 @@ public class KmlImport extends ConsolePanel {
             if(urlStr != null && !urlStr.equals("")) {
                 try {
                     kmlFeatUrl = urlStr;
-                    listKmlFeatures(new URL(urlStr), false);
+                    listKmlFeatures(new URI(urlStr).toURL(), false);
                 }
-                catch(MalformedURLException e1) {
+                catch(MalformedURLException | URISyntaxException e1) {
                     showErrorMessage(I18n.text("URL not valid!"));
                 }
             }
@@ -567,9 +569,9 @@ public class KmlImport extends ConsolePanel {
         // Getting the image to local storage
         URL urlKml;
         try {
-            urlKml = new URL(kmlFeatUrl);
+            urlKml = new URI(kmlFeatUrl).toURL();
         }
-        catch (MalformedURLException e) {
+        catch (MalformedURLException | URISyntaxException e) {
             e.printStackTrace();
             return I18n.textf("Some problem with KML file location (%URL).", kmlFeatUrl);
         }
@@ -730,7 +732,7 @@ public class KmlImport extends ConsolePanel {
             else {
                 try {
                     // Try if path is URL
-                    URL refUrl = new URL(fHref);
+                    URL refUrl = new URI(fHref).toURL();
                     String fxName = new File(refUrl.getPath()).getName();
                     URLConnection conn = refUrl.openConnection();
                     InputStream reader = conn.getInputStream();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.types.map;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+
 import java.awt.Color;
 
 
@@ -40,6 +43,8 @@ import java.awt.Color;
  *
  */
 public class VehicleTailElement extends ScatterPointsElement {
+
+    private long lastLocationTimeMillis = -1;
 
     public VehicleTailElement() {
         super();
@@ -56,5 +61,33 @@ public class VehicleTailElement extends ScatterPointsElement {
 	@Override
 	public String getType() {
 		return "Vehicle tail";
-	}	
+	}
+
+    public void addPoint(LocationType loc, long timeMillis) {
+        if (timeMillis <= lastLocationTimeMillis && lastLocationTimeMillis != -1) {
+            // If the new point is older than the last one, ignore it
+            NeptusLog.pub().trace("Received a location point with time {} older than or equal to the last one: {}",
+                    timeMillis, lastLocationTimeMillis);
+            return;
+        }
+
+        super.addPoint(loc);
+        lastLocationTimeMillis = timeMillis;
+    }
+
+    @Override
+    public void addPoint(LocationType loc) {
+        super.addPoint(loc);
+        lastLocationTimeMillis = System.currentTimeMillis();
+    }
+
+    @Override
+    public void clearPoints() {
+        super.clearPoints();
+        lastLocationTimeMillis = -1;
+    }
+
+    public long getLastLocationTimeMillis() {
+        return lastLocationTimeMillis;
+    }
 }

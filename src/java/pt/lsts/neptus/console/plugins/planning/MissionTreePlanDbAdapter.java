@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,8 +32,12 @@
  */
 package pt.lsts.neptus.console.plugins.planning;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
@@ -61,12 +65,18 @@ public class MissionTreePlanDbAdapter extends PlanDBAdapter {
     private ConsoleLayout console;
     private MissionTreePanel missionTree;
     private boolean debugOn = true;
+    private final List<String> planNamesToAutoAcceptUpdatesList = new ArrayList<>();
     
     public MissionTreePlanDbAdapter(ConsoleLayout console, MissionTreePanel missionTree) {
         this.console = console;
         this.missionTree = missionTree;
     }
-    
+
+    public void updatePlanNamesToAutoAcceptUpdatesList(List<String> planNamesToAutoAcceptUpdatesList) {
+        this.planNamesToAutoAcceptUpdatesList.clear();
+        this.planNamesToAutoAcceptUpdatesList.addAll(planNamesToAutoAcceptUpdatesList);
+    }
+
     // Called only if Type == SUCCESS in received PlanDB message
     @Override
     public void dbCleared() {
@@ -109,52 +119,58 @@ public class MissionTreePlanDbAdapter extends PlanDBAdapter {
 
         boolean alreadyLocal = console.getMission().getIndividualPlansList().containsKey(spec.getId());
 
+        ActionListener action = e -> {
+            console.getMission().addPlan(spec);
+            // Save mission
+            console.getMission().save(true);
+            // Alert listeners
+            console.updateMissionListeners();
+
+            if (console.getPlan() != null && console.getPlan().getId().equals(spec.getId())) {
+                console.setPlan(spec);
+            }
+
+            console.post(Notification.success(I18n.text("Plan Dissemination"),
+                    I18n.textf("Received plan '%plan' from vehicle.", spec.getId())));
+
+            if (debugOn && lp != null) {
+                try {
+                    IMCMessage p1 = lp.asIMCPlan(), p2 = spec.asIMCPlan();
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    IMCOutputStream imcOs = new IMCOutputStream(baos);
+                    IMCDefinition.getInstance().serializeFields(p1, imcOs);
+                    ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                    ByteUtil.dumpAsHex(p1.payloadMD5(), System.out);
+
+                    baos = new ByteArrayOutputStream();
+                    imcOs = new IMCOutputStream(baos);
+                    IMCDefinition.getInstance().serializeFields(p2, imcOs);
+                    ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                    ByteUtil.dumpAsHex(p2.payloadMD5(), System.out);
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+
         if (alreadyLocal) {
             PlanSpecification remote = (PlanSpecification) spec.asIMCPlan();
             PlanSpecification local = (PlanSpecification) console.getMission().getIndividualPlansList()
                     .get(spec.getId()).asIMCPlan();
             if (!ByteUtil.equal(local.payloadMD5(), remote.payloadMD5())) {
-                int option = JOptionPane.showConfirmDialog(console,
-                        I18n.text("Replace plan '" + spec.getId() + "' with received version?"));
-                if (option != JOptionPane.YES_OPTION)
+                if (!planNamesToAutoAcceptUpdatesList.contains(spec.getId())) {
+                    console.post(Notification.info(I18n.text("Plan Dissemination"),
+                                    I18n.textf("Replace plan '%plan' with received version?", spec.getId()))
+                            .requireHumanAction(true)
+                            .actionListener(action));
                     return;
+                }
             }
         }
 
-        console.getMission().addPlan(spec);
-        // Save mission
-        console.getMission().save(true);
-        // Alert listeners
-        console.updateMissionListeners();
-
-        if (console.getPlan().getId().equals(spec.getId())) {
-            console.setPlan(spec);
-        }
-
-        console.post(Notification.success(I18n.text("Plan Dissemination"),
-                I18n.textf("Received plan '%plan' from vehicle.", spec.getId())));
-
-        if (debugOn && lp != null) {
-            try {
-                IMCMessage p1 = lp.asIMCPlan(), p2 = spec.asIMCPlan();
-                
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                IMCOutputStream imcOs = new IMCOutputStream(baos);
-                IMCDefinition.getInstance().serializeFields(p1, imcOs);
-                ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
-                ByteUtil.dumpAsHex(p1.payloadMD5(), System.out);
-                
-                baos = new ByteArrayOutputStream();
-                imcOs = new IMCOutputStream(baos);
-                IMCDefinition.getInstance().serializeFields(p2, imcOs);
-                ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
-                ByteUtil.dumpAsHex(p2.payloadMD5(), System.out);
-                
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        action.actionPerformed(new ActionEvent("Neptus", ActionEvent.ACTION_PERFORMED, "dbPlanReceived"));
         // System.out.println("dbPlanReceived");
     }
 

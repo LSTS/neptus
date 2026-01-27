@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2021-11-26T20:06:03.0Z with Neptus version 2020.10.1-SNAPSHOT (compiled on 2021-11-25, gneptus-2020.01.1-786-g4e4d6e3). -->
+<console name="Neptus Console" width="1253" height="666" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
+  <!-- Data saved on 2025-01-19T12:54:56.0Z with Neptus version 2024.01.0-SNAPSHOT (compiled on 2025-01-19, gneptus-2020.01.1-1510-ge263e8f). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
@@ -113,6 +113,9 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
+      <child class="pt.lsts.neptus.console.plugins.PlanImporter" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
       <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
@@ -172,17 +175,27 @@
         <properties/>
       </child>
       <child class="pt.lsts.ripples.RipplesUpdater" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="connected">false</entry>
-        </properties>
+        <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.dev.ImcCommsMonitorPanel" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.remoteactionsextra.RemoteActionsExtra" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugin.mapcontroller.MapController" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.samplesviewer.SamplesViewerPlugin" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>
   <layers>
+    <layer class="pt.lsts.neptus.plugins.alertintrusion.AlertIntrusion" opacity="0.8">
+      <properties/>
+    </layer>
     <layer class="pt.lsts.neptus.console.plugins.planning.DesiredPathLayer" opacity="1.0">
       <properties/>
     </layer>

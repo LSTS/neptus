@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.alliance;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,6 +47,7 @@ import com.eclipsesource.json.JsonObject;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.alliance.NmeaPlotter.MTShip;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -57,7 +59,15 @@ public class RipplesAisParser {
     private static final SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     public static ArrayList<MTShip> getShips() throws Exception {
-        URL url = new URL("https://ripples.lsts.pt/ais");
+        String ripplesBaseUrl = GeneralPreferences.ripplesUrl;
+        if (ripplesBaseUrl == null || ripplesBaseUrl.isEmpty()) {
+            throw new Exception("Ripples URL must be valid");
+        }
+
+        if (!ripplesBaseUrl.endsWith("/")) {
+            ripplesBaseUrl += "/";
+        }
+        URL url = new URI(ripplesBaseUrl + "ais").toURL();
         HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();    
         JsonArray val = Json.parse(new InputStreamReader(httpConnection.getInputStream())).asArray();
        
@@ -79,6 +89,7 @@ public class RipplesAisParser {
         ship.SHIPNAME = object.getString("name", "mmsi_"+ship.SHIP_ID);
         ship.TYPE = object.getInt("type", 0);
         ship.DESTINATION = object.getString("destination", "N/A");
+        ship.DRAUGHT = object.getDouble("draught", 0);
         double bow = object.getDouble("bow", 0);
         double stern = object.getDouble("stern", 0);
         double port = object.getDouble("port", 0);

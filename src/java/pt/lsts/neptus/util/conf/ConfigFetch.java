@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -208,7 +208,14 @@ public class ConfigFetch {
         NeptusLog.init();
         
         // Set Default Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> NeptusLog.pub().error("Uncaught Exception! " + ReflectionUtil.getCallerStamp(), e));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            StringBuilder sb = new StringBuilder();
+            for (StackTraceElement ste : e.getStackTrace()) {
+                sb.append(ste.toString()).append("\n");
+            }
+            NeptusLog.pub().error("Uncaught Exception! {}\nStack trace:\n{}",
+                    ReflectionUtil.getCallerStamp(), sb.toString(), e);
+        });
 
         init();
         loadSchemas();

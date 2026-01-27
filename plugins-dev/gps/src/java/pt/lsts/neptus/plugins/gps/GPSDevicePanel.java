@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,7 +38,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -46,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import jssc.SerialPortException;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -109,6 +109,8 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     private final Timer watchDog = new Timer(watchDogTimeoutSegs * 1000, this);
 
     // GUI
+    /** Dialog window */
+    ConfigDialog dialog;
     /** Action button. */
     private final JButton actionButton = new JButton();
     /** Main panel. */
@@ -158,8 +160,14 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
 
     @Override
     public void cleanSubPanel() {
-        if (gpsDevice.isConnected())
-            gpsDevice.disconnect();
+        if (gpsDevice.isConnected()) {
+            try {
+                gpsDevice.disconnect();
+            }
+            catch (SerialPortException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -218,7 +226,12 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     public void actionPerformed(ActionEvent e) {
         if (I18n.text("Connect").equals(e.getActionCommand())) {
             if (setup()) {
-                connect();
+                try {
+                    connect();
+                }
+                catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
         else if (I18n.text("Disconnect").equals(e.getActionCommand())) {
@@ -233,15 +246,14 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
      * Connect the currently configured GPS device.
      */
     private void connect() {
-        HashMap<Device.Parameter, String> params = new HashMap<Device.Parameter, String>();
-        params.put(Device.Parameter.DEV, uartDevice);
-        params.put(Device.Parameter.BAUD, uartBaudRate);
-        params.put(Device.Parameter.FRAME, uartFrameType);
+        int dataBits = dialog.getDataBits();
+        int stopBits = dialog.getStopBits();
+        int parityBits = dialog.getParityBits();
 
         changeButton(I18n.text("Connecting"), false);
 
         try {
-            gpsDevice.connect(params);
+            gpsDevice.connect(this, uartDevice, Integer.parseInt(uartBaudRate), dataBits, stopBits, parityBits);
             changeButton(I18n.text("Disconnect"), true);
             dataLabel.setText(MSG_WAIT_DATA);
             watchDog.setDelay(watchDogTimeoutSegs * 1000);
@@ -253,14 +265,18 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     }
 
     /**
-     * Disconnect the currently connected GPS device.
-     *
-     * @param msg
-     *            message to display in the main label.
-     */
+    * Disconnect the currently connected GPS device.
+    *
+    * @param msg message to display in the main label.
+    */
     private void disconnect(String msg) {
         changeButton(I18n.text("Disconnecting"), false);
-        gpsDevice.disconnect();
+        try {
+            gpsDevice.disconnect();
+        }
+        catch (SerialPortException e) {
+            throw new RuntimeException(e);
+        }
         dataLabel.setText(msg);
         changeButton(I18n.text("Connect"), true);
         watchDog.stop();
@@ -274,7 +290,7 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
      */
     private boolean setup() {
         try {
-            ConfigDialog dialog = new ConfigDialog(this, I18n.text("GPS Device Configuration"));
+            dialog = new ConfigDialog(this, I18n.text("GPS Device Configuration"));
 
             if (dialog.open(uartDevice, uartBaudRate, uartFrameType)) {
                 uartDevice = dialog.getPort();

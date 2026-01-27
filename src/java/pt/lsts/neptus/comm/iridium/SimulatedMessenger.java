@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,11 +36,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Vector;
+import java.util.Set;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -50,7 +52,12 @@ import org.apache.commons.io.IOUtils;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -61,9 +68,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
         + "directly in the bus of the destination via IMC. Used only for debug / simulation purposes")
 public class SimulatedMessenger implements IridiumMessenger {
 
-    protected Vector<IridiumMessage> messagesReceived = new Vector<>();
-
-    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    protected Set<IridiumMessageListener> listeners = new HashSet<>();
 
     protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
     private final String authKey = GeneralPreferences.ripplesApiKey;
@@ -95,7 +100,7 @@ public class SimulatedMessenger implements IridiumMessenger {
         byte[] data = m.serialize();
         data = new String(Hex.encodeHex(data)).getBytes();
 
-        URL u = new URL(messagesUrl);
+        URL u = new URI(messagesUrl).toURL();
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
@@ -135,9 +140,37 @@ public class SimulatedMessenger implements IridiumMessenger {
         ImcMsgManager.getManager().sendMessage(rx);
     }
 
+    /**
+     * @param destinationName The name of the destination
+     *                        (e.g. the name of the vehicle that should receive the message)
+     * @param destinationAddr It is ignored
+     * @param data            The data to be sent
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public void sendMessageRaw(String destinationName, String destinationAddr, byte[] data) throws Exception {
+        int imcId = ImcId16.NULL_ID.intValue();
+        VehicleType veh = VehiclesHolder.getVehicleById(destinationName);
+        if (veh != null) {
+            imcId = veh.getImcId().intValue();
+        } else {
+            ImcSystem imcSys = ImcSystemsHolder.getSystemWithName(destinationName);
+            if (imcSys != null)
+                imcId = imcSys.getId().intValue();
+        }
+
+        IridiumMsgRx rx = new IridiumMsgRx();
+        rx.setOrigin("Iridium simulated messenger");
+        rx.setDst(imcId);
+        rx.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+        rx.setData(data);
+        ImcMsgManager.getManager().sendMessage(rx);
+    }
+
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        return new Vector<>();
+        return Collections.emptyList();
     }
 
     @Override
@@ -158,6 +191,5 @@ public class SimulatedMessenger implements IridiumMessenger {
     @Override
     public void cleanup() {
         listeners.clear();
-        messagesReceived.clear();
     }
 }

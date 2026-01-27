@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -92,7 +92,8 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author pdias
  * 
  */
-@Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
+@Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500,
+        accelerator = 'P', alwaysResetPopupPosition = true)
 // @PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
 public class PluginManager extends ConsolePanel {
 

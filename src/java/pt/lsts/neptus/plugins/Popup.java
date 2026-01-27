@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins;
 
+import java.awt.Dialog;
 import java.awt.event.KeyEvent;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -74,4 +75,14 @@ public @interface Popup {
      * To set it, you can use the constants in the class {@link KeyEvent} 
      */
     int accelerator() default KeyEvent.VK_UNDEFINED;
+
+    /**
+     * The modality of the dialog
+     */
+    Dialog.ModalityType modality() default Dialog.ModalityType.MODELESS;
+
+    /**
+     * If set to true, the popup will be always reset to the position defined by the pos() attribute
+     */
+    boolean alwaysResetPopupPosition() default false;
 }

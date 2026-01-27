@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.util.Vector;
 import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.DesiredHeading;
 import pt.lsts.imc.EmergencyControlState;
 import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.EstimatedState;
@@ -55,10 +56,12 @@ import pt.lsts.imc.Rpm;
 import pt.lsts.imc.SimulatedState;
 import pt.lsts.imc.TrueSpeed;
 import pt.lsts.imc.VehicleState;
+import pt.lsts.imc.VerticalProfile;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.SystemUtils;
+import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
@@ -147,14 +150,42 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     sys.setActive(isActive);
                     // NeptusLog.pub().info("<###> "+sys.getName()+": "+isActive()+"  "+(message !=
                     // null?message.getAbbrevName():""));
+                    if (info != null) {
+                        if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
+                            sys.setActiveIridium(isActive);
+                        else
+                            sys.setActiveWifi(isActive);
+                    } else {
+                        if (!isActive)
+                            sys.setActiveIridium(isActive);
+                        sys.setActiveWifi(isActive);
+                    }
                 }
                 else {
                     // If IMCAuthorityState.OFF then we consider not active
                     if (sys.getAuthorityState() == ImcSystem.IMCAuthorityState.OFF) {
                         sys.setActive(false);
+                        if (info != null) {
+                            if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
+                                sys.setActiveIridium(false);
+                            else
+                                sys.setActiveWifi(false);
+                        } else {
+                            sys.setActiveIridium(false);
+                            sys.setActiveWifi(false);
+                        }
                     }
                     else if (!isActive) {
                         sys.setActive(false);
+                        if (info != null) {
+                            if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
+                                sys.setActiveIridium(false);
+                            else
+                                sys.setActiveWifi(false);
+                        } else {
+                            sys.setActiveIridium(false);
+                            sys.setActiveWifi(false);
+                        }
                     }
                     else {
                         activityCounter.add(System.currentTimeMillis());
@@ -164,13 +195,42 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                         }
                         vecSize = activityCounter.size();
                         if (vecSize == 3) {
-                            if (activityCounter.get(2) - activityCounter.get(0) <= 3000)
+                            if (activityCounter.get(2) - activityCounter.get(0) <= 3000) {
                                 sys.setActive(true);
-                            else
+                                if (info != null) {
+                                    if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
+                                        sys.setActiveIridium(true);
+                                    else
+                                        sys.setActiveWifi(true);
+                                } else {
+                                    //sys.setActiveIridium(true);
+                                    sys.setActiveWifi(true);
+                                }
+                            }
+                            else {
                                 sys.setActive(false);
+                                if (info != null) {
+                                    if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
+                                        sys.setActiveIridium(false);
+                                    else
+                                        sys.setActiveWifi(false);
+                                } else {
+                                    sys.setActiveIridium(false);
+                                    sys.setActiveWifi(false);
+                                }
+                            }
                         }
                         else {
                             sys.setActive(false);
+                            if (info != null) {
+                                if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
+                                    sys.setActiveIridium(false);
+                                else
+                                    sys.setActiveWifi(false);
+                            } else {
+                                sys.setActiveIridium(false);
+                                sys.setActiveWifi(false);
+                            }
                         }
                     }
                 }
@@ -342,7 +402,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     double lat = msg.getDouble("lat");
                     double lon = msg.getDouble("lon");
                     double height = msg.getDouble("height");
-                    msg.getDouble("depth");
+                    double depth = msg.getDouble("depth");
                     msg.getDouble("altitude");
                     double x = msg.getDouble("x");
                     double y = msg.getDouble("y");
@@ -355,6 +415,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     loc.setLatitudeRads(lat);
                     loc.setLongitudeRads(lon);
                     loc.setHeight(height);
+                    loc.setDepth(depth);
                     loc.setOffsetNorth(x);
                     loc.setOffsetEast(y);
                     loc.setOffsetDown(z);
@@ -389,6 +450,28 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                             SystemUtils.HEADING_DEGS_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
                             timeMillis, true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case VerticalProfile.ID_STATIC:
+                try {
+                    long timeMillis = msg.getTimestampMillis();
+                    VerticalProfile vp = (VerticalProfile) msg;
+                    double latDeg = vp.getLat();
+                    double lonDeg = vp.getLon();
+
+                    LocationType loc = new LocationType();
+                    loc.setLatitudeDegs(latDeg);
+                    loc.setLongitudeDegs(lonDeg);
+
+                    // Commented out because it doesn't guarantee the time is correct if coming from sat comms
+                    if (resSys.typeVehicle == VehicleType.VehicleTypeEnum.USV) {
+                        // Allow for USVs only
+                        resSys.setLocation(loc, timeMillis);
+                    }
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -523,6 +606,19 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     long timeMillis = msg.getTimestampMillis();
                     EntityParameters entityParametersMsg = (EntityParameters) msg;
                     resSys.storeData(SystemUtils.ENTITY_PARAMETERS, entityParametersMsg, timeMillis, true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case DesiredHeading.ID_STATIC:
+                try {
+                    long timeMillis = msg.getTimestampMillis();
+                    double desiredHeadingRad = msg.getDouble("value");
+                    resSys.storeData(
+                            SystemUtils.DESIRED_HEADING_DEGS_KEY,
+                            (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(desiredHeadingRad), 0)),
+                            timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();

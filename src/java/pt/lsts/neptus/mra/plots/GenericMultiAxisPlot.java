@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,7 +53,7 @@ import java.util.Map;
 public class GenericMultiAxisPlot extends GenericPlot implements IMultiAxisPlots {
 
     public GenericMultiAxisPlot(String[] fieldsToPlot, MRAPanel panel) {
-        super(fieldsToPlot, panel , "Compare Plot");
+        super(fieldsToPlot, panel , "Compare");
     }
 
     // public ImageIcon getIcon() {
@@ -114,7 +114,7 @@ public class GenericMultiAxisPlot extends GenericPlot implements IMultiAxisPlots
                     axis2.setUpperMargin(0.02);
                     chart.getXYPlot().setRangeAxis(++idx, axis2);
                     chart.getXYPlot().setDataset(idx, ntsc);
-                    chart.getXYPlot().mapDatasetToRangeAxis(idx, 1);
+                    chart.getXYPlot().mapDatasetToRangeAxis(idx, idx);
                 }
                 chart.getXYPlot().getRangeAxis().setLabel(firstGrp);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -178,6 +178,7 @@ public class NMEA {
      */
     private void interpretGPGGA() {
         // Validity.
+
         int quality = Integer.parseInt(chunks.get(6));
         if (quality == 1) {
             fix.setType(Fix.Type.STANDALONE);
@@ -193,19 +194,27 @@ public class NMEA {
         }
 
         // Position.
-        fix.setLatitude(parseLatitude(chunks.get(2), chunks.get(3)));
-        fix.setLongitude(parseLongitude(chunks.get(4), chunks.get(5)));
-        fix.setHeight(parseReal(chunks.get(9)) + parseReal(chunks.get(11)));
+        if (!chunks.get(2).isEmpty() && !chunks.get(3).isEmpty() && !chunks.get(4).isEmpty() && !chunks.get(5).isEmpty() && !chunks.get(9).isEmpty() && !chunks.get(11).isEmpty()) {
+            fix.setLatitude(parseLatitude(chunks.get(2), chunks.get(3)));
+            fix.setLongitude(parseLongitude(chunks.get(4), chunks.get(5)));
+            fix.setHeight(parseReal(chunks.get(9)) + parseReal(chunks.get(11)));
+        }
 
         // Satellites.
-        fix.setSatellites(parseInteger(chunks.get(7)));
+        if (!chunks.get(7).isEmpty()) {
+            fix.setSatellites(parseInteger(chunks.get(7)));
+        }
 
         // Dilution.
-        fix.setHorizontalDilution(parseReal(chunks.get(8)));
+        if (!chunks.get(8).isEmpty()) {
+            fix.setHorizontalDilution(parseReal(chunks.get(8)));
+        }
 
         // Time.
-        fix.setTime(parseTime(chunks.get(1)));
-
+        if (!chunks.get(1).isEmpty()) {
+            fix.setTime(parseTime(chunks.get(1)));
+        }
+        
         listener.onFix(fix);
     }
 
@@ -213,11 +222,13 @@ public class NMEA {
      * Interpret a GPVTG sentence.
      */
     private void interpretGPVTG() {
-        if (chunks.get(1).length() > 0)
+        if (!chunks.get(1).isEmpty()) {
             fix.setCog(parseReal(chunks.get(1)));
-
-        double value = parseReal(chunks.get(7));
-        fix.setSog(value * 1000.0 / 3600.0);
+        }
+        if (!chunks.get(7).isEmpty()) {
+            double value = parseReal(chunks.get(7));
+            fix.setSog(value * 1000.0 / 3600.0);
+        }
     }
 
     /**

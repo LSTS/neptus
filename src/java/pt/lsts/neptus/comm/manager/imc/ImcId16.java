@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -105,9 +105,13 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
 
     @Override
     public int compareTo(ImcId16 o) {
-		//return (int) (longValue() - o.longValue());
         return (longValue() < o.longValue() ? -1 : (longValue() == o.longValue() ? 0 : 1));
 	}
+
+    public int compareTo(int id) {
+        long i = id & 0xFFFF;
+        return (longValue() < i ? -1 : (longValue() == i ? 0 : 1));
+    }
 
     @Override
     public boolean equals(Object obj) {

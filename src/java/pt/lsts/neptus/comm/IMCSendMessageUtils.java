@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,8 @@ import pt.lsts.imc.TransmissionRequest.COMM_MEAN;
 import pt.lsts.imc.TransmissionRequest.DATA_MODE;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -60,6 +62,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -121,6 +124,20 @@ public class IMCSendMessageUtils {
                 acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, sendOnlyThroughOneAcoustically, ids);
     }
 
+    public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
+                                      boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
+                                      boolean acousticOpUserApprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
+        return sendMessage(msg, sendProperties, listener, parent, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                acousticOpUseOnlyActive, acousticOpUserApprovedQuestion, sendOnlyThroughOneAcoustically, true, new String[0], ids);
+    }
+
+    public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
+                                      boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
+                                      boolean acousticOpUserApprovedQuestion, boolean sendOnlyThroughOneAcoustically, boolean popGuiOnError, String... ids) {
+        return sendMessage(msg, sendProperties, listener, parent, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                acousticOpUseOnlyActive, acousticOpUserApprovedQuestion, sendOnlyThroughOneAcoustically, popGuiOnError, new String[0], ids);
+    }
+
     /**
      * @param msg
      * @param sendProperties The same of {@link ImcMsgManager#sendMessage(IMCMessage, pt.lsts.neptus.comm.manager.imc.ImcId16, String, pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener)},
@@ -128,27 +145,37 @@ public class IMCSendMessageUtils {
      * @param parent The parent component for popup error message
      * @param errorTextForDialog
      * @param ignoreAcousticSending If this is true mean don't use acoustic.
-     * @param acousticOpServiceName 
+     * @param acousticOpServiceName
      * @param acousticOpUseOnlyActive
-     * @param acousticOpUserAprovedQuestion
+     * @param acousticOpUserApprovedQuestion
      * @param ids
      * @return
      */
     public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
             boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
-            boolean acousticOpUserAprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
+            boolean acousticOpUserApprovedQuestion, boolean sendOnlyThroughOneAcoustically, boolean popGuiOnError, String[] channelsToSend, String... ids) {
 
         ImcSystem[] acousticOpSysLst = !ignoreAcousticSending ? ImcSystemsHolder.lookupSystemByService(
                 acousticOpServiceName, SystemTypeEnum.ALL, acousticOpUseOnlyActive)
                 : new ImcSystem[0];
 
-        boolean acousticOpUserAprovalRequired = acousticOpUserAprovedQuestion;
-        boolean acousticOpUserAproved = !acousticOpUserAprovedQuestion;
+        boolean acousticOpUserAprovalRequired = acousticOpUserApprovedQuestion;
+        boolean acousticOpUserAproved = !acousticOpUserApprovedQuestion;
         boolean retAll = true;
         for (String sid : ids) {
             boolean ret;
             ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(sid);
-            if (acousticOpSysLst.length != 0 && sysL != null && !sysL.isActive()) {
+            if (GeneralPreferences.imcUseNewMultiChannelCommsEnable && sysL != null) {
+                ret = ImcMsgManager.getManager().sendMessageUsingActiveChannelWait(msg, sid, -1, parent,
+                        acousticOpUserApprovedQuestion, channelsToSend);
+                if (ret) {
+                    acousticOpUserAproved = true;
+                } else {
+                    // to temporary keep the old behavior if error on new channel
+                    ret = ImcMsgManager.getManager().sendMessageToSystem(msg, sid, sendProperties, listener);
+                }
+            }
+            else if (acousticOpSysLst.length != 0 && sysL != null && !sysL.isActive()) {
                 if (acousticOpUserAprovalRequired) {
                     acousticOpUserAproved = (GuiUtils.confirmDialog(parent, I18n.text("Send by Acoustic Modem"), 
                             I18n.text("Some systems are not active. Do you want to send by acoustic modem?")) == JOptionPane.YES_OPTION);
@@ -164,11 +191,12 @@ public class IMCSendMessageUtils {
             }
             retAll = retAll && ret;
             if (!ret) {
-                if (parent instanceof ConsolePanel) {
+                NeptusLog.pub().warn(errorTextForDialog);
+                if (popGuiOnError && parent instanceof ConsolePanel) {
                     ((ConsolePanel) parent).post(Notification.error(I18n.text("Send Message"), errorTextForDialog).src(
                             I18n.text("Console")));
                 }
-                else {
+                else if (popGuiOnError && parent != null) {
                     GuiUtils.errorMessage(parent, I18n.text("Send Message"), errorTextForDialog);
                 }
             }
@@ -209,6 +237,13 @@ public class IMCSendMessageUtils {
             IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
             
             MessagePart[] parts = handler.fragment(msg, 998);
+            if (parts.length > 1) {
+                ImcSystem systemImc = ImcSystemsHolder.getSystemWithName(destination);
+                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(),
+                        systemImc == null ? ImcId16.NULL_ID.intValue() : systemImc.getId().intValue(),
+                        Arrays.asList(parts));
+            }
+
             NeptusLog.pub().info("PlanDB message resulted in "+parts.length+" fragments");
             for (MessagePart part : parts)
                 requests.addAll(sendMessageAcoustically(part, destination, preferredGateway, burst, 60));
@@ -265,6 +300,7 @@ public class IMCSendMessageUtils {
      * @param acousticOpSysLst
      * @return
      */
+    @Deprecated
     public static boolean sendMessageByAcousticModem(IMCMessage msg, String system,
             boolean sendOnlyThroughOne, ImcSystem[] acousticOpSysLst) {
         // TODO listen for the responses back from the systems with modems

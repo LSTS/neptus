@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -64,6 +64,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -132,7 +133,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     private final int DEFAULT_LOD = 18;
     private final int MIN_LOD = MapTileUtil.LEVEL_MIN;
     private final int MAX_LOD = MapTileUtil.LEVEL_MAX;
-    private boolean worldMapShowScreenControls = false;
+    private boolean worldMapShowScreenControls = true;
 
     public static Cursor rotateCursor, translateCursor, zoomCursor, grabCursor, grab2Cursor, crosshairCursor,
             drawCursor;
@@ -328,8 +329,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
             addPreRenderPainter(worldMapPainter);
             addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
-            //addMouseListener(worldMapPainter);
-            //addMouseMotionListener(worldMapPainter);
+            addMouseListener(worldMapPainter);
+            addMouseMotionListener(worldMapPainter);
         }
         catch (NoClassDefFoundError e) {
             NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
@@ -570,6 +571,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     public void vehicleStateChanged(String systemId, SystemPositionAndAttitude state, boolean repaint) {
         if (state == null) {
+            NeptusLog.pub().warn(">>>>>>>>>> Tail for {} state was null, clearing tail!! (was {}) <<<<<<<<<<", systemId,
+                    vehicleTails.containsKey(systemId) ? vehicleTails.get(systemId).getNumberOfPoints() : "-");
             vehicleStates.remove(systemId);
             vehicleTails.remove(systemId);
             vehicles = vehicleStates.keySet().toArray(new String[0]);
@@ -605,7 +608,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             vehicleStates.put(systemId, state);
 
             //double[] distFromRef = state.getPosition().getOffsetFrom(vehicleTails.get(systemId).getCenterLocation());
-            vehicleTails.get(systemId).addPoint(state.getPosition());
+            if (state.getTime() > vehicleTails.get(systemId).getLastLocationTimeMillis() || vehicleTails.get(systemId).getLastLocationTimeMillis() == -1) {
+                NeptusLog.pub().trace(">>>>>>>>>> Tail for {} ADD element. (was {})  @ {} <<<<<<<<<<", systemId,
+                    vehicleTails.get(systemId).getPoints().size(), new Date(state.getTime()));
+            }
+            vehicleTails.get(systemId).addPoint(state.getPosition(), state.getTime());
 
             if (!repaint || System.currentTimeMillis() - lastPaintTime < minDelay) {
                 return;
@@ -1724,6 +1731,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             else
                 painters.addPainter(I18n.text(name), painter, 1, 0);
         }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.addMapControllerButtons((MapControllerButtons) painter);
+        }
+
         return true;
     }
 
@@ -1737,6 +1749,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         synchronized (painters) {
             painters.remove(painter);
         }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.removeMapControllerButtons((MapControllerButtons) painter);
+        }
+
         return true;
     }
 
@@ -1752,6 +1769,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             else
                 painters.addPainter(painter.getClass().getSimpleName(), painter, -1, 0);
         }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.addMapControllerButtons((MapControllerButtons) painter);
+        }
     }
 
     /**
@@ -1761,6 +1782,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void removePreRenderPainter(Renderer2DPainter painter) {
         synchronized (painters) {
             painters.remove(painter);
+        }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.removeMapControllerButtons((MapControllerButtons) painter);
         }
     }
 
@@ -2005,6 +2030,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void addInteraction(StateRendererInteraction interaction) {
         if (!interactions.contains(interaction))
             interactions.add(interaction);
+
+        if (interaction instanceof MapControllerButtons) {
+            worldMapPainter.addMapControllerButtons((MapControllerButtons) interaction);
+        }
     }
 
     /**
@@ -2016,6 +2045,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             setActiveInteraction(defaultInteraction);
         }
         interactions.remove(interaction);
+
+        if (interaction instanceof MapControllerButtons) {
+            worldMapPainter.removeMapControllerButtons((MapControllerButtons) interaction);
+        }
     }
 
     @Deprecated
