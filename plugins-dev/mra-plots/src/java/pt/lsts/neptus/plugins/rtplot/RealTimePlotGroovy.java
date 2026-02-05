@@ -457,7 +457,22 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
                 releaseThis();
             }
             catch (Exception e) {
-                traceScript = previousScript;
+                if (traceScript == null || traceScript.equals(previousScript)) {
+                    // This avoids endless error loop
+                    // comment every line of the script in the variable traceScript
+                    if (traceScript != null) {
+                        StringBuilder sb = new StringBuilder();
+                        for (String line : traceScript.split("\\r?\\n")) {
+                            sb.append("//").append(line).append("\n");
+                        }
+                        traceScript = sb.toString();
+                    } else {
+                        traceScript = "";
+                    }
+                    previousScript = traceScript;
+                } else {
+                    traceScript = previousScript;
+                }
                 if (editSettings.isShowing())
                     throw e;
                     //GuiUtils.errorMessage(editSettings, "Error Parsing Script1", e.getLocalizedMessage());
