@@ -507,7 +507,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     @Override
     public ParametersPanel getParametersPanel(boolean editable, MapType map) {
-        params.setCenter(getCenterLocation());
+        params.setCenter(new LocationType(getCenterLocation()));
         params.setImageFileName(getImageFileName());
         params.setImageScale(getImageScale());
         params.setImageScaleV(getImageScaleV());
@@ -528,7 +528,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     @Override
     public void initialize(ParametersPanel paramsPanel) {
 
-        setCenterLocation(params.getCenter());
+        setCenterLocation(new LocationType(params.getCenter()));
         setImageFileName(params.getImageFileName());
         setImageScale(params.getImageScale());
         setImageScaleV(params.getImageScaleV());
