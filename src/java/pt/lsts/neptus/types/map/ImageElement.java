@@ -442,13 +442,17 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT).getRootElement().detach();
         document.add(root);
 
-        if ("".equals(originalFilePath)) {
-            root.addElement("href").addText(getImageFileName());
+        if (getImageFileName() != null && !getImageFileName().isEmpty()) {
+            if (originalFilePath != null && !originalFilePath.isEmpty()) {
+                root.addElement("href").addText(FileUtil.relativizeFilePathAsURI(originalFilePath, getImageFileName()));
+            } else {
+                root.addElement("href").addText(getImageFileName());
+            }
+        } else if (originalFilePath != null && !originalFilePath.isEmpty()) {
+            root.addElement("href").addText(originalFilePath);
+        } else {
             NeptusLog.pub().error(this + ": Original file path is empty!");
         }
-        else
-            root.addElement("href")
-                    .addText(FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getImageFileName()));
         Element scaleElm = root.addElement("scale");
         scaleElm.addText(Double.toString(getImageScale()));
         if (!Double.isNaN(imageScaleV)) {
@@ -503,7 +507,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     @Override
     public ParametersPanel getParametersPanel(boolean editable, MapType map) {
-        params.setCenter(getCenterLocation());
+        params.setCenter(new LocationType(getCenterLocation()));
         params.setImageFileName(getImageFileName());
         params.setImageScale(getImageScale());
         params.setImageScaleV(getImageScaleV());
@@ -524,7 +528,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     @Override
     public void initialize(ParametersPanel paramsPanel) {
 
-        setCenterLocation(params.getCenter());
+        setCenterLocation(new LocationType(params.getCenter()));
         setImageFileName(params.getImageFileName());
         setImageScale(params.getImageScale());
         setImageScaleV(params.getImageScaleV());
