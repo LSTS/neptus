@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2025.08.0 (merge/sabuvis2master,1a30f3f7e)" modules="project/sabivus2,bb6d134" system="waverider-4" i18n="pt_PT">
+<config format="1" version="2025.08.0 (merge/sabuvis2master,d3ca43a0b)" modules="master,65b8f31" system="waverider-4" i18n="pt_PT">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -951,6 +951,28 @@
       <default>35.0</default>
       <units>°</units>
       <desc>Attack angle when lateral track error equals corridor width</desc>
+      <min>2</min>
+      <max>45</max>
+    </param>
+    <param name="Corridor Loiter -- Width">
+      <name-i18n>Corridor Loiter -- Width</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Width of corridor for loiter entry angle</desc>
+      <min>1.0</min>
+      <max>50.0</max>
+    </param>
+    <param name="Corridor Loiter -- Entry Angle">
+      <name-i18n>Corridor Loiter -- Entry Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>35.0</default>
+      <units>°</units>
+      <desc>Loiter attack angle when lateral track error equals corridor width</desc>
       <min>2</min>
       <max>45</max>
     </param>
