@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2025.08.0 (merge/sabuvis2master,d3ca43a0b)" modules="master,65b8f31" system="waverider-5" i18n="pt_PT">
+<config format="1" version="2025.08.0 (merge/sabuvis2master,9243bddda,dirty)" modules="HEAD,65b8f31" system="waverider-5" i18n="pt_PT">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1938,6 +1938,15 @@
       <default>8022</default>
       <units/>
       <desc>UDP port for wifi communications</desc>
+    </param>
+    <param name="Use Wifi Only">
+      <name-i18n>Use Wifi Only</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Disable acoustic data exchange and use Wi-Fi for all swarm communications</desc>
     </param>
     <param name="Acoustic Communications -- TDMA Time Per Slot">
       <name-i18n>Acoustic Communications -- TDMA Time Per Slot</name-i18n>
