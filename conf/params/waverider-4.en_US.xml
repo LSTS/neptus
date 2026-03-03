@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2025.08.0 (merge/sabuvis2master,9243bddda,dirty)" modules="HEAD,65b8f31" system="waverider-4" i18n="en_US">
+<config format="1" version="2025.08.0 (merge/sabuvis2master,79c7eb6a0,dirty)" modules="feature/dccl,570b4d4" system="waverider-4" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -959,7 +959,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>2.0</default>
       <units>m</units>
       <desc>Width of corridor for loiter entry angle</desc>
       <min>1.0</min>
@@ -970,7 +970,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>35.0</default>
+      <default>45.0</default>
       <units>°</units>
       <desc>Loiter attack angle when lateral track error equals corridor width</desc>
       <min>2</min>
@@ -1833,6 +1833,15 @@
       <default>false</default>
       <units/>
       <desc>True if this vehicle is the formation leader</desc>
+    </param>
+    <param name="Adjust Speed Based On Distance">
+      <name-i18n>Adjust Speed Based On Distance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>If this flag is true leader will adjust plan speed based on the longest distance a participant transects.</desc>
     </param>
     <param name="Acknowledgement Timeout">
       <name-i18n>Acknowledgement Timeout</name-i18n>
