@@ -59,6 +59,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -382,6 +383,37 @@ public class PluginUtils {
             @Override
             public DefaultProperty[] getProperties() {
                 return getPluginProperties(obj);
+            }
+        };
+        return PropertiesEditor.editProperties(provider, parent, editable);
+    }
+
+    public static <P extends Window> boolean editPluginProperties(final Object obj, P parent, boolean editable,
+                                                                  Function<PluginProperty[], PluginProperty[]> filterGetParameters) {
+        PropertiesProvider provider = new PropertiesProvider() {
+
+            @Override
+            public void setProperties(Property[] properties) {
+                setPluginProperties(obj, properties);
+            }
+
+            @Override
+            public String[] getPropertiesErrors(Property[] properties) {
+                return null;
+            }
+
+            @Override
+            public String getPropertiesDialogTitle() {
+                return getPluginName(obj.getClass())+" properties";
+            }
+
+            @Override
+            public DefaultProperty[] getProperties() {
+                PluginProperty[] ret = getPluginProperties(obj);
+                if (filterGetParameters != null) {
+                    ret = filterGetParameters.apply(ret);
+                }
+                return ret;
             }
         };
         return PropertiesEditor.editProperties(provider, parent, editable);
