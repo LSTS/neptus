@@ -246,7 +246,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     break;
                 case "asv":
                 case "usv":
-                    settings += " / S="+asvSpeed.toStringAsDefaultUnits()+")";                    
+                    loiterSettings += " / S="+auvSpeed.toStringAsDefaultUnits()+")";
+                    settings += " / S="+asvSpeed.toStringAsDefaultUnits()+")";
                     break;
                 case "uav":
                     settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
