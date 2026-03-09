@@ -148,7 +148,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     }
 
     @NeptusProperty
-    public static String defaultActiveLayers = TileMercatorSVG.class.getAnnotation(MapTileProvider.class).name();
+    public static String defaultActiveLayers = TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).name();
 
     private static final String ROOT_PREFIX;
     static {
