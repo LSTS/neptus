@@ -102,15 +102,12 @@ class AxisTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 7; // extra Range column
+        return 6;
 
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (rowIndex >= list.size()) {
-            return null;
-        }
         MapperComponent comp = list.get(rowIndex);
         switch (columnIndex) {
             case 0:
@@ -125,8 +122,6 @@ class AxisTableModel extends AbstractTableModel {
                 return comp.getEditText();
             case 5:
                 return "Clear";
-            case 6:
-                return comp.range;
         }
         return null;
     }
@@ -142,19 +137,12 @@ class AxisTableModel extends AbstractTableModel {
                 case 1: return String.class;   // Component
                 case 2: return Float.class;    // Value
                 case 3: return Boolean.class;  // Inverted
-                case 4: return String.class;  // Edit
-                case 5: return String.class;  // Clear
-                case 6: return Float.class;    // Range
+                case 4: return String.class;   // Edit
+                case 5: return String.class;   // Clear
                 default: return Object.class;
             }
         }
-
-        try {
-            Object value = getValueAt(0, c);
-            return value != null ? value.getClass() : Object.class;
-        } catch (Exception e) {
-            return Object.class;
-        }
+        return getValueAt(0, c).getClass();
     }
 
     @Override

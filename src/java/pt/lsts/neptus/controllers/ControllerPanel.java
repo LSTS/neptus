@@ -123,9 +123,6 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
-    @NeptusProperty(name = "Axis Range", description = "Varies between the range and its symmetrical value.")
-    protected static float RANGE = (float) 127.0;
-
     enum ActionType {
         Axis,
         Button
@@ -748,9 +745,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             for (String k : poll.keySet()) {
                 float currentData = poll.get(k).getPollData();
                 float previousData = oldPoll.getOrDefault(k, 0f);
-                if (currentData != previousData &&
-                        Math.abs(currentData) > 0.9f &&
-                        Math.abs(previousData) < 0.5f) {
+                if (Math.abs(currentData - previousData) > 0.5f) {
 
                     ArrayList<MapperComponent> remoteActions = new ArrayList<>();
                     remoteActions.addAll(mappedAxis);
@@ -767,11 +762,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         }
                     }
                 }
-            }
-
-            oldPoll.clear();
-            for (String k : poll.keySet()) {
-                oldPoll.put(k, poll.get(k).getPollData());
             }
         } else {
             if (currentController == null || actions == null || console.getMainSystem() == null) {
@@ -809,31 +799,22 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                     if ("Axis".equalsIgnoreCase(type)) {
 
-                        if (comp.action.toLowerCase().contains("thrust") ||
-                                comp.action.toLowerCase().contains("surge") ||
-                                comp.action.toLowerCase().contains("forward") ||
-                                comp.action.toLowerCase().contains("throtle"))
-                        {
+                        if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
                             float normalized = (raw + 1f) / 2f;
-
                             if (comp.inverted) {
                                 normalized = 1f - normalized;
                             }
-
                             updated_value = normalized * comp.getRange();
                         }
                         else {
-
                             if (comp.inverted) {
                                 raw *= -1f;
                             }
-
                             updated_value = raw * comp.getRange();
                         }
                     }
                     else if ("Button".equalsIgnoreCase(type)) {
 
-                        // Buttons normalmente 0 ou 1
                         if (comp.inverted) {
                             raw = 1f - raw;
                         }
@@ -1023,9 +1004,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             if (!message.getOp().equals(OP.REPORT)) {
                 return;
             }
-
-            System.out.println("REPORT MESSAGE RECEIVED FROM" + message.getSourceName());
-            System.out.println("ACTIONS: " + message.getActions());
 
             if (actions == null) {
                 actions = new LinkedHashMap<String, String>();
