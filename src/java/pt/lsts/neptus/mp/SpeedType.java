@@ -302,6 +302,9 @@ public class SpeedType {
     }
 
     public String toStringAsDefaultUnits() {
+        if (units == Units.RPM || units == Units.Percentage)
+            return toString();
+
         Units defaultUnits = GeneralPreferences.speedUnits;
         return GuiUtils.getNeptusDecimalFormat(2).format(getAs(defaultUnits)) + " " + defaultUnits.name;
     }
