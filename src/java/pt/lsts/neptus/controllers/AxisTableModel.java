@@ -34,19 +34,18 @@
  */
 package pt.lsts.neptus.controllers;
 
-import java.awt.*;
-import java.util.ArrayList;
-
 import javax.swing.table.AbstractTableModel;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.controllers.ControllerPanel.ActionType;
 import pt.lsts.neptus.controllers.ControllerPanel.MapperComponent;
 import pt.lsts.neptus.i18n.I18n;
+
+import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 class AxisTableModel extends AbstractTableModel {
     public ArrayList<MapperComponent> list;
+    private ControllerPanel panel;
 
     @Override
     public String getColumnName(int column) {
@@ -70,12 +69,30 @@ class AxisTableModel extends AbstractTableModel {
         }
     }
 
-    public AxisTableModel(ArrayList<MapperComponent> list) {
+    public AxisTableModel(ArrayList<MapperComponent> list, ControllerPanel panel) {
         this.list = list;
+        this.panel = panel;
     }
 
     public ArrayList<MapperComponent> getList() {
         return this.list;
+    }
+    
+    public void setList(ArrayList<MapperComponent> newList) {
+        this.list = newList;
+    }
+    
+    public int indexOf(MapperComponent comp) {
+        return list.indexOf(comp);
+    }
+    
+    public int indexOfAction(String action) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).action.equals(action)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -91,6 +108,9 @@ class AxisTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (rowIndex >= list.size()) {
+            return null;
+        }
         MapperComponent comp = list.get(rowIndex);
         switch (columnIndex) {
             case 0:
@@ -102,9 +122,9 @@ class AxisTableModel extends AbstractTableModel {
             case 3:
                 return comp.inverted;
             case 4:
-                return comp.edit;
+                return comp.getEditText();
             case 5:
-                return comp.clear;
+                return "Clear";
             case 6:
                 return comp.range;
         }
@@ -112,30 +132,47 @@ class AxisTableModel extends AbstractTableModel {
     }
 
     public boolean isCellEditable(int row, int col) {
-        return col == 3; // Hard-coded for now
+        return col == 3 || col == 4 || col == 5;
     }
 
+    public Class<?> getColumnClass(int c) {
+        if (list.isEmpty()) {
+            switch (c) {
+                case 0: return String.class;   // Axis
+                case 1: return String.class;   // Component
+                case 2: return Float.class;    // Value
+                case 3: return Boolean.class;  // Inverted
+                case 4: return String.class;  // Edit
+                case 5: return String.class;  // Clear
+                case 6: return Float.class;    // Range
+                default: return Object.class;
+            }
+        }
+
+        try {
+            Object value = getValueAt(0, c);
+            return value != null ? value.getClass() : Object.class;
+        } catch (Exception e) {
+            return Object.class;
+        }
+    }
+
+    @Override
     public void setValueAt(Object value, int row, int col) {
         if(col == 3) {
             list.get(row).inverted = (Boolean) value;
+            panel.saveMappings();
         }
         if (col == 6) {
             try {
                 float v = (float) value;
                 this.list.get(row).setRange(v);
+                panel.saveMappings();
             }
             catch (NumberFormatException e) {
                 NeptusLog.pub().error(I18n.text("Invalid Number Format for Range."), e);
             }
         }
         fireTableCellUpdated(row, col);
-    }
-
-    public Class<?> getColumnClass(int c) {
-        Object cl = getValueAt(0, c);
-        if (cl == null)
-            return Object.class;
-        else
-            return cl.getClass();
     }
 }

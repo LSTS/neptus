@@ -41,18 +41,21 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -66,10 +69,17 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
+import javax.swing.RowSorter;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -97,6 +107,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -108,12 +119,12 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author keila (May 2020)
  * 
  */
-@Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
+@Popup(pos = POSITION.TOP_RIGHT, width = 450, accelerator = 'J')
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     @NeptusProperty(name = "Axis Range", description = "Varies between the range and its symmetrical value.")
-    protected static float RANGE = (float) 1.0;
+    protected static float RANGE = (float) 127.0;
 
     enum ActionType {
         Axis,
@@ -123,7 +134,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
 
     private static final String ACTION_FILE_XML = "conf/controllers/actions.xml";
-    // private boolean sending = false;
+    private static final String CACHED_ACTIONS_FILE = ".cache/db/controller_cached_actions.properties";
+    private volatile boolean mousePressed = false;
 
     // Vehicle action received via RemoteActionRequest (i.e Heading=axis, Accelerate=Button)
     private LinkedHashMap<String, String> actions = new LinkedHashMap<String, String>();
@@ -135,6 +147,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private LinkedHashMap<String, String> msgActions = new LinkedHashMap<String, String>();
     // The current controller poll
     private LinkedHashMap<String, Component> poll;
+    // Flag to control RemoteActions requests
+    private boolean requestedActions = false;
 
     private ArrayList<JComboBox<String>> controllerSelectors = new ArrayList<JComboBox<String>>();
 
@@ -179,19 +193,64 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private Document doc;
     private ConsoleLayout console;
 
-    private boolean editing = false;
-
     private LinkedHashMap<String, Float> oldPoll = new LinkedHashMap<String, Float>();
+
+    private boolean hasAnyEditFlag() {
+        for (MapperComponent comp : mappedAxis) {
+            if (comp.editFlag) return true;
+        }
+        for (MapperComponent comp : mappedButtons) {
+            if (comp.editFlag) return true;
+        }
+        return false;
+    }
+
+    private void clearAllEditFlags() {
+        for (MapperComponent comp : mappedAxis) {
+            comp.editFlag = false;
+        }
+        for (MapperComponent comp : mappedButtons) {
+            comp.editFlag = false;
+        }
+        
+        if (axisTable != null) axisTable.repaint();
+        if (buttonsTable != null) buttonsTable.repaint();
+    }
+    
+    private void clearAllEditFlagsForce() {
+        for (MapperComponent comp : mappedAxis) {
+            comp.editFlag = false;
+        }
+        for (MapperComponent comp : mappedButtons) {
+            comp.editFlag = false;
+        }
+        
+        if (axisTable != null) axisTable.repaint();
+        if (buttonsTable != null) buttonsTable.repaint();
+    }
+
+    private boolean noOtherRowEditing() {
+        return !hasAnyEditFlag();
+    }
+
+    private void updateModel() {
+        if (axisModel != null && buttonsModel != null) {
+            ((AxisTableModel) axisModel).setList(mappedAxis);
+            ((ButtonTableModel) buttonsModel).setList(mappedButtons);
+
+            axisModel.fireTableDataChanged();
+            buttonsModel.fireTableDataChanged();
+        }
+    }
 
     public ControllerPanel(ConsoleLayout console) {
         super(console);
         this.console = console;
         this.removeAll();
 
-        // Register listeners
-        // console.addMainVehicleListener(this);
-        // PeriodicUpdatesService.register(this);
-        // getConsole().getImcMsgManager().addListener(this);
+        console.addMainVehicleListener(this);
+        PeriodicUpdatesService.register(this);
+        getConsole().getImcMsgManager().addListener(this);
     }
 
     @Override
@@ -215,7 +274,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         manager = console.getControllerManager();
 
         controllerSelectors.add(generateControllerSelector());
-        controllerSelectors.add(generateControllerSelector());
 
         // Initialize current controller
         currentController = (String) controllerSelectors.get(0).getSelectedItem();
@@ -235,14 +293,29 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         });
 
         // Start the interface
-        refreshInterface();
-        if (console.getMainSystem() != null)
+        if (console.getMainSystem() != null && actions.isEmpty())
             add(new JLabel(I18n.text("Waiting for vehicle action list")));
         else
             add(new JLabel(I18n.text("No main vehicle selected in the console")));
 
         if (actions != null) {
             buildDialog();
+        }
+        refreshInterface();
+    }
+
+    @Override
+    public void popupShown() {
+        super.popupShown();
+        if (actions != null) {
+            int numActions = actions.size();
+            int height = 330;
+            if (numActions > 8) {
+                height += 20 * (numActions - 8);
+            }
+            if (dialog != null) {
+                dialog.setSize(450, height);
+            }
         }
     }
 
@@ -278,7 +351,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         + "<li>Click on the Edit button of the intended <br />RemoteAction on the Table.</li>\n"
                         + "<li>Once the RemoteAction line gets green <br />you are in edition mode of the Table.</li>\n"
                         + "<li>Select the intended button on the Joystick.</li>\n"
-                        + "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it on the in the respective column.</li>\n"
+                        + "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it in the respective column.</li>\n"
                         + "</ol>\n"
                         + "<h2>Open the Controllers Panel Plugin to configure the panel before open in the Pilot - ROV 2 profile.</h2>"
                         + "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
@@ -306,36 +379,58 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     @Override
     public void cleanSubPanel() {
         // Unregister listeners
-        // console.removeMainVehicleListener(this);
-        // PeriodicUpdatesService.unregister(this);
-        // getConsole().getImcMsgManager().removeListener(this);
+        PeriodicUpdatesService.unregister(this);
+        getConsole().getImcMsgManager().removeListener(this);
     }
 
     public void buildDialog() {
         removeAll();
         buildInstructions();
 
-        axisModel = new AxisTableModel(mappedAxis);
-        axisTable.setModel(axisModel);
+        axisModel = new AxisTableModel(mappedAxis, this);
+        buttonsModel = new ButtonTableModel(mappedButtons);
 
-        axisTable.addMouseListener(new JTableButtonMouseListener(axisTable));
+        RowSorter<?> axisSorter = axisTable.getRowSorter();
+        RowSorter<?> buttonSorter = buttonsTable.getRowSorter();
+
+        axisTable.setRowSorter(null);
+        buttonsTable.setRowSorter(null);
+
+        axisTable.setModel(axisModel);
+        axisTable.getTableHeader().setReorderingAllowed(false);
+        axisTable.setRowSelectionAllowed(false);
+        axisTable.getColumnModel().getColumn(3).setCellEditor(new BooleanCellEditor());
+        axisTable.getColumnModel().getColumn(4).setCellEditor(new ActionButtonEditor());
+        axisTable.getColumnModel().getColumn(5).setCellEditor(new ActionButtonEditor());
+        axisTable.setDefaultRenderer(Boolean.class, new BooleanRenderer());
+        axisTable.revalidate();
+
+        axisTable.getColumnModel().getColumn(1).setMinWidth(90);
+
+        buttonsTable.setModel(buttonsModel);
+        buttonsTable.getTableHeader().setReorderingAllowed(false);
+        buttonsTable.setRowSelectionAllowed(false);
+        buttonsTable.setDefaultRenderer(Object.class, new ButtonTableRenderer(ActionType.Button));
+        buttonsTable.getColumnModel().getColumn(3).setCellEditor(new ActionButtonEditor());
+        buttonsTable.getColumnModel().getColumn(4).setCellEditor(new ActionButtonEditor());
+        buttonsTable.revalidate();
+
+        axisModel.fireTableDataChanged();
+        buttonsModel.fireTableDataChanged();
 
         JScrollPane axisContainer = new JScrollPane(axisTable);
-        // axisContainer.setSize(this.getWidth(), 10 + (axisTable.getRowHeight() * (rowCount + 1)));
         String args = "height ::" + (20 + (axisTable.getRowHeight() * (axisModel.getRowCount() + 1))) + ",wrap";
         add(axisContainer, args);
-
-        buttonsModel = new ButtonTableModel(mappedButtons);
-        buttonsTable.setModel(buttonsModel);
-        buttonsTable.addMouseListener(new JTableButtonMouseListener(buttonsTable));
+        axisContainer.revalidate();
 
         JScrollPane btnContainer = new JScrollPane(buttonsTable);
         args = "height ::" + (20 + (buttonsTable.getRowHeight() * (buttonsModel.getRowCount() + 1))) + ",wrap";
         add(btnContainer, args);
+        btnContainer.revalidate();
 
         JPanel footerLeft = new JPanel(new MigLayout());
         JPanel footerRight = new JPanel(new MigLayout());
-        JPanel footer = new JPanel(new MigLayout());
+        JPanel footer = new JPanel(new MigLayout("", "[center]", ""));
 
         for (JComboBox<String> selector : controllerSelectors) {
             footerLeft.add(selector, "w 200::, wrap");
@@ -344,15 +439,55 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         footerRight.add(btnInHold, "w 150::, wrap");
         footerRight.add(btnReset, "w 150::, wrap");
 
-        footer.add(footerLeft);
-        footer.add(footerRight);
+        footer.add(footerLeft, "push");
+        footer.add(footerRight, "push");
 
         add(footer, "dock south");
-        setSize(300, 200);
 
+        int numActions = actions.size();
+        int height = 330;
+        if (numActions > 8) {
+            height += 20 * (numActions - 8);
+        }
+        if (dialog != null && dialog.isVisible()) {
+            dialog.setSize(450, height);
+        }
 
-        dialog.pack();
-        this.repaint();
+        revalidate();
+        repaint();
+
+        if (getParent() != null) {
+            getParent().revalidate();
+            getParent().repaint();
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            revalidate();
+            repaint();
+            if (getParent() != null) {
+                getParent().revalidate();
+                getParent().repaint();
+            }
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                if (axisSorter != null) {
+                    axisTable.setRowSorter((RowSorter<? extends TableModel>) axisSorter);
+                } else {
+                    axisTable.setAutoCreateRowSorter(true);
+                }
+
+                if (buttonSorter != null) {
+                    buttonsTable.setRowSorter((RowSorter<? extends TableModel>) buttonSorter);
+                } else {
+                    buttonsTable.setAutoCreateRowSorter(true);
+                }
+            } catch (Exception e) {
+                axisTable.setAutoCreateRowSorter(true);
+                buttonsTable.setAutoCreateRowSorter(true);
+            }
+        });
     }
 
     public JComboBox<String> generateControllerSelector() {
@@ -366,6 +501,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 currentController = (String) cbox.getSelectedItem();
                 mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
                 mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
+                updateModel();
                 buildDialog();
             }
         });
@@ -376,38 +512,75 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             ActionType actionType) {
         ArrayList<MapperComponent> result = new ArrayList<MapperComponent>();
 
+        if (actions == null) {
+            return result;
+        }
+
+        boolean isDecimal = !actions.get("Ranges").equals("Range127");
+        float range = (float) (isDecimal ? 1.0 : 127.0);
         for (Entry<String, String> entry : actions.entrySet()) {
             String action = entry.getKey();
             String aType = entry.getValue();
             MapperComponent comp = getMapperComponentByName(systemName, controllerName, action);
             if (aType.equalsIgnoreCase(actionType.name())) { // verify if action is Axis or Button
                 if (comp == null) {
-                    if (actionType.equals(ActionType.Axis))
-                        result.add(new MapperComponent(action, "", 0.0f, false, RANGE,0.0f));
-                    else if (actionType.equals(ActionType.Button))
-                        result.add(new MapperComponent(action, "", 0.0f, false,0.0f,0.0f));
+                    comp = findExistingComponent(action, actionType);
+                    if (comp == null) {
+                        if (actionType.equals(ActionType.Axis)) {
+                            comp = new MapperComponent(action, "", 0.0f, false, range, 0.0f);
+                        }
+                        else if (actionType.equals(ActionType.Button)) {
+                            comp = new MapperComponent(action, "", 0.0f, false, 0.0f, 0.0f);
+                        }
+                    }
                 }
-                else
+                if (comp != null) {
                     result.add(comp);
+                }
             }
         }
         return result;
     }
 
+    private MapperComponent findExistingComponent(String action, ActionType actionType) {
+        if (actionType.equals(ActionType.Axis)) {
+            for (MapperComponent comp : mappedAxis) {
+                if (comp.action.equals(action)) {
+                    return comp;
+                }
+            }
+        } else if (actionType.equals(ActionType.Button)) {
+            for (MapperComponent comp : mappedButtons) {
+                if (comp.action.equals(action)) {
+                    return comp;
+                }
+            }
+        }
+        return null;
+    }
+
     public MapperComponent getMapperComponentByName(String systemName, String controllerName, String actionName) {
         List<?> list = doc.selectNodes(
                 "/systems/system[@name='" + systemName + "']/controller[@name='" + controllerName + "']/*");
+
+        boolean isDecimal = true; // Default to decimal
+        if (actions != null && actions.containsKey("Ranges")) {
+            isDecimal = !actions.get("Ranges").equals("Range127");
+        }
+        float range = (float) (isDecimal ? 1.0 : 127.0);
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element el = (Element) iter.next();
             if (el.attributeValue("action").equalsIgnoreCase(actionName)) {
                 try {
-                    if (el.attribute("range") == null) // Button
+                    if (el.attribute("range") == null) {
                         return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
-                                Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f,0.0f);
-                    else // Axis Component
+                                Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f, 0.0f);
+                    }
+                    else {
                         return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"),
                                 0.0f,
-                                Boolean.parseBoolean(el.attributeValue("inverted")),RANGE, 0.0f);
+                                Boolean.parseBoolean(el.attributeValue("inverted")),range, 0.0f);
+                    }
                 }
                 catch (Exception e) {
                     NeptusLog.pub().warn(I18n.text("Error parsing controllers configuration file."), e);
@@ -422,12 +595,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             RemoteActionsRequest raq = new RemoteActionsRequest();
             raq.setOp(OP.QUERY);
             // IMCDefinition.getInstance().getResolver().resolve(console.getMainSystem());
-            getConsole().getImcMsgManager().sendMessageToSystem(raq, console.getMainSystem());
         }
     }
 
-    public void updateControllers() {
-        editing = false;
+    private void updateControllers() {
+        if (!connected()) {
+            return;
+        }
+
         manager.fetchControllers();
         String list[] = manager.getControllerList().keySet().toArray(new String[0]);
         for (JComboBox<String> cb : controllerSelectors) {
@@ -436,21 +611,43 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 cb.addItem(s);
             }
         }
+        for (JComboBox<String> cb : controllerSelectors) {
+            cb.setSelectedItem(currentController);
+        }
     }
 
     /**
      * Clear the layout and ask the system for remote actions
      */
     public void refreshInterface() {
-        actions = null;
-        editing = false;
+        clearAllEditFlagsForce();
+
+        if (!connected()) {
+            removeAll();
+            buildInstructions();
+            add(new JLabel(I18n.text("Vehicle disconnected")));
+            actions = null;
+            requestedActions = false;
+            revalidate();
+            repaint();
+            return;
+        }
+
+        if (actions != null && !actions.isEmpty()) {
+            return;
+        }
 
         removeAll();
         buildInstructions();
+        add(new JLabel(I18n.text("Waiting for vehicle action list")));
 
-        if (connected())
+        if (!requestedActions) {
             requestRemoteActions();
-        this.repaint();
+            requestedActions = true;
+        }
+
+        revalidate();
+        repaint();
     }
 
     private boolean sending() {
@@ -465,7 +662,43 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
-        refreshInterface();
+
+        SwingUtilities.invokeLater(() -> {
+
+            if (console.getMainSystem() == null) {
+                return;
+            }
+
+            actions = null;
+            requestedActions = false;
+
+            LinkedHashMap<String, String> cached = loadCachedActions(console.getMainSystem());
+            if (!cached.isEmpty()) {
+                actions = new LinkedHashMap<>(cached);
+            }
+
+            clearAllEditFlagsForce();
+
+            msgActions.clear();
+
+            mappedAxis.clear();
+            mappedButtons.clear();
+
+            axisModel = null;
+            buttonsModel = null;
+
+            updateControllers();
+
+            if (!controllerSelectors.isEmpty()) {
+                currentController = (String) controllerSelectors.get(0).getSelectedItem();
+            }
+
+            if (actions != null && !actions.isEmpty()) {
+                buildDialog();
+            } else {
+                refreshInterface();
+            }
+        });
     }
 
     @Override
@@ -473,11 +706,15 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         return periodicDelay;
     }
 
+    private int controllerFetchCounter = 0;
+
     @Override
     public boolean update() {
-
         if (manager == null || currentController == null) {
-            manager.pollError(currentController);
+            return true;
+        }
+
+        if (!connected()) {
             return true;
         }
 
@@ -486,142 +723,194 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         // Use the periodic update to keep asking for RemoteActions list
         if (connected() && actions == null) {
             requestRemoteActions();
+            requestedActions = true;
         }
 
-        if (dialog == null)
+        if (!isShowing()) {
             return true;
+        }
 
         try {
             poll = manager.pollController(currentController);
-        }
-        catch (Exception e) {
-            //Remove device not working properly and trigger new search of devices
+        } catch (Exception e) {
             manager.pollError(currentController);
             e.printStackTrace();
+            return true;
         }
 
-        // Also if polling fails return true
         if (poll == null) {
             return true;
         }
 
-        btnReset.setEnabled(!editing);
-        // comboBox.setEnabled(!editing);
+        btnReset.setEnabled(!hasAnyEditFlag());
 
-        if (editing) {
-            if (oldPoll.size() == poll.size()) {
-                for (String k : poll.keySet()) {
-                    if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
-                            && Math.abs(poll.get(k).getPollData()) == 1.0) {
-                        ArrayList<MapperComponent> remoteActions = new ArrayList<MapperComponent>();
-                        remoteActions.addAll(mappedAxis);
-                        remoteActions.addAll(mappedButtons);
-                        for (MapperComponent mcomp : remoteActions) {
-                            if (mcomp.editFlag) {
-                                mcomp.button = k;
-                                mcomp.inverted = poll.get(k).getPollData() < 0;
+        if (hasAnyEditFlag()) {
+            for (String k : poll.keySet()) {
+                float currentData = poll.get(k).getPollData();
+                float previousData = oldPoll.getOrDefault(k, 0f);
+                if (currentData != previousData &&
+                        Math.abs(currentData) > 0.9f &&
+                        Math.abs(previousData) < 0.5f) {
 
-                                if (actions.get(mcomp.action).equals("Axis"))
-                                    axisModel.fireTableDataChanged();
-                                else
-                                    buttonsModel.fireTableDataChanged();
+                    ArrayList<MapperComponent> remoteActions = new ArrayList<>();
+                    remoteActions.addAll(mappedAxis);
+                    remoteActions.addAll(mappedButtons);
 
-                                // Finish editing and save mappings
-                                editing = false;
-                                mcomp.editFlag = false;
-                                mcomp.setDeadZone(poll.get(k).getDeadZone());
-                                saveMappings(); // Save every time we edit a single action
-                                break;
-                            }
+                    for (MapperComponent mcomp : remoteActions) {
+                        if (mcomp.editFlag) {
+                            mcomp.button = k;
+                            mcomp.value = 0f;
+                            mcomp.editFlag = false;
+                            mcomp.setDeadZone(poll.get(k).getDeadZone());
+                            saveMappings();
+                            break;
                         }
                     }
                 }
             }
 
-            // Deep copy poll to oldPoll
             oldPoll.clear();
-            for (String k : poll.keySet())
+            for (String k : poll.keySet()) {
                 oldPoll.put(k, poll.get(k).getPollData());
-
-        }
-        else {
-
+            }
+        } else {
             if (currentController == null || actions == null || console.getMainSystem() == null) {
                 return true;
             }
-            
-            if(!btnInHold.isSelected())
+
+            if (!btnInHold.isSelected()) {
                 msgActions.clear();
+            }
+
+            boolean valuesChanged = false;
 
             for (String k : poll.keySet()) {
-                // Find the suitable MapperComponent to get data from
-                // Don't need to create an extra method for this one
                 MapperComponent comp = null;
-                ArrayList<MapperComponent> remoteActions = new ArrayList<MapperComponent>();
-                remoteActions.addAll(mappedAxis);
-                remoteActions.addAll(mappedButtons);
-                for (MapperComponent c : remoteActions) {
+                for (MapperComponent c : mappedAxis) {
                     if (c.button.equals(k)) {
                         comp = c;
                         break;
                     }
                 }
+                if (comp == null) {
+                    for (MapperComponent c : mappedButtons) {
+                        if (c.button.equals(k)) {
+                            comp = c;
+                            break;
+                        }
+                    }
+                }
 
                 if (comp != null && poll.get(k) != null) {
-                    // update Model list
-                    float updated_value = poll.get(k).getPollData()
-                            * (actions.get(comp.action).equals("Axis") ? comp.getRange() * ((comp.inverted ? -1 : 1))
-                                    : 1);
-                    if(Math.abs(updated_value) == 0)
-                        updated_value = 0f; //Avoid -0.0 when axis is inverted
+                    float raw = poll.get(k).getPollData();
+                    float updated_value = 0f;
 
-                    if(Float.compare(Math.abs(updated_value), Math.abs(comp.value)) >= 0  && btnInHold.isSelected()) { //incremental input hold for both directions
-                        comp.value = updated_value;
+                    String type = actions.get(comp.action);
+
+                    if ("Axis".equalsIgnoreCase(type)) {
+
+                        if (comp.action.toLowerCase().contains("thrust") ||
+                                comp.action.toLowerCase().contains("surge") ||
+                                comp.action.toLowerCase().contains("forward") ||
+                                comp.action.toLowerCase().contains("throtle"))
+                        {
+                            float normalized = (raw + 1f) / 2f;
+
+                            if (comp.inverted) {
+                                normalized = 1f - normalized;
+                            }
+
+                            updated_value = normalized * comp.getRange();
+                        }
+                        else {
+
+                            if (comp.inverted) {
+                                raw *= -1f;
+                            }
+
+                            updated_value = raw * comp.getRange();
+                        }
                     }
-                    else if(!btnInHold.isSelected()) {
-                        comp.value = updated_value;
+                    else if ("Button".equalsIgnoreCase(type)) {
+
+                        // Buttons normalmente 0 ou 1
+                        if (comp.inverted) {
+                            raw = 1f - raw;
+                        }
+
+                        updated_value = raw;
                     }
 
-                    if (actions.get(comp.action).equals("Axis")) {
-                        int index = mappedAxis.indexOf(comp);
-                        if(index != -1) {
-                            ((AbstractTableModel) axisTable.getModel()).setValueAt(comp.value, index, 2);
-                            ((AbstractTableModel) axisTable.getModel()).fireTableCellUpdated(index, 2);
-                        }
-                        ((AbstractTableModel) axisTable.getModel()).fireTableDataChanged();
+                    if (Math.abs(updated_value) < 0.0001f) {
+                        updated_value = 0f;
                     }
-                    else {
-                        int index = mappedButtons.indexOf(comp);
-                        if(index != -1) {
-                            ((AbstractTableModel) buttonsTable.getModel()).setValueAt(comp.value, index, 2);
-                            ((AbstractTableModel) buttonsTable.getModel()).fireTableCellUpdated(index, 2);
+
+                    if (btnInHold.isSelected()) {
+                        if (Float.compare(Math.abs(updated_value), Math.abs(comp.value)) >= 0) {
+                            if (comp.value != updated_value) {
+                                comp.value = updated_value;
+                                valuesChanged = true;
+                            }
                         }
-                        ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
+                    } else {
+                        if (comp.value != updated_value) {
+                            comp.value = updated_value;
+                            valuesChanged = true;
+                        }
                     }
+
                     if (sending() && (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)) {
                         msgActions.put(comp.action, comp.value + "");
                     }
                 }
             }
-            // If no new button is selected and we are still in input old mode
-            // Sends the last saved buttons in the Tupple list
-            if (sending() ) {//&& btnInHold.isSelected()
-                sendRemoteActions();
+
+            if (valuesChanged && !mousePressed) {
+                SwingUtilities.invokeLater(() -> {
+                    if (axisTable != null) axisTable.repaint();
+                    if (buttonsTable != null) buttonsTable.repaint();
+                });
             }
         }
+
+        if (sending()) {
+            sendRemoteActions();
+        }
+
+        if (!connected() && (actions != null || axisModel != null || buttonsModel != null)) {
+            if (axisModel != null) {
+                ((AxisTableModel) axisModel).setList(new ArrayList<>());
+            }
+            if (buttonsModel != null) {
+                ((ButtonTableModel) buttonsModel).setList(new ArrayList<>());
+            }
+            actions = null;
+            axisModel = null;
+            buttonsModel = null;
+            refreshInterface();
+        }
+
         return true;
     }
-
     /**
-     * 
+     *
      */
     private void sendRemoteActions() {
         RemoteActions msg = new RemoteActions();
         msg.setActions(msgActions);
         getConsole().getImcMsgManager().sendMessageToSystem(msg, console.getMainSystem());
     }
+    
+    public void prepareForEdit() {
+        if (poll != null) {
+            oldPoll.clear();
+            for (String k : poll.keySet()) {
+                oldPoll.put(k, poll.get(k).getPollData());
+            }
+        }
+    }
 
-    private void saveMappings() {
+    protected void saveMappings() {
         try {
             Element systems = (Element) doc.selectSingleNode("/systems");
             if (systems == null) {
@@ -630,13 +919,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
             Element system = (Element) systems.selectSingleNode("system[@name='" + console.getMainSystem() + "']");
             if (system == null) {
-                NeptusLog.pub().info("Adding new system to controller mapping");
                 system = systems.addElement("system").addAttribute("name", console.getMainSystem());
             }
 
             Element controller = (Element) system.selectSingleNode("controller[@name='" + currentController + "']");
             if (controller == null) {
-                NeptusLog.pub().info("Adding new controller to controller mapping");
                 controller = system.addElement("controller").addAttribute("name", currentController);
             }
 
@@ -675,25 +962,143 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
     }
 
+    private LinkedHashMap<String, String> loadCachedActions(String vehicle) {
+        LinkedHashMap<String, String> result = new LinkedHashMap<>();
+        Properties props = new Properties();
+        File file = new File(CACHED_ACTIONS_FILE);
+        if (!file.exists()) {
+            return result;
+        }
+        try (FileInputStream fis = new FileInputStream(file)) {
+            props.load(fis);
+        } catch (Exception e) {
+            NeptusLog.pub().warn("Error loading cached actions", e);
+            return result;
+        }
+        String vehicleData = props.getProperty(vehicle);
+        if (vehicleData != null) {
+            String[] pairs = vehicleData.split(";");
+            for (String pair : pairs) {
+                String[] parts = pair.split("=", 2);
+                if (parts.length == 2) {
+                    result.put(parts[0], parts[1]);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void saveCachedActions(String vehicle, LinkedHashMap<String, String> actions) {
+        Properties props = new Properties();
+        File file = new File(CACHED_ACTIONS_FILE);
+        if (file.exists()) {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                props.load(fis);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Entry<String, String> entry : actions.entrySet()) {
+            if (sb.length() > 0) sb.append(";");
+            sb.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        props.setProperty(vehicle, sb.toString());
+        // Save
+        file.getParentFile().mkdirs();
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            props.store(fos, "Cached actions for vehicles");
+        } catch (Exception e) {
+            NeptusLog.pub().error("Error saving cached actions", e);
+        }
+    }
+
     @Subscribe
     public void on(RemoteActionsRequest message) {
         try {
-            if (!message.getOp().equals(OP.REPORT))
+            if (hasAnyEditFlag()) {
                 return;
+            }
+
+            if (!message.getOp().equals(OP.REPORT)) {
+                return;
+            }
+
+            System.out.println("REPORT MESSAGE RECEIVED FROM" + message.getSourceName());
+            System.out.println("ACTIONS: " + message.getActions());
+
             if (actions == null) {
                 actions = new LinkedHashMap<String, String>();
             }
+
+            String messageSource = message.getSourceName();
+            String currentMainSystem = console.getMainSystem();
+
+            if (messageSource == null || !messageSource.equals(currentMainSystem)) {
+                return;
+            }
+
             for (Entry<String, String> entry : message.getActions().entrySet()) {
                 String k = entry.getKey();
                 actions.put(k, message.getActions().get(k));
             }
-            mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
-            mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
-            buildDialog();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(I18n.text("Error parsing incoming RemoteActionRequest"), e);
-            e.printStackTrace();
+
+            saveCachedActions(messageSource, actions);
+
+            if (actions.size() > 0) {
+                if (isShowing()) {
+                    SwingUtilities.invokeLater(() -> {
+
+                        if (hasAnyEditFlag()) {
+                            return;
+                        }
+
+                        mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
+                        mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
+
+                        if (!isShowing()) {
+                            return;
+                        }
+
+                        removeAll();
+                        buildDialog();
+
+                        revalidate();
+                        repaint();
+                        if (getParent() != null) {
+                            getParent().revalidate();
+                            getParent().repaint();
+                        }
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                manager.fetchControllers();
+                                return null;
+                            }
+                            @Override
+                            protected void done() {
+                                try {
+                                    String list[] = manager.getControllerList().keySet().toArray(new String[0]);
+                                    for (JComboBox<String> cb : controllerSelectors) {
+                                        cb.removeAllItems();
+                                        for (String s : list) {
+                                            cb.addItem(s);
+                                        }
+                                    }
+                                    for (JComboBox<String> cb : controllerSelectors) {
+                                        cb.setSelectedItem(currentController);
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        };
+                        worker.execute();
+                    });
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -705,8 +1110,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         String button;
         float value;
         boolean inverted;
-        JButton edit;
-        JButton clear;
         float range;
         float deadZone;
 
@@ -717,13 +1120,28 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.button = component;
             this.value = value;
             this.inverted = inverted;
-            this.edit = new JButton(I18n.text("Edit"));
-            this.clear = new JButton(I18n.text("Clear"));
             this.range = r;
             this.deadZone = zero;
+        }
 
-            initButtons();
+        public String getEditText() {
+            return editFlag ? "Cancel" : "Edit";
+        }
 
+        public void toggleEdit() {
+            if (editFlag) {
+                editFlag = false;
+            } else {
+                clearAllEditFlags();
+                editFlag = true;
+            }
+        }
+
+        public void doClear() {
+            this.button = "";
+            this.inverted = false;
+            this.value = (float) 0.0;
+            this.editFlag = false;
         }
 
         public float getRange() {
@@ -733,7 +1151,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         public void setRange(float  r) {
             this.range = r;
         }
-        
+
         /**
          * @return the deadZone
          */
@@ -747,44 +1165,112 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         public void setDeadZone(float deadZone) {
             this.deadZone = deadZone;
         }
+    }
 
-        public void clear() {
-            this.button = "";
-            this.inverted = false;
-            this.value = (float) 0.0;
-            this.inverted = false;
-            this.editFlag = false;
+    @SuppressWarnings("serial")
+    class BooleanRenderer extends JCheckBox implements TableCellRenderer {
+
+        public BooleanRenderer() {
+            super();
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setOpaque(true);
         }
 
-        /**
-         * 
-         */
-        private void initButtons() {
-            // editing = false; //TODO
-            edit.addMouseListener(new MouseAdapter() {
+        @Override
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setSelected((Boolean) value);
+            setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+            return this;
+        }
+    }
 
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    super.mouseClicked(e); // edit.doClick();
-                    if (!editing) { // ItemEvent.SELECTED
-                        editing = true;
-                        editFlag = true;
+    @SuppressWarnings("serial")
+    class BooleanCellEditor extends AbstractCellEditor implements TableCellEditor {
+
+        private JCheckBox check = new JCheckBox();
+
+        public BooleanCellEditor() {
+            check.setHorizontalAlignment(SwingConstants.CENTER);
+            check.setOpaque(true);
+            check.addActionListener(e -> fireEditingStopped());
+        }
+
+        @Override
+        public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int col) {
+            check.setSelected((Boolean) value);
+            return check;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return check.isSelected();
+        }
+    }
+
+    class ActionButtonEditor extends AbstractCellEditor implements TableCellEditor {
+
+        private JButton button = new JButton();
+        private MapperComponent current;
+        private int column;
+        private JTable editingTable;
+
+        public ActionButtonEditor() {
+            button.addActionListener(e -> {
+
+                if (editingTable == axisTable) {
+
+                    if (column == 4) {
+                        current.toggleEdit();
+                        if (current.editFlag) {
+                            ControllerPanel.this.prepareForEdit();
+                        }
                     }
-                    // else { // if(e.getStateChange()==ItemEvent.DESELECTED){
-                    // editing = false;
-                    // editFlag = false;
-                    // saveMappings(); // Save every time we edit a single action
-                    // }
+                    else if (column == 5) {
+                        current.doClear();
+                    }
 
+                } else if (editingTable == buttonsTable) {
+
+                    if (column == 3) {
+                        current.toggleEdit();
+                        if (current.editFlag) {
+                            ControllerPanel.this.prepareForEdit();
+                        }
+                    }
+                    else if (column == 4) {
+                        current.doClear();
+                    }
                 }
-            });
-            clear.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    super.mouseClicked(e);
-                    MapperComponent.this.clear();
+
+                fireEditingStopped();
+                if (axisTable != null) {
+                    axisTable.revalidate();
+                    axisTable.repaint();
                 }
+                if (buttonsTable != null) buttonsTable.repaint();
             });
+        }
+
+        @Override
+        public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int col) {
+
+            editingTable = table;
+            column = col;
+            int modelRow = table.convertRowIndexToModel(row);
+
+            if (table == axisTable) {
+                current = ((AxisTableModel) axisModel).getList().get(modelRow);
+            } else {
+                current = ((ButtonTableModel) buttonsModel).getList().get(modelRow);
+            }
+
+            button.setText(value.toString());
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return button.getText();
         }
     }
 
@@ -795,28 +1281,36 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             super();
         }
 
-        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                boolean hasFocus, final int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            MapperComponent comp = (MapperComponent) ((ButtonTableModel) buttonsModel).getList().get(row);
+        @Override
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                                                                boolean isSelected, boolean hasFocus, final int row, int column) {
 
-            if (comp.editFlag) {
-                setBackground(Color.green);
-            }
-            else {
-                setBackground(Color.white);
+            JLabel label = (JLabel) super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            try {
+                int modelRow = table.convertRowIndexToModel(row);
+                if (modelRow >= 0 && modelRow < ((ButtonTableModel)buttonsModel).getList().size()) {
+                    MapperComponent comp = ((ButtonTableModel) buttonsModel).getList().get(modelRow);
+
+                    label.setOpaque(true);
+                    if (comp.editFlag && column != 3) {
+                        label.setBackground(Color.green);
+                    } else if (column == 3 || column == 4) {
+                        label.setBackground(UIManager.getColor("Button.background"));
+                        label.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        label.setBackground(Color.white);
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    }
+                }
+            } catch (Exception e) {
+                label.setBackground(Color.WHITE);
+                label.setText("");
             }
 
-            if (column == 3) {
-                JButton b; // JToggleButton
-                b = (JButton) buttonsModel.getValueAt(row, column); // Toggle
-                b.setEnabled(!editing); // Disable if we are editing
-                return b;
-            }
-            if (column == 4) {
-                return (JButton) buttonsModel.getValueAt(row, column);
-            }
-            return this;
+            return label;
         }
     }
     @SuppressWarnings("serial")
@@ -826,29 +1320,34 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             super();
         }
 
-        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                                boolean hasFocus, final int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            MapperComponent comp =  (MapperComponent) ((AxisTableModel) axisModel).getList().get(row);
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                                                                boolean isSelected, boolean hasFocus, final int row, int column) {
 
+            JLabel label = (JLabel) super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
 
-            if (comp.editFlag) {
-                setBackground(Color.green);
-            }
-            else {
-                setBackground(Color.white);
+            try {
+                int modelRow = table.convertRowIndexToModel(row);
+                if (modelRow >= 0 && modelRow < ((AxisTableModel)axisModel).getList().size()) {
+                    MapperComponent comp = ((AxisTableModel) axisModel).getList().get(modelRow);
+
+                    label.setOpaque(true);
+                    if (comp.editFlag && column != 4) {
+                        label.setBackground(Color.green);
+                    } else if (column == 4 || column == 5) {
+                        label.setBackground(UIManager.getColor("Button.background"));
+                        label.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        label.setBackground(Color.white);
+                    }
+                }
+            } catch (Exception e) {
+                label.setBackground(Color.WHITE);
+                label.setText("");
             }
 
-            if (column == 4) {
-                JButton b; // JToggleButton
-                b = (JButton) axisModel.getValueAt(row, column);
-                b.setEnabled(!editing); // Disable if we are editing //TODO
-                return b;
-            }
-            if (column == 5) {
-                return (JButton) axisModel.getValueAt(row, column);
-            }
-            return this;
+            return label;
         }
     }
 }

@@ -38,8 +38,6 @@ import java.util.ArrayList;
 
 import javax.swing.table.AbstractTableModel;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.controllers.ControllerPanel.ActionType;
 import pt.lsts.neptus.controllers.ControllerPanel.MapperComponent;
 import pt.lsts.neptus.i18n.I18n;
 
@@ -72,6 +70,23 @@ class ButtonTableModel extends AbstractTableModel {
     public ArrayList<MapperComponent> getList() {
         return this.list;
     }
+    
+    public void setList(ArrayList<MapperComponent> newList) {
+        this.list = newList;
+    }
+    
+    public int indexOf(MapperComponent comp) {
+        return list.indexOf(comp);
+    }
+    
+    public int indexOfAction(String action) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).action.equals(action)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     @Override
     public int getRowCount() {
@@ -85,6 +100,9 @@ class ButtonTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (rowIndex >= list.size()) {
+            return null;
+        }
         MapperComponent comp = list.get(rowIndex);
         switch (columnIndex) {
             case 0:
@@ -94,16 +112,16 @@ class ButtonTableModel extends AbstractTableModel {
             case 2:
                 return comp.value;
             case 3:
-                return comp.edit;
+                return comp.getEditText();
             case 4:
-                return comp.clear;
+                return "Clear";
             default:
                 return null;
         }
     }
 
     public boolean isCellEditable(int row, int col) {
-        return  false;
+        return col == 3 || col == 4;
     }
 
     public void setValueAt(Object value, int row, int col) {
@@ -111,10 +129,22 @@ class ButtonTableModel extends AbstractTableModel {
     }
 
     public Class<?> getColumnClass(int c) {
-        Object cl = getValueAt(0, c);
-        if (cl == null)
+        if (list.isEmpty()) {
+            switch (c) {
+                case 0: return String.class;   // Button
+                case 1: return String.class;   // Component
+                case 2: return Float.class;    // Value
+                case 3: return String.class;  // Edit
+                case 4: return String.class;  // Clear
+                default: return Object.class;
+            }
+        }
+        
+        try {
+            Object value = getValueAt(0, c);
+            return value != null ? value.getClass() : Object.class;
+        } catch (Exception e) {
             return Object.class;
-        else
-            return cl.getClass();
+        }
     }
 }
