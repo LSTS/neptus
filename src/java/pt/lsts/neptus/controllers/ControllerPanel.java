@@ -179,6 +179,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         @Override
         public void actionPerformed(ActionEvent e) {
             updateControllers();
+            if (!controllerSelectors.isEmpty()) {
+                currentController = (String) controllerSelectors.get(0).getSelectedItem();
+            }
         }
     });
 
@@ -224,10 +227,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         
         if (axisTable != null) axisTable.repaint();
         if (buttonsTable != null) buttonsTable.repaint();
-    }
-
-    private boolean noOtherRowEditing() {
-        return !hasAnyEditFlag();
     }
 
     private void updateModel() {
@@ -403,6 +402,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         axisTable.revalidate();
 
         axisTable.getColumnModel().getColumn(1).setMinWidth(90);
+        axisTable.getColumnModel().getColumn(0).setMinWidth(100);
 
         buttonsTable.setModel(buttonsModel);
         buttonsTable.getTableHeader().setReorderingAllowed(false);
@@ -703,8 +703,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         return periodicDelay;
     }
 
-    private int controllerFetchCounter = 0;
-
     @Override
     public boolean update() {
         if (manager == null || currentController == null) {
@@ -745,19 +743,87 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             for (String k : poll.keySet()) {
                 float currentData = poll.get(k).getPollData();
                 float previousData = oldPoll.getOrDefault(k, 0f);
-                if (Math.abs(currentData - previousData) > 0.5f) {
 
-                    ArrayList<MapperComponent> remoteActions = new ArrayList<>();
-                    remoteActions.addAll(mappedAxis);
-                    remoteActions.addAll(mappedButtons);
+                boolean intentDetected = false;
 
-                    for (MapperComponent mcomp : remoteActions) {
+                if (k.equalsIgnoreCase("pov")) {
+                    intentDetected = (currentData != 0.0f && previousData == 0.0f);
+                } else {
+                    intentDetected = (Math.abs(currentData - previousData) > 0.5f);
+                }
+                if (intentDetected) {
+                    String buttonToStore = k;
+                    ArrayList<MapperComponent> allMapped = new ArrayList<>();
+                    allMapped.addAll(mappedAxis);
+                    allMapped.addAll(mappedButtons);
+
+                    for (MapperComponent mcomp : allMapped) {
                         if (mcomp.editFlag) {
-                            mcomp.button = k;
-                            mcomp.value = 0f;
-                            mcomp.editFlag = false;
-                            mcomp.setDeadZone(poll.get(k).getDeadZone());
-                            saveMappings();
+                            String type = actions.get(mcomp.action);
+                            if (k.equalsIgnoreCase("pov")) {
+                            if ("Axis".equalsIgnoreCase(type)) {
+                                if (isHeading(mcomp)) buttonToStore = "povX";
+                                else if (isThrustAction(mcomp.action)) buttonToStore = "povY";
+                                else buttonToStore = "pov"; // fallback
+                            } else {
+                                if (currentData >= 0.2f && currentData <= 0.3f) buttonToStore = "povUp";
+                                else if (currentData >= 0.7f && currentData <= 0.8f) buttonToStore = "povDown";
+                                else if (currentData >= 0.4f && currentData <= 0.6f) buttonToStore = "povRight";
+                                else if (currentData >= 0.9f && currentData <= 1.1f) buttonToStore = "povLeft";
+                            }
+                        }
+
+                            boolean conflict = false;
+                            for (MapperComponent existing : allMapped) {
+                                if (existing.editFlag) continue;
+
+                                if (buttonToStore.equalsIgnoreCase("povX")) {
+                                    if (existing.button.equalsIgnoreCase("povLeft") ||
+                                        existing.button.equalsIgnoreCase("povRight") ||
+                                        existing.button.equalsIgnoreCase("povX")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("povY")) {
+                                    if (existing.button.equalsIgnoreCase("povUp") ||
+                                        existing.button.equalsIgnoreCase("povDown") ||
+                                        existing.button.equalsIgnoreCase("povY")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("povLeft") || 
+                                         buttonToStore.equalsIgnoreCase("povRight")) {
+                                    if (existing.button.equalsIgnoreCase("povX")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("povUp") || 
+                                         buttonToStore.equalsIgnoreCase("povDown")) {
+                                    if (existing.button.equalsIgnoreCase("povY")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("pov") && existing.button.startsWith("pov")) {
+                                    conflict = true;
+                                }
+                                else if (buttonToStore.startsWith("pov") && existing.button.equalsIgnoreCase("pov")) {
+                                    conflict = true;
+                                }
+                                else if (buttonToStore.equalsIgnoreCase(existing.button)) {
+                                    conflict = true;
+                                }
+                            }
+
+                            if (!conflict) {
+                                mcomp.button = buttonToStore;
+                                mcomp.value = 0f;
+                                mcomp.editFlag = false;
+                                mcomp.setDeadZone(poll.get(k).getDeadZone());
+                                saveMappings();
+                            } else {
+                                // TODO: Optional warning
+                                mcomp.editFlag = false; 
+                            }
                             break;
                         }
                     }
@@ -774,74 +840,129 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
             boolean valuesChanged = false;
 
+            ArrayList<MapperComponent> allMapped = new ArrayList<>();
+            allMapped.addAll(mappedAxis);
+            allMapped.addAll(mappedButtons);
+
+            boolean triggeredHalfThrust = hasReversedThrustMapped(allMapped);
+            float revThrustValue = 0f;
+
+            if (triggeredHalfThrust) {
+                for (MapperComponent c : allMapped) {
+                    if (c.action.toLowerCase().contains("reversed") && c.button != null && !c.button.isEmpty()) {
+                        float rawRev = poll.containsKey(c.button) ? poll.get(c.button).getPollData() : 0f;
+
+                        if (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz")) {
+                            revThrustValue = -((rawRev + 1f) / 2f); 
+                        } else if (c.button.startsWith("pov")) {
+                            revThrustValue = -checkPovDirection(c.button, rawRev);
+                        } else {
+                            revThrustValue = -Math.max(0, rawRev);
+                        }
+                        break; 
+                    }
+                }
+            }
+
             for (String k : poll.keySet()) {
-                MapperComponent comp = null;
-                for (MapperComponent c : mappedAxis) {
-                    if (c.button.equals(k)) {
-                        comp = c;
-                        break;
-                    }
-                }
-                if (comp == null) {
-                    for (MapperComponent c : mappedButtons) {
-                        if (c.button.equals(k)) {
-                            comp = c;
-                            break;
-                        }
+                ArrayList<MapperComponent> compsForButton = new ArrayList<>();
+                for (MapperComponent c : allMapped) {
+                    if (k.equalsIgnoreCase("pov") && c.button.toLowerCase().startsWith("pov")) {
+                        compsForButton.add(c);
+                    } else if (c.button.equals(k)) {
+                        compsForButton.add(c);
                     }
                 }
 
-                if (comp != null && poll.get(k) != null) {
-                    float raw = poll.get(k).getPollData();
-                    float updated_value = 0f;
+                for (MapperComponent comp : compsForButton) {
+                    if (poll.get(k) != null) {
+                        float raw = poll.get(k).getPollData();
+                        float updated_value = 0f;
 
-                    String type = actions.get(comp.action);
+                        String type = actions.get(comp.action);
 
-                    if ("Axis".equalsIgnoreCase(type)) {
+                        if ("Axis".equalsIgnoreCase(type)) {
+                            if (comp.button.startsWith("pov")) {
+                                float povRaw = poll.get("pov") != null ? poll.get("pov").getPollData() : 0f;
+                                float t_val = 0, h_val = 0;
 
-                        if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
-                            float normalized = (raw + 1f) / 2f;
-                            if (comp.inverted) {
-                                normalized = 1f - normalized;
-                            }
-                            updated_value = normalized * comp.getRange();
-                        }
-                        else {
+                                if (povRaw > 0.05f && povRaw < 0.45f) t_val = 1f;
+                                else if (povRaw > 0.55f && povRaw < 0.95f) t_val = -1f;
+
+                                if (povRaw > 0.30f && povRaw < 0.70f) h_val = 1f;
+                                else if (povRaw > 0.80f || (povRaw > 0 && povRaw < 0.20f)) h_val = -1f;
+
+                                if (comp.button.equalsIgnoreCase("povX")) raw = h_val;
+                                else if (comp.button.equalsIgnoreCase("povY")) raw = t_val;
+                                else raw = isThrustAction(comp.action) ? t_val : h_val;
+                            } 
+                            
                             if (comp.inverted) {
                                 raw *= -1f;
                             }
-                            updated_value = raw * comp.getRange();
+                            
+                            if (isThrustAction(comp.action)) {
+                                float forwardPart = 0;
+                                if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
+                                    forwardPart = (raw + 1f) / 2f;
+                                } else if (triggeredHalfThrust) {
+                                    forwardPart = Math.max(0, raw);
+                                } else {
+                                    forwardPart = raw;
+                                }
+                                updated_value = (forwardPart + revThrustValue) * comp.getRange();
+                            } else {
+                                updated_value = raw * comp.getRange();
+                            }
                         }
-                    }
-                    else if ("Button".equalsIgnoreCase(type)) {
+                        else if ("Button".equalsIgnoreCase(type)) {
+                            if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
+                                float normalized = (raw + 1f) / 2f;
+                                raw = normalized > 0.5f ? 1.0f : 0.0f;
+                            } else if (comp.button.startsWith("pov") && !comp.button.equalsIgnoreCase("pov")) {
+                                raw = checkPovDirection(comp.button, raw);
+                            } else if (comp.button.equalsIgnoreCase("pov")) {
+                                if (raw >= 0.9f && raw <= 1.1f) {
+                                    raw = 1.0F;
+                                } else if (raw >= 0.4f && raw <= 0.7f) {
+                                    raw = 1.0F;
+                                } else if (raw >= 0.2f && raw <= 0.49f) {
+                                    raw = 1.0F;
+                                } else if (raw >= 0.7f && raw <= 0.89f) {
+                                    raw = 1.0F;
+                                } else {
+                                    raw = 0.0F;
+                                }
+                            }
 
-                        if (comp.inverted) {
-                            raw = 1f - raw;
+                            updated_value = raw;
                         }
 
-                        updated_value = raw;
-                    }
+                        if (Math.abs(updated_value) < 0.0001f) {
+                            updated_value = 0f;
+                        }
 
-                    if (Math.abs(updated_value) < 0.0001f) {
-                        updated_value = 0f;
-                    }
-
-                    if (btnInHold.isSelected()) {
-                        if (Float.compare(Math.abs(updated_value), Math.abs(comp.value)) >= 0) {
+                        if (btnInHold.isSelected()) {
+                            if (Float.compare(Math.abs(updated_value), Math.abs(comp.value)) >= 0) {
+                                if (comp.value != updated_value) {
+                                    comp.value = updated_value;
+                                    valuesChanged = true;
+                                }
+                            }
+                        } else {
                             if (comp.value != updated_value) {
                                 comp.value = updated_value;
                                 valuesChanged = true;
                             }
                         }
-                    } else {
-                        if (comp.value != updated_value) {
-                            comp.value = updated_value;
-                            valuesChanged = true;
-                        }
-                    }
 
-                    if (sending() && (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)) {
-                        msgActions.put(comp.action, comp.value + "");
+                        if (sending()) {
+                            if (!comp.action.toLowerCase().contains("reversed")) {
+                                if (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0) {
+                                    msgActions.put(comp.action, comp.value + "");
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -873,6 +994,38 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         return true;
     }
+
+    private boolean isThrustAction(String action) {
+        return action.toLowerCase().contains("thrust") ||
+                action.toLowerCase().contains("surge") ||
+                action.toLowerCase().contains("forward") ||
+                action.toLowerCase().contains("throtle");
+    }
+
+    private boolean isHeading(MapperComponent comp) {
+        return comp.action.toLowerCase().contains("heading") ||
+                comp.action.toLowerCase().contains("yaw") ||
+                comp.action.toLowerCase().contains("rotate") ||
+                comp.action.toLowerCase().contains("turning");
+    }
+
+    private boolean hasReversedThrustMapped(ArrayList<MapperComponent> components) {
+        for (MapperComponent c : components) {
+            if (c.action.toLowerCase().contains("reversed") && c.button != null && !c.button.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private float checkPovDirection(String buttonName, float povValue) {
+        if (buttonName.equalsIgnoreCase("povUp") && (povValue >= 0.2f && povValue <= 0.3f)) return 1.0f;
+        if (buttonName.equalsIgnoreCase("povDown") && (povValue >= 0.7f && povValue <= 0.8f)) return 1.0f;
+        if (buttonName.equalsIgnoreCase("povRight") && (povValue >= 0.4f && povValue <= 0.6f)) return 1.0f;
+        if (buttonName.equalsIgnoreCase("povLeft") && (povValue >= 0.9f && povValue <= 1.1f)) return 1.0f;
+        return 0.0f;
+    }
+
     /**
      *
      */
@@ -1019,6 +1172,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             for (Entry<String, String> entry : message.getActions().entrySet()) {
                 String k = entry.getKey();
                 actions.put(k, message.getActions().get(k));
+                if (isThrustAction(k)) {
+                    actions.put("Reversed " + k, "Axis");
+                }
             }
 
             saveCachedActions(messageSource, actions);
@@ -1029,6 +1185,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                         if (hasAnyEditFlag()) {
                             return;
+                        }
+
+                        String selectedController;
+                        if (!controllerSelectors.isEmpty()) {
+                            selectedController = (String) controllerSelectors.get(0).getSelectedItem();
+                        }
+                        else {
+                            selectedController = null;
                         }
 
                         mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
@@ -1063,8 +1227,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                             cb.addItem(s);
                                         }
                                     }
-                                    for (JComboBox<String> cb : controllerSelectors) {
-                                        cb.setSelectedItem(currentController);
+                                    if (selectedController != null) {
+                                        for (JComboBox<String> cb : controllerSelectors) {
+                                            cb.setSelectedItem(selectedController);
+                                        }
                                     }
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
@@ -1120,6 +1286,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.inverted = false;
             this.value = (float) 0.0;
             this.editFlag = false;
+            saveMappings();
+            clearAllEditFlags();
         }
 
         public float getRange() {
@@ -1158,6 +1326,19 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             setSelected((Boolean) value);
             setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+            
+            if (column == 2) {
+                int modelRow = table.convertRowIndexToModel(row);
+                if (table == axisTable && modelRow >= 0 && modelRow < ((AxisTableModel)axisModel).getList().size()) {
+                    MapperComponent comp = ((AxisTableModel) axisModel).getList().get(modelRow);
+                    if (comp.action.toLowerCase().contains("reversed")) {
+                        setEnabled(false);
+                        return this;
+                    }
+                }
+            }
+            
+            setEnabled(true);
             return this;
         }
     }
@@ -1176,6 +1357,19 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         @Override
         public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int col) {
             check.setSelected((Boolean) value);
+            
+            int modelRow = table.convertRowIndexToModel(row);
+            if (table == axisTable && modelRow >= 0 && modelRow < ((AxisTableModel)axisModel).getList().size()) {
+                MapperComponent comp = ((AxisTableModel) axisModel).getList().get(modelRow);
+                if (comp.action.toLowerCase().contains("reversed")) {
+                    check.setEnabled(false);
+                } else {
+                    check.setEnabled(true);
+                }
+            } else {
+                check.setEnabled(true);
+            }
+            
             return check;
         }
 
