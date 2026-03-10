@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2025.08.0 (merge/sabuvis2master,79c7eb6a0,dirty)" modules="feature/dccl,570b4d4" system="waverider-5" i18n="en_US">
+<config format="1" version="2025.08.0 (merge/sabuvis2master,1f824f0fc)" modules="HEAD,65b8f31" system="waverider-5" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -417,7 +417,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>37.5</default>
+      <default>50</default>
       <units/>
       <desc>Maximum admissable heading error to thrust</desc>
     </param>
@@ -928,7 +928,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
+      <default>3.0</default>
       <units/>
       <desc>Radius around endpoint to consider maneuver as done.</desc>
     </param>
@@ -937,7 +937,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>2.0</default>
       <units>m</units>
       <desc>Width of corridor for attack entry angle</desc>
       <min>1.0</min>
@@ -948,7 +948,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>35.0</default>
+      <default>25.0</default>
       <units>°</units>
       <desc>Attack angle when lateral track error equals corridor width</desc>
       <min>2</min>
@@ -959,7 +959,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
+      <default>3.0</default>
       <units>m</units>
       <desc>Width of corridor for loiter entry angle</desc>
       <min>1.0</min>
@@ -970,7 +970,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>45.0</default>
+      <default>35.0</default>
       <units>°</units>
       <desc>Loiter attack angle when lateral track error equals corridor width</desc>
       <min>2</min>
@@ -1190,6 +1190,136 @@
       <default>true</default>
       <units/>
       <desc>Perform compass calibration if true</desc>
+    </param>
+  </section>
+  <section name="Follow Reference Maneuver" name-i18n="Follow Reference Maneuver">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Follow Reference Maneuver</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Loitering Radius">
+      <name-i18n>Loitering Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.5</default>
+      <units>m</units>
+      <desc>Radius of loitering circle after arriving at destination</desc>
+    </param>
+    <param name="Vehicle Type">
+      <name-i18n>Vehicle Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AUV</default>
+      <units/>
+      <desc>Vehicle type (AUV or UAV), default AUV</desc>
+    </param>
+    <param name="Horizontal Tolerance">
+      <name-i18n>Horizontal Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>m</units>
+      <desc>Minimum distance required to consider that the vehicle has arrived at the reference (XY)</desc>
+    </param>
+    <param name="Vertical Tolerance">
+      <name-i18n>Vertical Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Minimum distance required to consider that the vehicle has arrived at the reference (Z)</desc>
+    </param>
+    <param name="Default Speed">
+      <name-i18n>Default Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.2</default>
+      <units/>
+      <desc>Speed to use in case no speed is given by reference source.</desc>
+    </param>
+    <param name="Default Speed Units">
+      <name-i18n>Default Speed Units</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>m/s</default>
+      <units/>
+      <desc>Units to use for default speed (one of 'm/s', 'rpm' or '%').</desc>
+    </param>
+    <param name="Default Z">
+      <name-i18n>Default Z</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc>Default z when no vertical reference is given.</desc>
+    </param>
+    <param name="Default Z Units">
+      <name-i18n>Default Z Units</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>DEPTH</default>
+      <units>m</units>
+      <desc>Units to use for default z reference (one of 'DEPTH', 'ALTITUDE' or 'HEIGHT')</desc>
     </param>
   </section>
   <section name="Multiplexer Maneuver" name-i18n="Multiplexer Maneuver">
@@ -1924,10 +2054,9 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.7</default>
+      <default>0.0</default>
       <units>m/s</units>
       <desc>Minimum speed to maintain vehicle submerged</desc>
-      <min>0.7</min>
       <max>1.0</max>
     </param>
     <param name="Wifi Communications -- Multicast Address">
@@ -4558,7 +4687,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>eth0:prv,wwan0</default>
+      <default>eth0:prv</default>
       <units/>
       <desc>List of interfaces whose services will not be announced</desc>
     </param>
