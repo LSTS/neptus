@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * @author Margarida Faria
@@ -107,6 +108,31 @@ public class SpotMsgFetcher {
                     else {
                         // Bad xml
                         NeptusLog.pub().error("Unexpected element number in xml structure level 2.");
+                    }
+                }
+                else if (tagName.equals("errors")) {
+                    try {
+                        nlist = feedMsgResp.getChildNodes();
+                        for (int j = 0; j < nlist.getLength(); j++) {
+                            Node error = nlist.item(j);
+                            if (error.getNodeName().equals("error")) {
+                                String code = "", text = "", description = "";
+                                NodeList errorChildren = error.getChildNodes();
+                                for (int k = 0; k < errorChildren.getLength(); k++) {
+                                    Node child = errorChildren.item(k);
+                                    if (child.getNodeName().equals("code")) {
+                                        code = child.getTextContent();
+                                    } else if (child.getNodeName().equals("text")) {
+                                        text = child.getTextContent();
+                                    } else if (child.getNodeName().equals("description")) {
+                                        description = child.getTextContent();
+                                    }
+                                }
+                                NeptusLog.pub().warn("SPOT API Error: code={}, text={}, description={}", code, text, description);
+                            }
+                        }
+                    } catch (Exception e) {
+                        NeptusLog.pub().error("Unexpected response." + XMLUtil.nodeToString(doc.getFirstChild()));
                     }
                 }
                 else {
