@@ -635,10 +635,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleAction openMRA = new OpenMRAAction();
         actions.put(OpenMRAAction.class, openMRA);
         tools.add(openMRA);
-
-        ConsoleAction runChecklist = new RunChecklistConsoleAction(this);
-        actions.put(RunChecklistConsoleAction.class, runChecklist);
-        tools.add(runChecklist);
         menuBar.add(tools);
 
         /*
