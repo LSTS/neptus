@@ -70,7 +70,8 @@ import pt.lsts.neptus.util.DateTimeUtil;
 public class ImcSystem implements Comparable<ImcSystem> {
 
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
-    
+    public static final int TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES = 5;
+
     protected String name = ImcId16.NULL_ID.toString();
 	protected ImcId16 id = ImcId16.NULL_ID;
 	protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
@@ -88,7 +89,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected final CoordinateSystem location = new CoordinateSystem();
 	protected long locationTimeMillis = -1;
     protected long attitudeTimeMillis = -1;
-	
+
+    protected long lastLocationInFutureWarning = -1;
+
 	protected String emergencyPlanId = "";
 	protected String emergencyStatusStr = "";
 	
@@ -306,10 +309,15 @@ public class ImcSystem implements Comparable<ImcSystem> {
      */
     public void setLocationTimeMillis(long locationTimeMillis) {
         this.locationTimeMillis = locationTimeMillis;
-        if (locationTimeMillis > System.currentTimeMillis() + Duration.ofMinutes(5).toMillis()) {
+        if (locationTimeMillis > System.currentTimeMillis() + Duration.ofMinutes(TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES).toMillis()) {
+            if (lastLocationInFutureWarning > System.currentTimeMillis() - Duration.ofMinutes(TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES).toMillis()) {
+                return;
+            }
+
+            lastLocationInFutureWarning = System.currentTimeMillis();
             NeptusLog.pub().warn(">>>>>>>>>>>>>>>>>>>>>>    ImcSystem.setLocationTimeMillis: "
                     + "Setting location time in the future: " + new Date(locationTimeMillis));
-            NeptusEvents.post(Notification.warning("Location TIMESTAMPP in the Future" ,
+            NeptusEvents.post(Notification.warning("Location TIMESTAMP in the Future" ,
                     ">>>>>>>>>>>>>>>>>>>>>>    ImcSystem.setLocationTimeMillis: "
                         + "Setting location time in the future: " +
                             new Date(locationTimeMillis)).requireHumanAction(true));
