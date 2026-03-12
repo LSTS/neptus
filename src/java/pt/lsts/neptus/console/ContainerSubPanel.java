@@ -281,7 +281,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
                     }
                 }
                 catch (ClassNotFoundException e) {
-                    NeptusLog.pub().error("==>> Plugin not found <<== Error parsing " + attribute.getValue() + " :: " + e.getMessage());
+                    NeptusLog.pub().warn("==>> Plugin not found <<== Fail parsing " + attribute.getValue() + " :: " + e.getMessage());
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error("Error parsing " + attribute.getValue(), e);
