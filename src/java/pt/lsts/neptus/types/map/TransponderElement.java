@@ -302,8 +302,12 @@ public class TransponderElement extends AbstractElement implements NameId{
         this.file = file;
 
         try {
-            propConf = new PropertiesLoader(ConfigFetch.resolvePath("maps/" + file.getHref()),
-                    PropertiesLoader.PROPERTIES);
+            String path = ConfigFetch.resolvePath("maps/" + file.getHref());
+            if (path == null || path.isEmpty()) {
+                propConf = null;
+                NeptusLog.pub().error("Missing beacon configuration file << >> maps/{}", file);
+            }
+            propConf = new PropertiesLoader(path, PropertiesLoader.PROPERTIES);
             fixPropertiesConfFormat();
         }
         catch (Exception e) {
