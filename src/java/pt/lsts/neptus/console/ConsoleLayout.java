@@ -2091,6 +2091,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 return;
             }
         }
+
+        // If we reach here, the item must be inserted at the top
+        viewMenu.add(menu, 0);
     }
 
     @Override
