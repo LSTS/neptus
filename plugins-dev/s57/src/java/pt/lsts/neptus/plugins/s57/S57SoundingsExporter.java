@@ -69,7 +69,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
  * @author zp
  * 
  */
-@PluginDescription(name="S57 Tools")
+@PluginDescription(name="S57 Tools", icon = "images/s57-icon-s.png")
 public class S57SoundingsExporter extends ConsolePanel {
 
     private static final long serialVersionUID = 1653621815781506755L;
