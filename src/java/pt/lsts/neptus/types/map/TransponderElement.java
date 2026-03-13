@@ -311,7 +311,7 @@ public class TransponderElement extends AbstractElement implements NameId{
             fixPropertiesConfFormat();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Error loading beacon configuration file << >> maps/{}  ::  {}", file, e.getMessage());
         }
     }
 
