@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,16 +85,16 @@ public class DateTimeUtil {
     public static final SimpleDateFormat dateTimeFormatterUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     public static final SimpleDateFormat dateTimeFormatterNoMillis = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static final SimpleDateFormat dateTimeFormatterNoSegs = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    public static final SimpleDateFormat dateTimeFormatter2UTC = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormatter2UTC = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", Locale.ENGLISH) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
 
     public static final SimpleDateFormat dateTimeFileNameFormatter = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss's'");
     public static final SimpleDateFormat dateTimeFileNameFormatterMillis = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss.SSS's'");
 
     // yyyy-mm-dd hh:mm:ss
     // Omitted time-zone shall be interpreted as UTC. This deviates from the iso-8601 specification which specifies no time zone information to be interpreted as local time.
-    public static final SimpleDateFormat dateTimeFormatterISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-    public static final SimpleDateFormat dateTimeFormatterISO8601_1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-    public static final SimpleDateFormat dateTimeFormatterISO8601_2 = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormatterISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS",Locale.ENGLISH) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormatterISO8601_1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS",Locale.ENGLISH) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormatterISO8601_2 = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS",Locale.ENGLISH) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
 
     /** Default time format. */
     private static final DateTimeFormatter defaultTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1157,8 +1157,8 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
                             if (type == TYPE.SUCCESS) {
                                 PlanControl request = requests.get(reqId);
-                                String text = I18n.textf("Request %d completed successfully.", reqId);
                                 String src = ImcSystemsHolder.translateImcIdToSystemName(msg.getSrc());
+                                String text = I18n.textf("Request %d completed successfully by %system.", reqId, src);
 
                                 if (request != null) {
                                     switch (request.getOp()) {
@@ -1171,6 +1171,8 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                                     request.getPlanId(), src);
                                             break;
                                         default:
+                                            text = I18n.textf("Request %d completed successfully for %op by %system.",
+                                                    request.getOp(), reqId);
                                             break;
                                     }
                                 }
@@ -1184,9 +1186,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                 String utcStr = " " + I18n.text("UTC");
                                 double deltaTime = (msg.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan Control Error"),
-                                        I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
-                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(msg.getDate())
-                                                + utcStr,
+                                        I18n.textf("The following error arrived at @%timeArrived for a request " +
+                                                        "@%timeRequested (\u2206t %deltaTime): %msg",
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(msg.getDate()) + utcStr,
                                                 DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(
                                                         requestTimeMillis)) + utcStr, deltaTime < 0 ? "-"
                                                                 : convertTimeSecondsToFormatedStringMillis(deltaTime),
@@ -1208,7 +1210,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 OP_MODE mode = vstate.getOpMode();
                 int manType = vstate.getManeuverType();
 
-                int teleopState = new String(mode.hashCode() + "," + manType).hashCode();
+                int teleopState = (mode.hashCode() + "," + manType).hashCode();
 
                 if (teleopState != lastTeleopState) {
                     if (manType == teleoperationManeuver && mode == OP_MODE.MANEUVER) {
@@ -1243,7 +1245,8 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                 String utcStr = " " + I18n.text("UTC");
                                 double deltaTime = (planDb.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan DB Error"),
-                                        I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
+                                        I18n.textf("The following error arrived at @%timeArrived for a request " +
+                                                        "@%timeRequested (\u2206t %deltaTime): %msg",
                                                 DateTimeUtil.timeFormatterNoMillis2UTC.format(planDb.getDate())
                                                 + utcStr,
                                                 DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(

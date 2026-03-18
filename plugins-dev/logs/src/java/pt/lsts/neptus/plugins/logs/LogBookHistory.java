@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,12 +34,19 @@ package pt.lsts.neptus.plugins.logs;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -49,9 +56,11 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
+import com.kitfox.svg.SVGDiagram;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageSvgUtilsFast;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -61,17 +70,126 @@ import pt.lsts.neptus.util.ImageUtils;
 public class LogBookHistory extends AbstractListModel<HistoryMessage> implements ListCellRenderer<HistoryMessage> {
 
     private static final long serialVersionUID = 2382030731540409061L;
+
+    private static final int sizeIcon = 20;
+
+    static final Color criticalFgColor = new Color(255, 255, 128);;
+
+    private static final Color criticalColor = Color.black;
+    private static final Color criticalOnBackgroundColor = new Color(112, 112, 112, 255);
+    private static final Color errorColor = new Color(255, 128, 128);
+    private static final Color errorOnBackgroundColor = new Color(157, 42, 42);;
+    private static final Color warningColor = new Color(255, 255, 128);
+    private static final Color warningOnBackgroundColor = new Color(114, 114, 15);;
+    private static final Color infoColor = new Color(200, 255, 200);
+    private static final Color infoOnBackgroundColor = new Color(92, 138, 32, 255);;
+    private static final Color debugColor = new Color(217, 217, 217);
+    private static final Color debugOnBackgroundColor = new Color(83, 83, 83);;
+
+    private static final String borderUpImagePath = "svg/border_up_down_48.svg";
+    private static final String criticalImagePath = "svg/cancel_48.svg";
+    private static final String errorImagePath = "svg/report_48.svg";
+    private static final String warningImagePath = "svg/warning_48.svg";
+    private static final String infoImagePath = "svg/info_48.svg";
+    private static final String debugImagePath = "svg/bug_report_48.svg";
+    private static final String unknownImagePath = "svg/question_mark_48.svg";
+
     protected LinkedList<HistoryMessage> messages = new LinkedList<>();
     protected String sysname;
     protected int maxSize = 250;
     
-    protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
-    {
-        bgColors.put(msg_type.critical, Color.black);
-        bgColors.put(msg_type.error, new Color(255, 128, 128));
-        bgColors.put(msg_type.warning, new Color(255, 255, 128));
-        bgColors.put(msg_type.info, new Color(200, 255, 200));
-        bgColors.put(msg_type.debug, new Color(217,217,217));
+    static final LinkedHashMap<HistoryMessage.msg_type, Color> bgColors = new LinkedHashMap<>();
+    static {
+        bgColors.put(msg_type.critical, criticalColor);
+        bgColors.put(msg_type.error, errorColor);
+        bgColors.put(msg_type.warning, warningColor);
+        bgColors.put(msg_type.info, infoColor);
+        bgColors.put(msg_type.debug, debugColor);
+    }
+    static final LinkedHashMap<HistoryMessage.msg_type, Color> onBgColors = new LinkedHashMap<>();
+    static {
+        onBgColors.put(msg_type.critical, criticalOnBackgroundColor);
+        onBgColors.put(msg_type.error, errorOnBackgroundColor);
+        onBgColors.put(msg_type.warning, warningOnBackgroundColor);
+        onBgColors.put(msg_type.info, infoOnBackgroundColor);
+        onBgColors.put(msg_type.debug, debugOnBackgroundColor);
+    }
+
+    static final ImageIcon criticalImageIcon;
+    static final ImageIcon errorImageIcon;
+    static final ImageIcon warningImageIcon;
+    static final ImageIcon infoImageIcon;
+    static final ImageIcon debugImageIcon;
+    static final ImageIcon unknownImageIcon;
+    static {
+        List<SVGDiagram> svgs = new ArrayList<>();
+
+        AtomicReference<Color> fillOnBgColorRef = new AtomicReference<>(Color.black);
+        BiFunction<Graphics2D, Integer, Void> graphicsModifier = (g, i) -> {
+            SVGDiagram s = svgs.get(i);
+            String fillColorStr = String.format("#%02X%02X%02X", fillOnBgColorRef.get().getRed(),
+                    fillOnBgColorRef.get().getGreen(), fillOnBgColorRef.get().getBlue()) ;//"#000000";
+            if (i == 0) {
+                g.setColor(fillOnBgColorRef.get());
+            }
+            else if (i == 1) {
+                fillColorStr = "#FEFEFE";
+                g.translate(sizeIcon * 0.1, sizeIcon * 0.1);
+                g.scale(0.9, 0.9);
+            }
+            ImageSvgUtilsFast.fillSvgElementAttribute(s.getRoot(), "fill", fillColorStr, false);
+            ImageSvgUtilsFast.fillSvgElementAttribute(s.getRoot(), "fill-opacity", "1.0", false);
+            return null;
+        };
+
+        SVGDiagram svgBorderUp = ImageSvgUtilsFast.getSvgImage(borderUpImagePath);
+
+        fillOnBgColorRef.set(onBgColors.get(msg_type.critical));
+        BufferedImage imageCritical = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+        svgs.add(svgBorderUp);
+        svgs.add(ImageSvgUtilsFast.getSvgImage(criticalImagePath));
+        ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageCritical, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+        criticalImageIcon = new ImageIcon(imageCritical);
+
+        fillOnBgColorRef.set(onBgColors.get(msg_type.error));
+        BufferedImage imageError = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+        svgs.clear();
+        svgs.add(svgBorderUp);
+        svgs.add(ImageSvgUtilsFast.getSvgImage(errorImagePath));
+        ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageError, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+        errorImageIcon = new ImageIcon(imageError);
+
+        fillOnBgColorRef.set(onBgColors.get(msg_type.warning));
+        BufferedImage imageWarning = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+        svgs.clear();
+        svgs.add(svgBorderUp);
+        svgs.add(ImageSvgUtilsFast.getSvgImage(warningImagePath));
+        ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageWarning, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+        warningImageIcon = new ImageIcon(imageWarning);
+
+        fillOnBgColorRef.set(onBgColors.get(msg_type.info));
+        BufferedImage imageZoomIn = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+        svgs.clear();
+        svgs.add(svgBorderUp);
+        svgs.add(ImageSvgUtilsFast.getSvgImage(infoImagePath));
+        ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageZoomIn, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+        infoImageIcon = new ImageIcon(imageZoomIn);
+
+        fillOnBgColorRef.set(onBgColors.get(msg_type.debug));
+        BufferedImage imageDebug = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+        svgs.clear();
+        svgs.add(svgBorderUp);
+        svgs.add(ImageSvgUtilsFast.getSvgImage(debugImagePath));
+        ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageDebug, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+        debugImageIcon = new ImageIcon(imageDebug);
+
+        fillOnBgColorRef.set(onBgColors.get(msg_type.debug));
+        BufferedImage imageUnknown = ImageUtils.createCompatibleImage(sizeIcon, sizeIcon, Transparency.TRANSLUCENT);
+        svgs.clear();
+        svgs.add(svgBorderUp);
+        svgs.add(ImageSvgUtilsFast.getSvgImage(unknownImagePath));
+        ImageSvgUtilsFast.paintSvgImageToBufferedImage(imageUnknown, true, graphicsModifier, svgs.toArray(new SVGDiagram[0]));
+        unknownImageIcon = new ImageIcon(imageUnknown);
     }
 
     public LogBookHistory(String sysname) {
@@ -137,37 +255,37 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
         return messages.size();
     }
 
-    JLabel l = new JLabel("", JLabel.LEFT);
+    private JLabel l = new JLabel("", JLabel.LEFT);
+    private Color lFg = l.getForeground();
     @Override
     public Component getListCellRendererComponent(JList<? extends HistoryMessage> list, HistoryMessage value,
             int index, boolean isSelected, boolean cellHasFocus) {
-
+        l.setIcon(getIcon(value.type));
         l.setText(value.toString());
-        
-        //JLabel l = new JLabel(value.toString(), JLabel.LEFT);
         l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(value.timestamp), value.context));
-        l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
+        l.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 3));
         l.setOpaque(true);
         l.setBackground(bgColors.get(value.type));
+        l.setForeground(lFg);
         if (value.type == msg_type.critical)
-            l.setForeground(Color.yellow);
-
+            l.setForeground(criticalFgColor);
         return l;
     }
 
-    public ImageIcon getIcon(msg_type type) {
+    public ImageIcon getIcon(HistoryMessage.msg_type type) {
         switch (type) {
             case info:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png");
+                return infoImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png");
             case warning:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/warning.png");
+                return warningImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/warning.png");
             case error:
+                return errorImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
             case critical:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
-	    case debug:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
+                return criticalImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
+	        case debug:
+                return debugImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
             default:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
+                return unknownImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
         }
     }
 

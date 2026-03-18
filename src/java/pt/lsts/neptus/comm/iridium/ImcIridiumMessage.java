@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,13 +47,18 @@ import pt.lsts.imc.IMCOutputStream;
 public class ImcIridiumMessage extends IridiumMessage {
 
     protected IMCMessage msg;
-    
-    public static int MaxPayloadSize = 270 - 12; 
+
+    // 5 bytes for RB addressing, 6 bytes for type and timestamp, 6 bytes for IMC header
+    public static int MaxPayloadSize = 270 - 17;
     
     public ImcIridiumMessage() {
         super(2010);    
-    }    
-    
+    }
+
+    protected ImcIridiumMessage(int msgType) {
+        super(msgType);
+    }
+
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         if (msg != null) {
@@ -101,12 +106,13 @@ public class ImcIridiumMessage extends IridiumMessage {
     @Override
     public Collection<IMCMessage> asImc() {
        Vector<IMCMessage> vec = new Vector<>();
-       if (msg != null)
+       if (msg != null) {
            vec.add(msg);
-       
-       msg.setSrc(getSource());
-       msg.setDst(getDestination());
-       msg.setTimestampMillis(timestampMillis);
+
+           msg.setSrc(getSource());
+           msg.setDst(getDestination());
+           //msg.setTimestampMillis(timestampMillis);
+       }
        return vec;
     }
     

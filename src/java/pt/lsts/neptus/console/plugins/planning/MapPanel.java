@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -178,7 +178,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setBorder(BorderFactory.createEmptyBorder()); // editor.setEditable(false);
 
         renderer.setMinDelay(0);
-        renderer.setShowWorldMapOnScreenControls(false);
+        renderer.setShowWorldMapOnScreenControls(true);
         add(renderer, BorderLayout.CENTER);
         
         bottom.setFloatable(false);
@@ -348,8 +348,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @Override
     public void planChange(PlanType plan) {
         StateRenderer2D r2d = renderer;
-        if (mainPlanPainter != null)
+        if (mainPlanPainter != null) {
             r2d.removePostRenderPainter(mainPlanPainter);
+            mainPlanPainter.cleanup();
+        }
 
         if (plan != null) {
             PlanElement po = new PlanElement(r2d.getMapGroup(), new MapType());
@@ -396,7 +398,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     public void setPlan(PlanType plan) {
         if (plan == null) {
-            renderer.removePostRenderPainter(planElem);
+            if (planElem != null) {
+                planElem.cleanup();
+                renderer.removePostRenderPainter(planElem);
+            }
             return;
         }
         if (plan.getMissionType() != mission)
@@ -404,6 +409,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         renderer.removePostRenderPainter(planElem);
 
+        if (planElem != null) {
+            planElem.cleanup();
+        }
         planElem = new PlanElement(mapGroup, new MapType());
         planElem.setTransp2d(1.0);
         renderer.addPostRenderPainter(planElem, "Plan Layer");

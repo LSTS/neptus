@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,11 +33,12 @@
 package pt.lsts.neptus;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 
@@ -65,24 +66,21 @@ public class NeptusLog {
         try {
             log4j2FileName = ConfigFetch.getLoggingPropertiesLocation();
         }
-        catch (Exception e) {
-            System.err.println("Could not load log4j2 configuration file, fallback to default.");
-        }
-        catch (Error e) {
+        catch (Exception | Error e) {
             System.err.println("Could not load log4j2 configuration file, fallback to default.");
         }
 
-        try (InputStream inputStream = new FileInputStream(new File(log4j2FileName))) {
+        try (InputStream inputStream = Files.newInputStream(new File(log4j2FileName).toPath())) {
             ConfigurationSource source = new ConfigurationSource(inputStream);
-            Configurator.initialize(null, source);
-            pub.debug("Log4J configured with conf/log4j2.xml!");
+            try (LoggerContext loggerContext = Configurator.initialize(null, source)) {
+                // Configuration is loaded
+                pub.debug("Log4J configured with conf/log4j2.xml!");
+            }
         }
-        catch (Exception e) {
-            pub.warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
-        }
-        catch (Error e) {
-            //BasicConfigurator.configure();
-            pub.warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
+        catch (Exception | Error e) {
+            // If the configuration file is not found or cannot be loaded, fallback to default configuration
+            // on the resources of the jar
+            pub.warn("Could not configure Log4J with a configuration file, will try to load from default config!!");
         }
     }
     

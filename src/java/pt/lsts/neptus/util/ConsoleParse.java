@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -241,15 +241,20 @@ public class ConsoleParse implements FileHandler {
         Vector<IConsoleLayer> ret = new Vector<>();
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
+            Attribute attribute = null;
             try {
-                String className = element.attribute("class").getValue();
+                attribute = element.attribute("class");
+                String className = attribute.getValue();
                 IConsoleLayer cp = (IConsoleLayer) Class.forName(className).getDeclaredConstructor().newInstance();
                 cp.parseXmlElement(element);
                 ret.add(cp);
             }
+            catch (ClassNotFoundException e) {
+                NeptusLog.pub().warn("==>> Plugin Layer not found <<== Fail parsing "
+                        + (attribute == null ? element.getName() : attribute.getValue()) + " :: " + e.getMessage());
+            }
             catch (Exception e) {
-                e.printStackTrace();
-                NeptusLog.pub().error("Error parsing " + element.asXML());
+                NeptusLog.pub().error("Error parsing " + element.asXML(), e);
             }
         }        
         
@@ -268,12 +273,18 @@ public class ConsoleParse implements FileHandler {
         Vector<IConsoleInteraction> ret = new Vector<>();
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
+            Attribute attribute = null;
             try {
-                String className = element.attribute("class").getValue();
+                attribute = element.attribute("class");
+                String className = attribute.getValue();
                 //FIXME
                 IConsoleInteraction cp = (IConsoleInteraction) Class.forName(className).getDeclaredConstructor().newInstance();
                 cp.parseXmlElement(element);
                 ret.add(cp);
+            }
+            catch (ClassNotFoundException e) {
+                NeptusLog.pub().warn("==>> Plugin Interaction not found <<== Fail parsing "
+                        + (attribute == null ? element.getName() : attribute.getValue()) + " :: " + e.getMessage());
             }
             catch (Exception e) {
                 NeptusLog.pub().error("Error parsing " + element.asXML());

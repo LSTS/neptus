@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console;
 
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -125,6 +126,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     protected JDialog dialog = null;
     protected Action popUpAction = null;
     private JMenuItem menuItem = null;
+    private boolean alwaysResetPopupPosition = false;
 
     private double percentXPos, percentYPos, percentWidth, percentHeight;
 
@@ -299,6 +301,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         String iconPath = cAction.icon().isEmpty() ? PluginUtils.getPluginIcon(this.getClass()) : cAction.icon();
         int width = cAction.width();
         int height = cAction.height();
+        Dialog.ModalityType modality = cAction.modality();
         KeyStroke accelerator = null;
         if (cAction.accelerator() != KeyEvent.VK_UNDEFINED) {
             int key = cAction.accelerator();
@@ -317,6 +320,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         getConsole().updateJMenuView(); //order view menu items
 
         // Build Dialog
+        alwaysResetPopupPosition = cAction.alwaysResetPopupPosition();
         dialog = new JDialog(getConsole());
         dialog.setTitle(name2);
         dialog.setIconImage(icon.getImage());
@@ -324,6 +328,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         dialog.setSize(width, height);
         // dialog.setFocusable(true);
+        onPopupCreation();
 
         if (accelerator != null) {
             popUpAction = menuItem.getAction(); //use same action as the one used on object creation
@@ -341,6 +346,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             if (res)
                 menuItem.setAccelerator(accelerator);
         }
+
+        if (modality != null && modality != Dialog.ModalityType.MODELESS) {
+            dialog.setModalityType(modality);
+        }
+
         // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not
         // show
     }
@@ -370,6 +380,12 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         menuItem = null;
         dialog = null;
         popUpAction = null;
+    }
+
+    /**
+     * Optional method for triggering logic after popup creation
+     */
+    protected void onPopupCreation() {
     }
 
     /**
@@ -424,6 +440,16 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 dialog.add(ConsolePanel.this);
 
             if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
+                boolean wasVisible = dialog.isVisible();
+                Dialog.ModalityType modality = dialog.getModalityType();
+                boolean isModal = modality != Dialog.ModalityType.MODELESS;
+                if (isModal && !wasVisible) {
+                    dialog.setModalityType(Dialog.ModalityType.MODELESS);
+                    dialog.setVisible(true);
+                    setPopupPosition(popupPosition);
+                    dialog.setVisible(false);
+                    dialog.setModalityType(modality);
+                }
                 dialog.setVisible(!dialog.isVisible());
                 if (dialog.isVisible())
                     popupShown();
@@ -813,19 +839,19 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return send(destination, message);
     }
 
-    public void sendViaIridium(String destination, IMCMessage message) {
+    public boolean sendViaIridium(String destination, IMCMessage message) {
         if (message.getTimestamp() == 0)
             message.setTimestampMillis(System.currentTimeMillis());
         Collection<ImcIridiumMessage> irMsgs = new ArrayList<ImcIridiumMessage>();
+        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         try {
-            irMsgs = IridiumManager.iridiumEncode(message);
+            irMsgs = IridiumManager.iridiumEncode(dst, message);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
-            return;
+            return false;
         }
         int src = getConsole().getImcMsgManager().getLocalId().intValue();
-        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
             NeptusLog.pub().warn(message.getAbbrev() + " resulted in " + irMsgs.size() + " iridium SBD messages.");
@@ -841,10 +867,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
             getConsole().post(Notification.success("Iridium message sent", count + " Iridium messages were sent using "
                     + IridiumManager.getManager().getCurrentMessenger().getName()));
+            return true;
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
-            return;
+            return false;
         }
     }
 
@@ -906,7 +933,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     protected void setPopupPosition(final POSITION popupPosition) {
-        if (dialog.isVisible() && popupPositionFlag == false) {
+        if (dialog.isVisible() && !popupPositionFlag) {
             Point p = getConsole().getLocationOnScreen();
             switch (popupPosition) {
                 case TOP_LEFT:
@@ -942,7 +969,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                     break;
             }
             dialog.setLocation(p);
-            this.popupPositionFlag = true;
+            this.popupPositionFlag = !alwaysResetPopupPosition;
         }
     }
 

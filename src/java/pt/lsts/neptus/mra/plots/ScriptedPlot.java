@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -231,9 +232,14 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     public void addTimeSeries(int idx, TimeSeries ts) {
         String trace = ts.getKey().toString();
+        String axisName = trace;
+        String[] tks = trace.split("\\.");
+        if (tks.length > 1) {
+            axisName = tks[1];
+        }
         idx = Math.abs(idx);
         if (idx != 0) {
-            tracesToAxisIndex.put(trace, idx);
+            tracesToAxisIndex.put(axisName, idx);
         }
         if (!forbiddenSeries.contains(trace)) {
             if (!series.containsKey(trace)) {
@@ -526,7 +532,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             ik.add(0);
             ik.stream().distinct().forEach(i -> {
                 if (!axisIndexNames.containsKey(i)) {
-                    String an = tracesToAxisIndex.keySet().stream().filter(id -> tracesToAxisIndex.get(id) == i)
+                    String an = tracesToAxisIndex.keySet().stream().filter(id -> Objects.equals(tracesToAxisIndex.get(id), i))
                             .findFirst().orElse("");
                     axisIndexNames.put(i, an);
                 }
@@ -566,7 +572,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 axis2.setUpperMargin(0.02);
                 chart.getXYPlot().setRangeAxis(++idx, axis2);
                 chart.getXYPlot().setDataset(idx, ntsc);
-                chart.getXYPlot().mapDatasetToRangeAxis(idx, 1);
+                chart.getXYPlot().mapDatasetToRangeAxis(idx, idx);
             }
             chart.getXYPlot().getRangeAxis().setLabel(firstGrp);
 

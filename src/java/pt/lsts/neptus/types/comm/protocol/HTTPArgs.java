@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.types.comm.protocol;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Vector;
 
@@ -60,40 +61,34 @@ public class HTTPArgs extends ProtocolArgs {
 		return loadOk;
 	}
 	
-    public boolean load(Element elem)
-    {
+    public boolean load(Element elem) {
         try
         {
-            url = new URL(elem.selectSingleNode("//url").getText());
+            url = new URI(elem.selectSingleNode("//url").getText()).toURL();
             String fmts = elem.selectSingleNode("//supported-formats").getText();
             for (String f : fmts.split(",")) {
             	formats.add(f.trim().toLowerCase());
             }
             loadOk = true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             NeptusLog.pub().error(this, e);
             loadOk = false;           
         }
         return loadOk;
     }
     
-    public boolean load (String xml)
-    {
-        try
-        {
+    public boolean load (String xml) {
+        try {
             Document doc = DocumentHelper.parseText(xml);
             loadOk = load(doc.getRootElement());
-        } catch (DocumentException e)
-        {
+        } catch (DocumentException e) {
             NeptusLog.pub().error(this, e);
             loadOk = false;            
         }
         return loadOk;
     }
 	
-    public Document asDocument(String rootElementName)
-    {
+    public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement( rootElementName );
         root.addElement("url").setText(url.getPath());
@@ -129,8 +124,9 @@ public class HTTPArgs extends ProtocolArgs {
 	}
 	
 	public void setSupportedFormats(Vector<String> formats) {
-		for (int i = 0; i < formats.size(); i++)
-			formats.setElementAt(formats.get(i).trim().toLowerCase(), i);
+		for (int i = 0; i < formats.size(); i++) {
+            formats.setElementAt(formats.get(i).trim().toLowerCase(), i);
+        }
 		this.formats = formats;
 	}
 	

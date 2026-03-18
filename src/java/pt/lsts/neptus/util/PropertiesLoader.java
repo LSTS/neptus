@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,12 +32,16 @@
  */
 package pt.lsts.neptus.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import pt.lsts.neptus.NeptusLog;
@@ -142,7 +146,11 @@ public class PropertiesLoader extends Properties {
      * @param txfile Nome do ficheiro dos <i>properties </i>.
      */
     public void setFile(String txfile) throws FileNotFoundException, IOException {
-        InputStream in = new FileInputStream(txfile);
+        File fx = new File(txfile);
+        if (!fx.exists()) {
+            throw new FileNotFoundException(txfile);
+        }
+        InputStream in = Files.newInputStream(Paths.get(txfile));
         setFile(in);
     }
 

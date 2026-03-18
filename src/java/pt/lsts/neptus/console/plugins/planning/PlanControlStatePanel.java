@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.Color;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.swing.JLabel;
@@ -41,6 +42,7 @@ import javax.swing.SwingConstants;
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.tuple.Pair;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
@@ -51,6 +53,7 @@ import pt.lsts.imc.PlanDB.TYPE;
 import pt.lsts.imc.StateReport;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -84,12 +87,15 @@ public class PlanControlStatePanel extends ConsolePanel {
 
     private PlanControlState.STATE state;
     private String planId = "";
+    private String planIdNote = "";
     private String nodeId = "";
     private String lastOutcome = "<html><font color='0x666666'>" + I18n.text("N/A") + "</font>";
     private int nodeTypeImcId = -1;
     private long nodeStarTimeMillisUTC = -1;
     private long nodeEtaSec = -1;
     private long lastUpdated = -1;
+
+    private PlanControlState internalGeneratedMessage = null;
 
     @NeptusProperty(name = "Request plans automatically", userLevel=LEVEL.ADVANCED, category="Planning", description = "Select if Neptus should ask the vehicle for plans it is executing but Neptus doesn't know about")
     public boolean requestPlans = false;
@@ -136,7 +142,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         this.add(outcomeLabel, "wrap");
     }
 
-    @Subscribe
+    //@Subscribe
     public void on(PlanControlState msg) {
         if (!requestPlans || msg.getPlanId().isEmpty())
             return;
@@ -155,24 +161,86 @@ public class PlanControlStatePanel extends ConsolePanel {
     public void consume(StateReport message) {
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
-        
-        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] bytes = plan.getBytes();
-            if (IMCUtil.computeCrc16(bytes , 0, bytes.length) == message.getPlanChecksum()) {
-                planId = plan + " (CS::" + message.getPlanChecksum() + ")";
-                break;
-            }            
+
+        boolean unknownPlan = false;
+        ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
+        if (sysState != null) {
+            PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+            unknownPlan = pcsMsg == null || ("".equalsIgnoreCase(pcsMsg.getPlanId())
+                    || "?".equalsIgnoreCase(pcsMsg.getPlanId()));
+            boolean dataNewer = pcsMsg == null || message.getAgeInSeconds() > pcsMsg.getAgeInSeconds() ||
+                    (message.getAgeInSeconds() >= pcsMsg.getAgeInSeconds()  && message.getPlanChecksum() > 0 &&
+                            unknownPlan);
+            if (!dataNewer)
+                return; // We already have a more recent PlanControlState message
         }
-        
+
+        if (message.getPlanChecksum() == 0) {
+            planId = "";
+            planIdNote = "";
+        } else {
+//            for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+//                byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+//                if (IMCUtil.computeCrc16(bytes , 0, 0) == message.getPlanChecksum()) {
+//                    planId = plan;
+//                    planIdNote = "hash::" + message.getPlanChecksum();
+//                    break;
+//                }
+//                planIdNote = "?";
+//            }
+            Pair<String, String> planAndManFound = IMCUtils.getPlanAndManeuverFromPlanChecksum(getMainVehicleId(), getConsole(),
+                    null, message.getPlanChecksum());
+            if (planAndManFound == null) {
+                planIdNote = "?";
+                unknownPlan = false;
+            } else {
+                planId = planAndManFound.getLeft();
+                planIdNote = "hash::" + message.getPlanChecksum();
+                if (planAndManFound.getRight() != null)
+                    nodeId = planAndManFound.getRight();
+                unknownPlan = true;
+            }
+        }
+
+        int execState = message.getExecState();
+        PlanControlState pcsMsg = new PlanControlState();
+        IMCUtils.copyHeader(message, pcsMsg);
+        pcsMsg.setTimestampMillis(message.getTimestampMillis());
+        switch (execState) {
+            case -1:
+                pcsMsg.setState(PlanControlState.STATE.READY);
+                break;
+            case -3:
+                pcsMsg.setState(PlanControlState.STATE.INITIALIZING);
+                break;
+            case -2:
+            case -4:
+                pcsMsg.setState(PlanControlState.STATE.BLOCKED);
+                break;
+            default:
+                if (execState > 0)
+                    pcsMsg.setState(PlanControlState.STATE.EXECUTING);
+                else
+                    pcsMsg.setState(PlanControlState.STATE.BLOCKED);
+                break;
+        }
+
+        pcsMsg.setPlanId(planId);
+        pcsMsg.setPlanEta(-1);
+        pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
+        pcsMsg.setManId(nodeId);
+        pcsMsg.setManEta(-1);
+        pcsMsg.setManType(0xFFFF);
+
         int progress = -1;
         switch (message.getExecState()) {
             case -1:
-                state = STATE.READY;    
+                state = STATE.READY;
                 break;
             case -2:
             case -3:
                 state = STATE.INITIALIZING;
-                break;            
+                break;
             case -4:
                 state = STATE.BLOCKED;
                 break;
@@ -187,10 +255,24 @@ public class PlanControlStatePanel extends ConsolePanel {
             lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(progress) + " %";
         else
             lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
+
+        outcomeLabel.setText(lastOutcome);
+
+        if (unknownPlan) {
+            internalGeneratedMessage = pcsMsg;
+            getConsole().getImcMsgManager().postInternalMessage(PlanControlStatePanel.class.getSimpleName(), pcsMsg);
+        }
     }
     
     @Subscribe
     public void consume(PlanControlState message) {
+        if (internalGeneratedMessage == message) {
+            internalGeneratedMessage = null;
+            return;
+        }
+
+        on(message);
+
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
@@ -204,6 +286,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         
         try {
             planId = message.getPlanId();
+            planIdNote = "";
             nodeId = message.getManId();
             nodeTypeImcId = message.getManType();
             nodeEtaSec = message.getManEta();
@@ -256,10 +339,11 @@ public class PlanControlStatePanel extends ConsolePanel {
         if (state != null)
             stateValueLabel.setText(I18n.text(state.toString()));
 
-        String planTimeStr;
-
-        planTimeStr = "";
-        planIdValueLabel.setText(planId + planTimeStr);
+        String planNoteStr = "";
+        if (planIdNote != null && !planIdNote.isEmpty()) {
+            planNoteStr = " <font color='#666666' size='3'>(" + planIdNote + ")</font>";
+        }
+        planIdValueLabel.setText("<html>" + planId + planNoteStr);
 
         String nodeStr = nodeId;
 
@@ -294,20 +378,21 @@ public class PlanControlStatePanel extends ConsolePanel {
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         state = PlanControlState.STATE.BLOCKED;
         planId = "";
+        planIdNote = "";
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;
+        lastOutcome = "";
         try {
-            ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
-            if (state != null) {
-                PlanControlState pcsMsg = state.last(PlanControlState.class);
-                StateReport srMsg = state.last(StateReport.class);
+            ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
+            if (sysState != null) {
+                PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+                StateReport srMsg = sysState.last(StateReport.class);
                 
                 if (pcsMsg != null && srMsg != null) {
-                    if (srMsg.getAgeInSeconds() <= pcsMsg.getAgeInSeconds())
-                        consume(srMsg); 
-                    else
-                        consume(pcsMsg); 
+                    consume(pcsMsg);
+                    if (srMsg.getAgeInSeconds() > pcsMsg.getAgeInSeconds())
+                        consume(srMsg);
                 }
                 else if (pcsMsg != null) {
                     consume(pcsMsg); 
@@ -320,7 +405,6 @@ public class PlanControlStatePanel extends ConsolePanel {
         catch (Exception e) {
             e.printStackTrace();
         }
-        
     }
 
     @Override

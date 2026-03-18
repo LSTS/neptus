@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -55,6 +55,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -68,6 +69,7 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import pt.lsts.aismanager.api.AisContactManager;
+import pt.lsts.imc.AisInfo;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -78,6 +80,7 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.OrientationIcon;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -91,10 +94,12 @@ import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.nmea.NmeaListener;
 import pt.lsts.neptus.util.nmea.NmeaProvider;
 
@@ -103,7 +108,7 @@ import pt.lsts.neptus.util.nmea.NmeaProvider;
  * @author pdias
  */
 @PluginDescription(name = "NMEA Plotter", icon = "pt/lsts/neptus/plugins/alliance/nmea-ais.png")
-public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
+public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, ConfigurationListener {
 
     private static final int RECT_WIDTH = 228;
     private static final int RECT_HEIGHT = 85;
@@ -161,13 +166,15 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Distress Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
     
-    @NeptusProperty(name = "Connect via Ripples", category = "TCP Client", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Connect via Ripples", category = "AIS Ripples", userLevel = LEVEL.REGULAR)
     public boolean ripplesConnection = false;
 
 
     private JLabel distressLabelToPaint = new JLabel();
 
     private JMenuItem connectItem = null;
+    private JMenuItem connectAisRipplesItem = null;
+
     private boolean connected = false;
 
     GeneralPath ship = new GeneralPath();
@@ -193,13 +200,20 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     private boolean isUdpConnected = false;
     private boolean isTcpConnected = false;
 
-    private HashSet<NmeaListener> listeners = new HashSet<>();
-    private AisContactDb contactDb = new AisContactDb();
-    private AISParser parser = new AISParser();
+    private final HashSet<NmeaListener> listeners = new HashSet<>();
+    private final AisContactDb contactDb = new AisContactDb();
+    private final AISParser parser = new AISParser();
     private final AisContactManager aisManager = AisContactManager.getInstance();
 
-    private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
-    private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
+    private final Map<String, LocationType> lastLocs = new LinkedHashMap<>();
+    private final Map<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
+
+    @Override
+    public void propertiesChanged() {
+        super.propertiesChanged();
+        System.out.println("Properties changed " + ripplesConnection);
+        updateConnectMenuText();
+    }
 
     @Periodic(millisBetweenUpdates = 5000)
     public void updateTracks() {
@@ -340,6 +354,108 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
         parseSentence(ddt.getValue());
     }
 
+    @Subscribe
+    public void on(AisInfo aisInfo) {
+        String mmsiStr = aisInfo.getMmsi();
+        if (mmsiStr == null || mmsiStr.isEmpty())
+            return;
+
+        int mmsiNbr = -1;
+        try {
+            mmsiNbr = Integer.parseInt(mmsiStr);
+        }
+        catch (NumberFormatException e) {
+            NeptusLog.pub().warn("Invalid MMSI: {} :: {}", aisInfo.getMmsi(), e.getMessage());
+            return;
+        }
+
+        String shipName = aisInfo.getName();
+        if (mmsiNbr <= 0) {
+            NeptusLog.pub().warn("Invalid MMSI: {} :: {}", aisInfo.getMmsi(), "MMSI must be greater than 0");
+            if (shipName == null || shipName.isEmpty()) {
+                return;
+            }
+            String mmsiStrFound = contactDb.getMssiForName(shipName);
+            if (mmsiStrFound == null || mmsiStrFound.isEmpty()) {
+                if (mmsiNbr == -1) {
+                    return;
+                }
+
+                NeptusLog.pub().warn("Invalid MMSI: {} :: {}, using the invalid {}",
+                        aisInfo.getMmsi(), "No MMSI found for ship name", mmsiNbr);
+            }
+
+            try {
+                if (mmsiStrFound != null && !mmsiStrFound.isEmpty()) {
+                    mmsiNbr = Integer.parseInt(mmsiStrFound);
+                }
+            }
+            catch (NumberFormatException e) {
+                NeptusLog.pub().warn("Invalid MMSI: {} :: {}", aisInfo.getMmsi(), e.getMessage());
+                return;
+            }
+        }
+
+        if (shipName == null || shipName.isEmpty()) {
+            shipName = contactDb.getNameForMMSI(mmsiNbr);
+            shipName = "MMSI " + mmsiNbr;
+        }
+
+        String msgTypeStr = aisInfo.getMsgType();
+        if (msgTypeStr == null || msgTypeStr.isEmpty()) {
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), "Message type is null or empty");
+            return;
+        }
+        int msgType = -1;
+        try {
+            msgType = Integer.parseInt(msgTypeStr);
+        }
+        catch (NumberFormatException e) {
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {} :: was {}", aisInfo.getMmsi(),
+                    e.getMessage(), msgTypeStr);
+            return;
+        }
+
+        if (msgType < 1 || msgType > 27) {
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {} :: was {}", aisInfo.getMmsi(),
+                    "Message type must be between 1 and 27", msgType);
+            return;
+        }
+
+        if (msgType >= 1 && msgType <=3) {
+            MTShip mtShip = new MTShip();
+            mtShip.SHIP_ID = mmsiNbr;
+            mtShip.SHIPNAME = shipName;
+            mtShip.SHIPTYPE = 0; // Not available
+            mtShip.LAT = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLat()));
+            mtShip.LON = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLon()));
+            mtShip.STATUS_NAME = "" + aisInfo.getNavStatus(); // TODO AISUtil.translateNavigationalStatus(aisInfo.getNavStatus());
+            mtShip.SPEED = aisInfo.getSpeed();
+            mtShip.COURSE = AngleUtils.nomalizeAngleDegrees180(aisInfo.getCourse());
+            mtShip.HEADING = mtShip.COURSE;
+            mtShip.ELAPSED = System.currentTimeMillis() - aisInfo.getTimestampMillis();
+            contactDb.setMTShip(mtShip);
+        }
+        else if (msgType == 5) {
+            MTShip mtShip = new MTShip();
+            mtShip.SHIP_ID = mmsiNbr;
+            mtShip.SHIPNAME = shipName;
+            mtShip.SHIPTYPE = aisInfo.getTypeAndCargo();
+            mtShip.HEADING = 351; // Not available
+            mtShip.COURSE = 351; // Not available
+            mtShip.SPEED = -1;
+            mtShip.W_LEFT = (int) Math.ceil(aisInfo.getC());
+            mtShip.WIDTH = (int) Math.ceil(aisInfo.getC() + aisInfo.getD());
+            mtShip.L_FORE = (int) Math.ceil(aisInfo.getA());
+            mtShip.LENGTH = (int) Math.ceil(aisInfo.getA() + aisInfo.getB());
+            mtShip.DRAUGHT = (int) Math.ceil(aisInfo.getDraught());
+            mtShip.ELAPSED = System.currentTimeMillis() - aisInfo.getTimestampMillis();
+            contactDb.setMTShip(mtShip);
+        }
+
+        NeptusLog.pub().debug("AIS message type: {} :: for {}", msgType, aisInfo.getMmsi());
+    }
+
     private void parseSentence(String s) {
         if (s == null || s.isEmpty())
             return;
@@ -435,7 +551,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                                 parseSentence(tk);
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().warn("Error parsing sentence: {}  :: {}", tk, e.getMessage());
                             }
                             if (retransmitToNeptus)
                                 retransmit(tk);
@@ -443,11 +559,11 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                                 LsfMessageLogger.log(new DevDataText(tk));
                         }
                     }
-                    catch (SocketTimeoutException e) {
-                        continue;
+                    catch (SocketTimeoutException | SocketException e) {
+                        NeptusLog.pub().warn("Socket closed :: {}", e.getMessage());
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
+                        NeptusLog.pub().warn("Socket closed due to error :: {}", e.getMessage());
                         break;
                     }
                 }
@@ -457,7 +573,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     socket.close();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().warn("Error closing socket :: {}", e.getMessage());
                 }
                 finally {
                     setTcpConnected(false);
@@ -601,6 +717,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
         }
 
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"));
+        getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect Ripples AIS"));
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"));
     }
 
@@ -611,7 +728,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
         if (maximumAisAgeMinutes > 0)
-            contactDb.purge(maximumAisAgeMinutes * 60 * 1000);
+            contactDb.purge(maximumAisAgeMinutes * 60 * 1000L);
     }
 
     @Periodic(millisBetweenUpdates = 120000)
@@ -623,8 +740,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
-        ArrayList<ScatterPointsElement> els = new ArrayList<>();
-        els.addAll(tracks.values());
+        ArrayList<ScatterPointsElement> els = new ArrayList<>(tracks.values());
         for (ScatterPointsElement el : els)
             el.paint((Graphics2D) g.create(), renderer, renderer.getRotation());
 
@@ -897,6 +1013,16 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     }
                 });
 
+        connectAisRipplesItem = getConsole().addMenuItem(
+                I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect Ripples AIS"),
+                getIcon(), new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ripplesConnection = !ripplesConnection;
+                        updateConnectMenuText();
+                    }
+                });
+
         getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"),
                 null, new ActionListener() {
                     @Override
@@ -905,9 +1031,14 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     }
                 });
         parser.register(contactDb);
+
+        updateConnectMenuText();
     }
 
     private void updateConnectMenuText() {
+        if (connectItem == null || connectAisRipplesItem == null)
+            return; // Not initialized yet
+
         if (connected) {
             String comms = isSerialConnected ? "serial" : "";
             comms += isUdpConnected ? (comms.isEmpty() ? "" : ", ") + "UDP" : "";
@@ -918,6 +1049,13 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
         }
         else {
             connectItem.setText(I18n.text("Connect"));
+        }
+
+        if (ripplesConnection) {
+            connectAisRipplesItem.setText(I18n.text("Disconnect Ripples AIS"));
+        }
+        else {
+            connectAisRipplesItem.setText(I18n.text("Connect Ripples AIS"));
         }
     }
 
@@ -1007,7 +1145,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     }
     
     public static class MTShip{
-        double LAT, LON, SPEED, COURSE, HEADING, TIME;
+        double LAT, LON, SPEED, COURSE, HEADING, TIME, DRAUGHT;
         String SHIPNAME, TYPE_IMG, TYPE_NAME, STATUS_NAME,DESTINATION;
         long SHIP_ID,ELAPSED;
         int LENGTH,WIDTH,L_FORE,W_LEFT,ROT,SHIPTYPE,TYPE;

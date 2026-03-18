@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,9 +34,11 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -44,7 +46,9 @@ import java.util.Vector;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBControl;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
@@ -66,7 +70,8 @@ import pt.lsts.neptus.util.DateTimeUtil;
 public class ImcSystem implements Comparable<ImcSystem> {
 
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
-    
+    public static final int TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES = 5;
+
     protected String name = ImcId16.NULL_ID.toString();
 	protected ImcId16 id = ImcId16.NULL_ID;
 	protected SystemTypeEnum type = SystemTypeEnum.UNKNOWN;
@@ -74,11 +79,19 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected CommMean commsInfo = null;
 	
 	protected boolean active = false;
+    protected long lastActiveTimeMillis = -1;
+    protected boolean activeWifi = false;
+    protected long lastActiveWifiTimeMillis = -1;
+    protected boolean activeIridium = false;
+    protected long lastActiveIridiumTimeMillis = -1;
+
 	protected PlanType activePlan = null;
 	protected final CoordinateSystem location = new CoordinateSystem();
 	protected long locationTimeMillis = -1;
     protected long attitudeTimeMillis = -1;
-	
+
+    protected long lastLocationInFutureWarning = -1;
+
 	protected String emergencyPlanId = "";
 	protected String emergencyStatusStr = "";
 	
@@ -296,6 +309,19 @@ public class ImcSystem implements Comparable<ImcSystem> {
      */
     public void setLocationTimeMillis(long locationTimeMillis) {
         this.locationTimeMillis = locationTimeMillis;
+        if (locationTimeMillis > System.currentTimeMillis() + Duration.ofMinutes(TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES).toMillis()) {
+            if (lastLocationInFutureWarning > System.currentTimeMillis() - Duration.ofMinutes(TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES).toMillis()) {
+                return;
+            }
+
+            lastLocationInFutureWarning = System.currentTimeMillis();
+            NeptusLog.pub().warn(">>>>>>>>>>>>>>>>>>>>>>    ImcSystem.setLocationTimeMillis: "
+                    + "Setting location time in the future: " + new Date(locationTimeMillis));
+            NeptusEvents.post(Notification.warning("Location TIMESTAMP in the Future" ,
+                    ">>>>>>>>>>>>>>>>>>>>>>    ImcSystem.setLocationTimeMillis: "
+                        + "Setting location time in the future: " +
+                            new Date(locationTimeMillis)).requireHumanAction(true));
+        }
     }
 	
     /**
@@ -654,9 +680,45 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	public void setActive(boolean active) {
 		this.active = active;
+        if (active)
+            this.lastActiveTimeMillis = System.currentTimeMillis();
 	}
-	
-	/**
+
+    public long getLastActiveTimeMillis() {
+        return lastActiveTimeMillis;
+    }
+
+    public boolean isActiveWifi() {
+        return activeWifi;
+    }
+
+    public void setActiveWifi(boolean activeWifi) {
+        this.activeWifi = activeWifi;
+        if (activeWifi)
+            this.lastActiveWifiTimeMillis = System.currentTimeMillis();
+        setActive(activeWifi);
+    }
+
+    public long getLastActiveWifiTimeMillis() {
+        return lastActiveWifiTimeMillis;
+    }
+
+    public boolean isActiveIridium() {
+        return activeIridium;
+    }
+
+    public void setActiveIridium(boolean activeIridium) {
+        this.activeIridium = activeIridium;
+        if (activeIridium)
+            this.lastActiveIridiumTimeMillis = System.currentTimeMillis();
+        setActive(activeIridium);
+    }
+
+    public long getLastActiveIridiumTimeMillis() {
+        return lastActiveIridiumTimeMillis;
+    }
+
+    /**
 	 * @return the activePlan
 	 */
 	public PlanType getActivePlan() {
@@ -868,8 +930,18 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
+    /**
+     * This will check if the data stored with the given key.
+     * Use negative ageMillis to ignore the timing of the data.
+     * @param key
+     * @param ageMillis
+     * @return
+     */
     public boolean containsData(String key, long ageMillis) {
         synchronized (dataStorage) {
+            if (ageMillis < 0)
+                return dataStorage.containsKey(key);
+
             boolean ret = dataStorage.containsKey(key);
             if (ret && ageMillis > 0) {
                 long time = dataStorageTime.get(key);
@@ -882,6 +954,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 
 	/**
 	 * This will retrieve the data stored or {@code null} if not found.
+	 * Use negative ageMillis to ignore the timing of the data.
 	 * @param key
 	 * @param ageMillis
 	 * @return

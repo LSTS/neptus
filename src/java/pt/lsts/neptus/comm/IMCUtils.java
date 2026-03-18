@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,10 +41,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,9 +54,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -74,6 +77,7 @@ import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
@@ -82,6 +86,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorDegs;
 import pt.lsts.neptus.gui.editor.AngleEditorRadsShowDegrees;
@@ -311,20 +316,21 @@ public class IMCUtils {
     }
 
     private static String getAsInnerHtml(IMCMessage msg) {
-        if (msg == null)
-            return "null";
-        String ret = "<table border=1><tr bgcolor='blue'><th>" + msg.getAbbrev() + "</th><th>"
-                + msg.getFieldNames().length + " fields</th></tr>";
-
-        for (String fieldName : msg.getFieldNames()) {
-            String value = msg.getString(fieldName);
-            if (msg.getTypeOf(fieldName).equalsIgnoreCase("message") && msg.getValue(fieldName) != null)
-                value = getAsInnerHtml(msg.getMessage(fieldName));
-
-            ret += "<tr><td>" + fieldName + "=</td><td>" + value + "</td></tr>";
-        }
-
-        return ret + "</table>";
+        return IMCUtil.getAsHtml(msg);
+//        if (msg == null)
+//            return "null";
+//        String ret = "<table border=1><tr bgcolor='blue'><th>" + msg.getAbbrev() + "</th><th>"
+//                + msg.getFieldNames().length + " fields</th></tr>";
+//
+//        for (String fieldName : msg.getFieldNames()) {
+//            String value = msg.getString(fieldName);
+//            if (msg.getTypeOf(fieldName).equalsIgnoreCase("message") && msg.getValue(fieldName) != null)
+//                value = getAsInnerHtml(msg.getMessage(fieldName));
+//
+//            ret += "<tr><td>" + fieldName + "=</td><td>" + value + "</td></tr>";
+//        }
+//
+//        return ret + "</table>";
     }
 
     private static void fillInMessage(IMCMessage msg, Element el) {
@@ -1413,6 +1419,113 @@ public class IMCUtils {
         return ret;
     }
 
+    public static Pair<String, String> getPlanAndManeuverFromPlanChecksum(String systemName, ConsoleLayout console,
+                String lastActivePlanId, int planChecksum) {
+        if (systemName == null || systemName.isEmpty())
+            return null;
+
+        List<String> searchedPlans = new ArrayList<>();
+
+        if (lastActivePlanId != null && !lastActivePlanId.isEmpty()) {
+            searchedPlans.add(lastActivePlanId);
+        }
+
+        if (console != null) {
+            ImcSystem imcSys = ImcSystemsHolder.getSystemWithName(systemName);
+            if (imcSys != null) {
+                PlanType lastActivePlan = imcSys.getActivePlan();
+                if (lastActivePlan != null && lastActivePlan.getId() != null &&
+                        !lastActivePlan.getId().isEmpty()) {
+                    searchedPlans.add(lastActivePlan.getId());
+                }
+            }
+        }
+
+        if (console != null && console.getMission() != null &&
+                console.getMission().getIndividualPlansList() != null) {
+            searchedPlans.addAll(console.getMission().getIndividualPlansList().keySet());
+        }
+
+        for (String planIdKey : searchedPlans) {
+            String[] tks = planIdKey.split("\\|");
+
+            byte[] bytes = planIdKey.getBytes(StandardCharsets.UTF_8);
+            int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
+            if (planChecksum == lastActivePlanChecksum && tks.length <= 1) {
+                // If the plan checksum matches and there is no maneuver id, we can use the plan id directly
+                return Pair.of(planIdKey, "");
+            }
+
+            if (tks.length > 1) {
+                byte[] bytesTks = tks[0].trim().getBytes(StandardCharsets.UTF_8);
+                int lastCSun = IMCUtil.computeCrc16(bytesTks, 0, 0);
+                if (planChecksum == lastCSun) {
+                    return Pair.of(tks[0].trim(), "");
+                }
+            }
+
+            // pcsMsg.setPlanId("?");
+            // Let us see if we can get the plan id from the plan name plus the maneuver id
+            String planId = tks[0].trim();
+            String manId = tks.length > 1 ? tks[1].replaceAll("Man:", "").trim() : "";
+            if (planChecksum == lastActivePlanChecksum) {
+                return Pair.of(planId, manId);
+            }
+
+            byte[] bytes2 = (planId + "|Man:1").getBytes(StandardCharsets.UTF_8);
+            int pChSum = IMCUtil.computeCrc16(bytes2, 0, 0);
+            if (pChSum == lastActivePlanChecksum) {
+                return Pair.of(planId, "1");
+            }
+        }
+
+        if (console == null || console.getMission() == null ||
+                console.getMission().getIndividualPlansList() == null) {
+            return null;
+        }
+
+        // If the plan checksum does not match, it might be a different maneuver
+        // Try to find if the maneuver id is the one that matches
+        String lastProcessedPlanId = null;
+        for (String planIdKey : searchedPlans) {
+            String[] tks = planIdKey.split("\\|");
+            String planId = tks[0].trim();
+            if (lastProcessedPlanId != null && lastProcessedPlanId.equals(planId)) {
+                continue; // Already processed this plan
+            }
+            lastProcessedPlanId = planId;
+
+            String manId = "";
+            if (tks.length > 1)
+                manId = tks[1].replaceAll("Man:", "").trim();
+
+            Map<String, PlanType> missionPlans = console.getMission().getIndividualPlansList();
+            if (!missionPlans.containsKey(planId))
+                continue; // Plan not found
+
+            PlanType plan = missionPlans.get(planId);
+            if (plan == null)
+                continue; // Plan not found
+
+            String manIdToCheck = manId;
+            Optional<Maneuver> result = Arrays.stream(plan.getGraph().getAllManeuvers()).filter(man -> {
+                if (man.getId() == null || man.getId().isEmpty() || man.getId().equals(manIdToCheck)) {
+                    return false; // No maneuver id to match
+                }
+
+                byte[] bytes = (planId + "|Man:" + man.getId()).getBytes(StandardCharsets.UTF_8);
+                int pChSum = IMCUtil.computeCrc16(bytes, 0, 0);
+                return pChSum == planChecksum;
+            }).findFirst();
+
+            if (result.isPresent()) {
+                // Found a maneuver that matches the checksum
+                return Pair.of(planId, result.get().getId());
+            }
+        }
+
+        return null;
+    }
 
     public static void main(String[] args) {
         for (String v : ImcStringDefs.IMC_ADDRESSES.keySet()) {
@@ -1429,7 +1542,7 @@ public class IMCUtils {
     public static void testSysTypeResolution() throws Exception {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
 
-        URLConnection conn = new URL(address_url).openConnection();
+        URLConnection conn = new URI(address_url).toURL().openConnection();
         Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream(), (Charset) null));
         List<?> nodes = doc.getRootElement().selectNodes("address/@id");
         for (int i = 0; i < nodes.size(); i++) {

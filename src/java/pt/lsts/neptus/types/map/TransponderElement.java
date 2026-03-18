@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -302,12 +302,16 @@ public class TransponderElement extends AbstractElement implements NameId{
         this.file = file;
 
         try {
-            propConf = new PropertiesLoader(ConfigFetch.resolvePath("maps/" + file.getHref()),
-                    PropertiesLoader.PROPERTIES);
+            String path = ConfigFetch.resolvePath("maps/" + file.getHref());
+            if (path == null || path.isEmpty()) {
+                propConf = null;
+                NeptusLog.pub().error("Missing beacon configuration file << >> maps/{}", file);
+            }
+            propConf = new PropertiesLoader(path, PropertiesLoader.PROPERTIES);
             fixPropertiesConfFormat();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Error loading beacon configuration file << >> maps/{}  ::  {}", file, e.getMessage());
         }
     }
 

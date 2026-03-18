@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,9 +45,25 @@ public interface IridiumMessenger {
      * Send this message across
      */
     public void sendMessage(IridiumMessage msg) throws Exception;
-    
+
+    /**
+     * Send this message across
+     *
+     * @param destinationName The name of the destination
+     *                        (e.g. the name of the vehicle that should receive the message)
+     * @param destinationAddr The address of the destination, this depends on the messenger
+     *                        (e.g. the IMC address of the vehicle that should receive the message,
+     *                        or the imei of the Iridium device that should receive the message)
+     *                        This can be empty or null, the messenger will try its best to find the
+     *                        missing information.
+     * @param data            The data to be sent
+     * @return
+     */
+    public void sendMessageRaw(String destinationName, String destinationAddr, byte[] data) throws Exception;
+
     /**
      * Retrieve any messages that were received since given time
+     * It is expected that the messenger sends a IridiumManager to send an IridiumMsgTx message to the internal bus
      */
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception;
     
@@ -70,7 +86,7 @@ public interface IridiumMessenger {
      * Remove existing message listener
      */
     public void removeListener(IridiumMessageListener listener);
-    
+
     /**
      * Method that is called when messengers are removed
      */

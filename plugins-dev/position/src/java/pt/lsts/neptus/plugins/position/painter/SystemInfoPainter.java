@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,7 +36,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -108,8 +110,10 @@ public class SystemInfoPainter extends ConsoleLayer {
     @NeptusProperty(name = "Display GPS", description = "Display GPS fix status on panel")
     public boolean showGPS = false;
 
-    @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name")
-    public String batteryEntityName = "Batteries";
+    @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name list")
+    public String batteryEntityName = "Batteries, Daemon";
+
+    protected final List<String> batteryEntityNameList = new ArrayList<>();
 
     private JLabel toDraw;
     private String mainSysName;
@@ -128,6 +132,9 @@ public class SystemInfoPainter extends ConsoleLayer {
     private double depth = -1;
     private double altitude = -1;
 
+    private String cpuEntity = "";
+    private Map<String, Integer> cpuUsageList = new LinkedHashMap<>();
+
     @Override
     public void initLayer() {
         mainSysName = getConsole().getMainSystem();
@@ -141,6 +148,8 @@ public class SystemInfoPainter extends ConsoleLayer {
         strFixedSat = I18n.textc("Sats", "Short for satellite. Use a single small word");
 
         strGPSFix = GPS_NO_FIX;
+
+        updateVoltageEntities();
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 },
@@ -161,6 +170,21 @@ public class SystemInfoPainter extends ConsoleLayer {
             c = rygInverted.getColor(percent / 100.0);
 
         return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    @Override
+    public void propertiesChanged() {
+        super.propertiesChanged();
+
+        updateVoltageEntities();
+    }
+
+    private void updateVoltageEntities() {
+        batteryEntityNameList.clear();
+        String[] pList = batteryEntityName.split(",");
+        for (String p : pList) {
+            batteryEntityNameList.add(p.trim());
+        }
     }
 
     @Override
@@ -240,7 +264,42 @@ public class SystemInfoPainter extends ConsoleLayer {
     public void consume(CpuUsage msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        cpuUsage = msg.getValue();
+        String entity = msg.getEntityName();
+        if (entity == null)
+            return;
+
+        if (entity.contains("CPU") || entity.equals("Daemon")) {
+            switch (entity) {
+                case "DUNE-CPU":
+                    if (!cpuEntity.equals("DUNE-CPU"))
+                        cpuEntity = "DUNE-CPU";
+                    cpuUsage = msg.getValue();
+                    break;
+                case "Daemon":
+                    if (!cpuEntity.equals("DUNE-CPU")) {
+                        if (!cpuEntity.equals("Daemon"))
+                            cpuEntity = "Daemon";
+                        cpuUsage = msg.getValue();
+                    }
+                    break;
+                case "CPU Usage":
+                    if (!cpuEntity.equals("DUNE-CPU") && !cpuEntity.equals("Daemon")) {
+                        if (!cpuEntity.equals("CPU Usage"))
+                            cpuEntity = "CPU Usage";
+                        cpuUsage = msg.getValue();
+                    }
+                    break;
+                default:
+                    if (!cpuEntity.equals("DUNE-CPU") && !cpuEntity.equals("Daemon") && !cpuEntity.equals("CPU Usage")) {
+                        if (!entity.equals("CPU Scaling")) {
+                            cpuUsageList.put(entity, (int) msg.getValue());
+                            int cpuAverage = (int) cpuUsageList.values().stream().mapToInt(Integer::intValue).average().orElse(0.0);
+                            cpuUsage = cpuAverage;
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     @Subscribe
@@ -254,20 +313,29 @@ public class SystemInfoPainter extends ConsoleLayer {
     public void consume(Voltage msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        int id = EntitiesResolver.resolveId(mainSysName, batteryEntityName);
-        if (msg.getSrcEnt() != id)
+        if (batteryEntityNameList.isEmpty())
             return;
-        batteryVoltage = msg.getValue();
+
+        // Check if the message is for the battery entity
+        boolean acceptEntity = batteryEntityNameList.stream().anyMatch(s -> {
+            int id = EntitiesResolver.resolveId(mainSysName, s);
+            return msg.getSrcEnt() == id;
+        });
+        if (acceptEntity)
+            batteryVoltage = msg.getValue();
     }
 
     @Subscribe
     public void consume(Current msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        int id = EntitiesResolver.resolveId(mainSysName, batteryEntityName);
-        if (msg.getSrcEnt() != id)
-            return;
-        current = msg.getValue();
+        // Check if the message is for the battery entity
+        boolean acceptEntity = batteryEntityNameList.stream().anyMatch(s -> {
+            int id = EntitiesResolver.resolveId(mainSysName, s);
+            return msg.getSrcEnt() == id;
+        });
+        if (acceptEntity)
+            current = msg.getValue();
     }
 
     @Subscribe
@@ -353,6 +421,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         mainSysName = ev.getCurrent();
         depth = -1;
         altitude = -1;
+        cpuEntity = "";
 
         ImcSystemState state = getState();
         if (state != null) {
@@ -365,8 +434,13 @@ public class SystemInfoPainter extends ConsoleLayer {
             if (state.last(FuelLevel.class) != null)
                 fuelLevel = (float) state.last(FuelLevel.class).getValue();
             try {
-                if (state.last(Voltage.class, batteryEntityName) != null)
-                    batteryVoltage = state.last(Voltage.class, batteryEntityName).getValue();
+                for (String entity : batteryEntityNameList) {
+                    Voltage lastVoltage = state.last(Voltage.class, entity);
+                    if (lastVoltage != null) {
+                        batteryVoltage = lastVoltage.getValue();
+                        break; // Use the first found
+                    }
+                }
             }
             catch (Exception e) {
                 batteryVoltage = 0.0;

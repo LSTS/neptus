@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -95,7 +95,7 @@ class TakeControlMonitor {
     public void on(EntityState msg) {
         try {
             if (!msg.getSourceName().equals(parent.getMainVehicleId())
-                    || !msg.getEntityName().equals(entityName)) {
+                    || !entityName.equals(msg.getEntityName())) {
                 return;
             }
         } catch (Exception e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -68,7 +69,7 @@ public class SpotLocationProvider implements ILocationProvider {
         if (!enabled)
             return;
         try {
-            URL urlSpot = new URL(url);
+            URL urlSpot = new URI(url).toURL();
             File tmp = File.createTempFile("neptus", "spots");
             FileUtils.copyURLToFile(urlSpot, tmp);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,7 +33,7 @@
 package pt.lsts.neptus.plugins.spot;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * @author Margarida Faria
@@ -76,7 +77,7 @@ public class SpotMsgFetcher {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         try {
-            Document doc = db.parse(new URL(url).openStream());
+            Document doc = db.parse(new URI(url).toURL().openStream());
             // TODO Error with first char being space
             // File file = new File("/home/meg/LSTS/spot.xml");
             // Document doc = db.parse(file);
@@ -89,12 +90,12 @@ public class SpotMsgFetcher {
                 if (tagName.equals("feedMessageResponse")) {
                     nlist = feedMsgResp.getChildNodes();
                     if (nlist.getLength() == 5) {
-                        for (int i = 1; i < nlist.getLength(); i++) {
+                        for (int i = 0; i < nlist.getLength(); i++) {
                             Node messages = nlist.item(i);
                             tagName = messages.getNodeName();
                             if (tagName.equals("messages")) {
                                 nlist = messages.getChildNodes();
-                                for (int m = 1; m < nlist.getLength(); m++) {
+                                for (int m = 0; m < nlist.getLength(); m++) {
                                     tagName = nlist.item(m).getNodeName();
                                     if (tagName.equals("message")) {
                                         // TODO this is the same
@@ -107,6 +108,31 @@ public class SpotMsgFetcher {
                     else {
                         // Bad xml
                         NeptusLog.pub().error("Unexpected element number in xml structure level 2.");
+                    }
+                }
+                else if (tagName.equals("errors")) {
+                    try {
+                        nlist = feedMsgResp.getChildNodes();
+                        for (int j = 0; j < nlist.getLength(); j++) {
+                            Node error = nlist.item(j);
+                            if (error.getNodeName().equals("error")) {
+                                String code = "", text = "", description = "";
+                                NodeList errorChildren = error.getChildNodes();
+                                for (int k = 0; k < errorChildren.getLength(); k++) {
+                                    Node child = errorChildren.item(k);
+                                    if (child.getNodeName().equals("code")) {
+                                        code = child.getTextContent();
+                                    } else if (child.getNodeName().equals("text")) {
+                                        text = child.getTextContent();
+                                    } else if (child.getNodeName().equals("description")) {
+                                        description = child.getTextContent();
+                                    }
+                                }
+                                NeptusLog.pub().warn("SPOT API Error: code={}, text={}, description={}", code, text, description);
+                            }
+                        }
+                    } catch (Exception e) {
+                        NeptusLog.pub().error("Unexpected response." + XMLUtil.nodeToString(doc.getFirstChild()));
                     }
                 }
                 else {

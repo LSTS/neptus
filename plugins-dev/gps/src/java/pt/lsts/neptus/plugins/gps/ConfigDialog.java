@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,7 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -73,6 +73,12 @@ public class ConfigDialog extends JDialog {
     private String baud;
     /** Selected serial port frame type. */
     private String frame;
+    /** Number of data bits. */
+    private int dataBits;
+    /** Number of stop bits. */
+    private int stopBits;
+    /** Number of parity bits. */
+    private int parityBits;
     /** True if dialog was canceled. */
     private boolean canceled = false;
 
@@ -80,12 +86,11 @@ public class ConfigDialog extends JDialog {
         super(SwingUtilities.getWindowAncestor(owner), title);
 
         // Port.
-        Vector<String> devices = Device.enumerate();
-        if (devices.size() == 0)
+        ArrayList<String> devices = Device.enumerate();
+        if (devices.isEmpty()) {
             throw new Exception(I18n.text("No serial ports available"));
-
-        // Port.
-        portComboBox = new JComboBox<String>(devices);
+        }
+        portComboBox = new JComboBox<>(devices.toArray(new String[0]));
 
         // Baud Rate.
         baudComboBox = new JComboBox<Object>(Device.BAUD_RATES);
@@ -101,6 +106,18 @@ public class ConfigDialog extends JDialog {
                 baud = (String) baudComboBox.getSelectedItem();
                 port = (String) portComboBox.getSelectedItem();
                 frame = (String) frameComboBox.getSelectedItem();
+                String type = (String) frameComboBox.getSelectedItem();
+                dataBits = Character.getNumericValue(type.charAt(0));
+                if (type.charAt(1) == 'e') {
+                    parityBits = 2;
+                }
+                else if (type.charAt(1) == 'o') {
+                    parityBits = 1;
+                }
+                else {
+                    parityBits = 0;
+                }
+                stopBits = Character.getNumericValue(type.charAt(2));
                 close();
             }
         });
@@ -178,6 +195,33 @@ public class ConfigDialog extends JDialog {
      */
     public String getFrame() {
         return frame;
+    }
+
+    /**
+     * Get inserted number of data bits.
+     *
+     * @return number of data bits.
+     */
+    public int getDataBits() {
+        return dataBits;
+    }
+
+    /**
+     * Get inserted number of stop bits.
+     *
+     * @return number of stop bits.
+     */
+    public int getStopBits() {
+        return stopBits;
+    }
+
+    /**
+     * Get inserted number of parity bits.
+     *
+     * @return number of parity bits.
+     */
+    public int getParityBits() {
+        return parityBits;
     }
 
     /**

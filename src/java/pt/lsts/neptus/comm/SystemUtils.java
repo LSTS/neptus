@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,7 @@ public class SystemUtils {
     public final static String RPM_MAP_ENTITY_KEY = "RPM";
     public final static String COURSE_DEGS_KEY = "Course";
     public final static String HEADING_DEGS_KEY = "Heading";
+    public final static String DESIRED_HEADING_DEGS_KEY = "Desired Heading";
     public final static String FUEL_LEVEL_KEY = "Fuel Level";
     public final static String WEB_UPDATED_KEY = "Web Updated";
     public final static String LBL_CONFIG_KEY = "LblConfig";

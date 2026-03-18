@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,7 +53,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -67,6 +69,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
 import com.google.common.eventbus.Subscribe;
@@ -158,7 +161,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     protected int clickCount = 0;
     protected Point2D lastDragPoint = null;
     protected boolean dragging = false;
-    
+
+    private Date lastRequest = new Date(0);
+
     protected JLabel label = new JLabel("<html></html>");
     {
         label.setOpaque(true);
@@ -247,8 +252,17 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
                 synchronized (OperationLimitsSubPanel.this) {
                     lastMD5 = msg.payloadMD5();
-                    send(msg);
-                    send(new GetOperationalLimits());
+                    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
+                            boolean ret = send(msg);
+                            if (ret) {
+                                send(new GetOperationalLimits());
+                            }
+                            return ret;
+                        }
+                    };
+                    worker.execute();
                 }
             }
         };
@@ -267,7 +281,14 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
                 }
                 updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_REQUEST_RESPONSE_WAITING);
-                send(IMCDefinition.getInstance().create("GetOperationalLimits"));
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    @Override
+                    protected Boolean doInBackground() throws Exception {
+                        return send(IMCDefinition.getInstance().create("GetOperationalLimits"),
+                                e == null); // if e == null then is called on change the main vehicle
+                    }
+                };
+                worker.execute();
             }
         };
 
@@ -339,6 +360,39 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         oplimits.setMask((short) bmask);
 
         return oplimits;
+    }
+
+    @Override
+    public boolean send(IMCMessage message) {
+        return send(message, false);
+    }
+
+    public boolean send(IMCMessage message, boolean onlyWifi) {
+        String destination = getConsole().getMainSystem();
+        if (destination == null)
+            return false;
+        ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(destination);
+        if (sysL != null && !sysL.isActiveWifi()) {
+            if (onlyWifi)
+                return false; // do not send via Iridium if onlyWifi is true
+
+            boolean userAproveRequest = false;
+            boolean userAproved = true;
+            if (lastRequest.getTime() + Duration.ofSeconds(3).toMillis() < System.currentTimeMillis()) {
+                userAproveRequest = true;
+                userAproved = (GuiUtils.confirmDialog(getConsole(), I18n.text("Send by Iridium"),
+                        I18n.text("Systems is not active. Do you want to send by Iridium?")) == JOptionPane.YES_OPTION);
+            }
+            if (userAproved) {
+                if (userAproveRequest) {
+                    lastRequest = new Date();
+                }
+                return sendViaIridium(destination, message);
+            } else {
+                return false;
+            }
+        }
+        return super.send(message);
     }
 
     @Subscribe

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ package pt.lsts.neptus.util.llf;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,6 +49,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
@@ -66,6 +68,7 @@ public class LsfLogSource implements IMraLogGroup {
     LsfIndexListener listener = null;
     String[] existingMessages = null;
     Collection<Integer> vehicleSources;
+    CorrectedPosition positions;
     
     
     public LsfLogSource(String filename, LsfIndexListener listener) throws Exception {
@@ -88,47 +91,28 @@ public class LsfLogSource implements IMraLogGroup {
             throw(new IOException());
         
         if (f.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
-            GzipCompressorInputStream mmgis = new GzipCompressorInputStream(new FileInputStream(f), true);
-            File outFile = new File(f.getAbsolutePath().replaceAll("\\.gz$", ""));
-            if (!outFile.exists()) {
-                outFile.createNewFile();
-            }
-            try {
+            try (GzipCompressorInputStream mmgis = new GzipCompressorInputStream(new FileInputStream(f), true)) {
+                File outFile = new File(f.getAbsolutePath().replaceAll("\\.gz$", ""));
+                if (!outFile.exists()) {
+                    outFile.createNewFile();
+                }
+
                 StreamUtil.copyStreamToFile(mmgis, outFile);
                 f = outFile;
-            }
-            catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            finally {
-                try {
-                    mmgis.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         else if (f.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)) {
-            BZip2CompressorInputStream mmgis = new BZip2CompressorInputStream(new FileInputStream(f), true);
-            File outFile = new File(f.getAbsolutePath().replaceAll("\\.bz2$", ""));
-            if (!outFile.exists()) {
-                outFile.createNewFile();
-            }
-            try {
+            try (BZip2CompressorInputStream mmgis = new BZip2CompressorInputStream(new FileInputStream(f), true)) {
+                File outFile = new File(f.getAbsolutePath().replaceAll("\\.bz2$", ""));
+                if (!outFile.exists()) {
+                    outFile.createNewFile();
+                }
                 StreamUtil.copyStreamToFile(mmgis, outFile);
                 f = outFile;
-            }
-            catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            finally {
-                try {
-                    mmgis.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -136,10 +120,23 @@ public class LsfLogSource implements IMraLogGroup {
         File defsFile1 = new File(f.getParent()+"/IMC.xml");
         File defsFile2 = new File(f.getParent()+"/IMC.xml.gz");
         if(defsFile1.canRead()) {
-            defs = new IMCDefinition(new FileInputStream(defsFile1));
+            try (InputStream is = new FileInputStream(defsFile1)) {
+                defs = new IMCDefinition(is);
+            }
+            catch (Exception e) {
+                // defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
+                throw new Exception(String.format("IMC definition was not loaded correctly.\n(cause: %s).\n" +
+                        "Fix it or try to load with default IMC (delete the IMC on the log folder).", e.getMessage()), e);
+            }
         }
         else if (defsFile2.canRead()) {
-            defs = new IMCDefinition(new GzipCompressorInputStream(new FileInputStream(defsFile2), true));
+            try (InputStream is = new GzipCompressorInputStream(new FileInputStream(defsFile2), true)) {
+                defs = new IMCDefinition(is);
+            } catch (Exception e) {
+                // defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
+                throw new Exception(String.format("IMC definition was not loaded correctly.\n(cause: %s).\n" +
+                        "Fix it or try to load with default IMC (delete the IMC on the log folder).", e.getMessage()), e);
+            }
         }
         else {
             defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
@@ -278,4 +275,10 @@ public class LsfLogSource implements IMraLogGroup {
     public LsfIndex getLsfIndex() {
         return index;
     }
+
+    @Override
+    public void setCorrectedPosition(CorrectedPosition newPositions) { positions = newPositions; }
+
+    @Override
+    public CorrectedPosition getCorrectedPosition() { return positions; }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -82,7 +82,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
  * @author pdias
  *
  */
-@PluginDescription(author = "Paulo Dias", version = "0.4", name = "Sidescan Real-Time Waterfall")
+@PluginDescription(author = "Paulo Dias", version = "0.4", name = "Sidescan Real-Time Waterfall", icon = "images/sidescan.png")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
 @SuppressWarnings("serial")
 public class SidescanRealTimeWaterfall extends ConsolePanel

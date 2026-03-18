@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -69,7 +69,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
  * @author zp
  * 
  */
-@PluginDescription(name="S57 Tools")
+@PluginDescription(name="S57 Tools", icon = "images/s57-icon-s.png")
 public class S57SoundingsExporter extends ConsolePanel {
 
     private static final long serialVersionUID = 1653621815781506755L;

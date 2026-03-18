@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -168,6 +168,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     public void setHideTransponder(boolean hideTransponder) {
         treeModel.setHideTransponder(hideTransponder);
+        if (!hideTransponder) {
+            elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
+        }
+        elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
     }
     
     /**
@@ -374,8 +378,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         TreeMap<String, PlanType> localPlans = getLocalPlans(mission);
-        updatePlansStateEDT(localPlans, mainVehicleId);
         updateTransStateEDT(mission, mainVehicleId, console);
+        setHideTransponder(isHideTransponder()); // We need this here for proper display if hiding transponders
+        updatePlansStateEDT(localPlans, mainVehicleId);
         // Set the right nodes as selected
         setSelectedNodes(selectedNodes);
     }

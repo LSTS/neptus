@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,8 +33,6 @@
 package pt.lsts.neptus.soi;
 
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -56,16 +54,14 @@ import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.StateReport;
-import pt.lsts.imc.VerticalProfile;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.endurance.AssetsManager;
 import pt.lsts.neptus.endurance.CommMean;
 import pt.lsts.neptus.endurance.DripSettings;
 import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.endurance.SoiSettings;
-import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -85,7 +81,7 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  *
  */
 @PluginDescription(name = "SOI Interaction", icon="pt/lsts/neptus/soi/icons/soi_interaction.png")
-public class SoiInteraction extends SimpleRendererInteraction {
+public class SoiInteraction extends SimpleRendererInteraction implements ConfigurationListener {
 
     private static final long serialVersionUID = 477322168507708457L;
 
@@ -104,23 +100,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Audio Notifications", userLevel = LEVEL.REGULAR)
     public boolean audioNotifications = true;
+
+
     
-    @NeptusProperty(name = "Maximum profile age (hours)", userLevel = LEVEL.REGULAR,
-            description = "Profiles older than this age will be hidden")
-    public int oldestProfiles = 24;
-        
-    @NeptusProperty(name = "Use salinity colormap for profiles", userLevel = LEVEL.REGULAR)
-    public boolean colorizeSalinity = false;
-    
-    @NeptusProperty(name = "Show profile values", userLevel = LEVEL.REGULAR)
-    public boolean profileValues = true;
-    
-    
-    private VerticalProfileViewer profileView = new VerticalProfileViewer();
-    
-    /**
-     * @param console
-     */
     public SoiInteraction(ConsoleLayout console) {
         super(console);
     }
@@ -161,7 +143,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         try {
 
             Collection<PlanType> pps = getConsole().getMission().getIndividualPlansList().values();
-            List<String> ps = pps.stream().map(p -> p.getId()).collect(Collectors.toList());
+            List<String> ps = pps.stream().map(PlanType::getId).collect(Collectors.toList());
 
             if (ps.isEmpty()) {
                 GuiUtils.errorMessage(getConsole(), "Send SOI plan", "Create a plan to define the SOI waypoints.");
@@ -180,7 +162,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             if (scheduleWaypoints) {
                 SoiSettings vehicleSettings = (SoiSettings) AssetsManager.getInstance().getSettings().getOrDefault(system, new SoiSettings());
-                plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000l),
+                plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000L),
                         vehicleSettings.speed);
             }
 
@@ -316,23 +298,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
         }
     }
 
-    @Subscribe
-    public void on(VerticalProfile msg) {
-        profileView.addProfile(msg);
-        getConsole().post(Notification.success(I18n.text("Profile from "+msg.getSourceName()),
-                I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
-        
-        if (audioNotifications) {
-            VehicleType v = VehiclesHolder.getVehicleById(msg.getSourceName());
-            String vName = "Vehicle";
-            if (v != null)
-                vName = v.getNickname();
-            
-            say(vName+ " profile");
-            
-        }
-    }
-    
     private void say(String text) {
         if (audioNotifications) {
             SpeechUtil.removeStringsFromQueue(text);
@@ -357,9 +322,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 vName = v.getNickname();
             
             say(vName+ " update");
-            
         }
-        
     }
     
     @Subscribe
@@ -377,8 +340,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
         try {
             AssetsManager.getInstance().process(cmd, getConsole());
     
-            if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
+            if (cmd.getType() != SoiCommand.TYPE.SUCCESS && cmd.getType() != SoiCommand.TYPE.ERROR) {
                 return;
+            }
     
             NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
                     + cmd.hashCode());
@@ -387,21 +351,49 @@ public class SoiInteraction extends SimpleRendererInteraction {
             String vName = "Vehicle";
             if (v != null)
                 vName = v.getNickname();
-            
+
+            String info = "";
             switch (cmd.getCommand()) {
                 case GET_PARAMS:
                 case SET_PARAMS:
-                    setParams(cmd.getSourceName(), cmd.getSettings());
-                    say(vName+" params");
+                    info = cmd.getInfo();
+                    String getOrSet = cmd.getCommand() == COMMAND.GET_PARAMS ? "get" : "set";
+                    if (cmd.getType() == TYPE.SUCCESS) {
+                        setParams(cmd.getSourceName(), cmd.getSettings());
+                    }
+                    if (info == null) {
+                        info = "";
+                    }
+                    say(vName + " params; " + getOrSet + " "  + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 case GET_PLAN:
                 case EXEC:
-                    Plan plan = Plan.parse(cmd.getPlan());
-                    if (plan != null) 
-                        AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
-                    else
-                        AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
-                    say(vName+" plan");
+                    String getOrExec = cmd.getCommand() == COMMAND.GET_PLAN ? "get" : "exec";
+                    if (cmd.getType() == TYPE.SUCCESS) {
+                        Plan plan = Plan.parse(cmd.getPlan());
+                        if (plan != null) {
+                            AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                        }
+                        else {
+                            AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
+                        }
+                    }
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName+" plan; " + getOrExec + " " + cmd.getType().name().toLowerCase() + "; " + info);
+                    break;
+                case STOP:
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName + " stop; " + cmd.getType().name().toLowerCase() + "; " + info);
+                    break;
+                case RESUME:
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName + " resume; " + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 default:
                     break;
@@ -422,16 +414,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     String path = m.getAnnotation(NeptusMenuItem.class).value();
                     String name = path.substring(path.lastIndexOf(">") + 1);
 
-                    popup.add(name).addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                m.invoke(SoiInteraction.this);
-                            }
-                            catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                    popup.add(name).addActionListener(e -> {
+                        try {
+                            m.invoke(SoiInteraction.this);
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     });
                 }
@@ -439,30 +427,16 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             popup.addSeparator();
 
-            popup.add("Change plug-in settings").addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    PluginUtils.editPluginProperties(SoiInteraction.this, true);
-                    profileView.setOldestProfiles(oldestProfiles);
-                }
+            popup.add("Change plug-in settings").addActionListener(e -> {
+                PluginUtils.editPluginProperties(SoiInteraction.this, true);
             });
 
             popup.show(source, event.getX(), event.getY());
         }
-        else {
-            profileView.mouseClicked(event, source);
-        }
-    }
-    
-    @Override
-    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
-        profileView.mouseMoved(event, source);
     }
 
     private void sendCommand(SoiCommand cmd, final String system) {
-        new Thread(() -> {
-            AssetsManager.getInstance().sendCommand(system, cmd, commMean, getConsole());
-        }).start();
+        new Thread(() -> AssetsManager.getInstance().sendCommand(system, cmd, commMean, getConsole())).start();
     }
     
     @Override
@@ -472,9 +446,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
         if (!active && hideIfInactive)
             return;
 
-        SoiStateRenderer.paintStatic(g, renderer);        
-        profileView.setColorizeSalinity(colorizeSalinity);
-        profileView.setValuesTable(profileValues);
-        profileView.paint(g, renderer);
+        SoiStateRenderer.paintStatic(g, renderer);
     }
+
+    @Override
+    public void propertiesChanged() {
+        repaint();
+    }
+
 }

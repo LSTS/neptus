@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.cmdsenders;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -133,7 +134,7 @@ public class IridiumSender implements ITextMsgSender {
                 }
                 
                 try {
-                    URL url = new URL("https://secure.rock7mobile.com/rockblock");
+                    URL url = new URI("https://secure.rock7mobile.com/rockblock").toURL();
                     int len = url.openConnection().getContentLength();
                     if (len > 0)
                         lastSuccess = System.currentTimeMillis();

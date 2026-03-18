@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -86,15 +86,6 @@ public class HistoryPanel extends JPanel {
 
     protected ToolbarSwitch sw = new ToolbarSwitch(ImageUtils.getIcon(imgsPath + "logging.png"),
             I18n.text("Control auto-scroll"), null);
-
-    protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
-    {
-        bgColors.put(msg_type.critical, Color.black);
-        bgColors.put(msg_type.error, new Color(255, 128, 128));
-        bgColors.put(msg_type.warning, new Color(255, 255, 128));
-        bgColors.put(msg_type.info, new Color(200, 255, 200));
-        bgColors.put(msg_type.debug, new Color(217, 217, 217));
-    }
 
     public HistoryPanel(ConsoleLayout console, boolean showReload) {
         this.console = console;
@@ -223,6 +214,7 @@ public class HistoryPanel extends JPanel {
         scroll.revalidate();
     }
 
+
     public void setMessages(Vector<HistoryMessage> messages) {
         for (HistoryMessage m : messages) {
             if (!myMessages.contains(m)) {
@@ -237,13 +229,15 @@ public class HistoryPanel extends JPanel {
                 if (m.type == msg_type.debug && !showDebug)
                     continue;
 
-                JLabel l = new JLabel(m.toString(), getIcon(m.type), JLabel.LEFT);
+                JLabel l = new JLabel("", JLabel.LEFT);
+                l.setIcon(getIcon(m.type));
+                l.setText(m.toString());
                 l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(m.timestamp), m.context));
-                l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
+                l.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 3));
                 l.setOpaque(true);
-                l.setBackground(bgColors.get(m.type));
+                l.setBackground(LogBookHistory.bgColors.get(m.type));
                 if (m.type == msg_type.critical)
-                    l.setForeground(Color.yellow);
+                    l.setForeground(LogBookHistory.criticalFgColor);
                 mainPanel.add(l);
             }
         }
@@ -266,20 +260,20 @@ public class HistoryPanel extends JPanel {
         repaint();
     }
 
-    public ImageIcon getIcon(msg_type type) {
+    public ImageIcon getIcon(HistoryMessage.msg_type type) {
         switch (type) {
             case info:
-                return ImageUtils.getIcon(imgsPath + "info.png");
+                return LogBookHistory.infoImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png");
             case warning:
-                return ImageUtils.getIcon(imgsPath + "warning.png");
+                return LogBookHistory.warningImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/warning.png");
             case error:
-                return ImageUtils.getIcon(imgsPath + "error.png");
+                return LogBookHistory.errorImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
             case critical:
-                return ImageUtils.getIcon(imgsPath + "queue2.png");
+                return LogBookHistory.criticalImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
             case debug:
-                return ImageUtils.getIcon(imgsPath + "unknown.png");
+                return LogBookHistory.debugImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
             default:
-                return ImageUtils.getIcon(imgsPath + "queue.png");
+                return LogBookHistory.unknownImageIcon; //ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
         }
     }
 }

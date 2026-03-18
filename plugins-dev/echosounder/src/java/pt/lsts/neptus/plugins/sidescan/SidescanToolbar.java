@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,6 +41,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -56,11 +57,9 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
-import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author jqcorreia
- *
  */
 public class SidescanToolbar extends JToolBar {
     private static final long serialVersionUID = 1L;
@@ -87,8 +86,13 @@ public class SidescanToolbar extends JToolBar {
     private final JSpinner spinTVG = new JSpinner();
 
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
+    JToggleButton btnLogarithmicDecompression = new JToggleButton(I18n.text("DEC"));
+    final JSpinner spinLogarithmicDecompression = new JSpinner();
+    private final SpinnerNumberModel modelLogarithmicDecompression = new SpinnerNumberModel(1.7, 0.0, 100.0, 0.1);
+    private SubsystemListener subsystemListener;
 
-    RangeSlider windowSlider = new RangeSlider(0, 100);
+    private final List<Integer> subsystemList;
+    private ArrayList<JToggleButton> subsystemButtons;
 
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
@@ -103,11 +107,17 @@ public class SidescanToolbar extends JToolBar {
             PropertiesEditor.editProperties(panel.config, SwingUtilities.getWindowAncestor(panel), true);
             panel.config.saveProps();
 
-            if (panel.config.tvgGain != (Double) spinTVG.getValue())
+            if (panel.config.tvgGain != (Double) spinTVG.getValue()) {
                 spinTVG.setValue(panel.config.tvgGain);
+            }
 
-            if (panel.config.normalization != (Double) spinNormalization.getValue())
-                spinTVG.setValue(panel.config.normalization);
+            if (panel.config.normalization != (Double) spinNormalization.getValue()) {
+                spinNormalization.setValue(panel.config.normalization);
+            }
+
+            if (panel.config.logartihmicDecompression != (Double) spinLogarithmicDecompression.getValue()) {
+                spinLogarithmicDecompression.setValue(panel.config.logartihmicDecompression);
+            }
         }
     });
 
@@ -116,20 +126,26 @@ public class SidescanToolbar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             SidescanPanel.InteractionMode imode = SidescanPanel.InteractionMode.NONE;
 
-            if (btnInfo.isSelected())
+            if (btnInfo.isSelected()) {
                 imode = InteractionMode.INFO;
-            if (btnMark.isSelected())
+            }
+            if (btnMark.isSelected()) {
                 imode = InteractionMode.MARK;
-            if (btnMeasure.isSelected())
+            }
+            if (btnMeasure.isSelected()) {
                 imode = InteractionMode.MEASURE;
-            if (btnMeasureHeight.isSelected())
+            }
+            if (btnMeasureHeight.isSelected()) {
                 imode = InteractionMode.MEASURE_HEIGHT;
+            }
 
             for (SidescanPanel panel : panelList) {
                 panel.setInteractionMode(imode);
                 panel.setZoom(btnZoom.isSelected());
             }
-        };
+        }
+
+        ;
     };
 
     private final ChangeListener alGains = new ChangeListener() {
@@ -138,6 +154,7 @@ public class SidescanToolbar extends JToolBar {
             for (SidescanPanel panel : panelList) {
                 panel.config.tvgGain = (Double) spinTVG.getValue();
                 panel.config.normalization = (Double) spinNormalization.getValue();
+                panel.config.logartihmicDecompression = (Double) spinLogarithmicDecompression.getValue();
                 panel.record(btnRecord.isSelected());
             }
         }
@@ -146,19 +163,21 @@ public class SidescanToolbar extends JToolBar {
     private final ChangeListener autoEgnChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            spinNormalization.setEnabled(!btnAutoEgn.isSelected());
-            spinTVG.setEnabled(!btnAutoEgn.isSelected());
-            windowSlider.setEnabled(!btnAutoEgn.isSelected());
+            boolean btnState = !btnAutoEgn.isSelected();
+            spinNormalization.setEnabled(btnState);
+            spinTVG.setEnabled(btnState);
         }
     };
 
-    public SidescanToolbar(SidescanPanel... panel) {
+    public SidescanToolbar(List<Integer> subsystemList, SidescanPanel... panel) {
         super();
         for (SidescanPanel p : panel) {
             this.panelList.add(p);
         }
         this.spinNormalization.setModel(modelNormalization);
         this.spinTVG.setModel(modelTVG);
+        this.spinLogarithmicDecompression.setModel(modelLogarithmicDecompression);
+        this.subsystemList = subsystemList;
         buildToolbar();
     }
 
@@ -174,6 +193,45 @@ public class SidescanToolbar extends JToolBar {
         add(btnMark);
         add(btnZoom);
 
+        if (subsystemList.size() > 1) {
+            addSeparator();
+
+            ButtonGroup subsystemButtonGroup = new ButtonGroup() {
+                @Override
+                public void setSelected(ButtonModel model, boolean selected) {
+                    if (selected) {
+                        super.setSelected(model, selected);
+                    }
+                    else {
+                        clearSelection();
+                    }
+                }
+            };
+            subsystemButtons = new ArrayList<>();
+            for (int i = 1; i <= subsystemList.size(); i++) {
+                Integer subsystem = subsystemList.get(i - 1);
+                JToggleButton subsystemButton = new JToggleButton("CH " + i);
+                subsystemButtonGroup.add(subsystemButton);
+                subsystemButtons.add(subsystemButton);
+                subsystemButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        int subsystem = -1;
+                        for (int i = 0; i < subsystemButtons.size(); i++) {
+                            JToggleButton button = subsystemButtons.get(i);
+                            if (button.isSelected()) {
+                                subsystem = subsystemList.get(i);
+                                break;
+                            }
+                        }
+                        if (subsystemListener != null) {
+                            subsystemListener.setSubsystem(subsystem);
+                        }
+                    }
+                });
+                add(subsystemButton);
+            }
+        }
+
         addSeparator();
         add(lblNormalization);
         add(spinNormalization);
@@ -182,71 +240,9 @@ public class SidescanToolbar extends JToolBar {
         add(spinTVG);
         btnAutoEgn.setToolTipText("Empirical Gain Normalization");
         add(btnAutoEgn);
-
-        windowSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Window slider"),
-                I18n.text("Left/right keys for lower value change"),
-                I18n.text("Shift+left/right keys for upper value change"),
-                I18n.text("Control+left/right keys for window value change")));
-        windowSlider.setUpperValue(100);
-        windowSlider.setValue(0);
-        windowSlider.setMinorTickSpacing(5);
-        windowSlider.setMajorTickSpacing(20);
-        windowSlider.addKeyListener(new KeyAdapter() {
-            RangeSlider slider = windowSlider;
-            @Override
-            public void keyPressed(KeyEvent e) {
-                slider.setValueIsAdjusting(true);
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_KP_LEFT:
-                    case KeyEvent.VK_DOWN:
-                    case KeyEvent.VK_KP_DOWN:
-                        if (e.isShiftDown())
-                            slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
-                        else if (e.isControlDown()) {
-                            int delta = slider.getUpperValue() - slider.getValue();
-                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
-                            slider.setUpperValue(slider.getValue() + delta);
-                        }
-                        else
-                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_KP_RIGHT:
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_KP_UP:
-                        if (e.isShiftDown())
-                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
-                        else if (e.isControlDown()) {
-                            int delta = slider.getUpperValue() - slider.getValue();
-                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
-                            slider.setValue(slider.getUpperValue() - delta);
-                        }
-                        else
-                            slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
-                        break;
-                    default:
-                        break;
-                }
-                e.consume();
-                super.keyPressed(e);
-            }
-            public void keyReleased(KeyEvent e) {
-                slider.setValueIsAdjusting(false);
-            }
-        });
-        windowSlider.addChangeListener(e -> {
-            double selMin = windowSlider.getValue() / 100.0;
-            double selMax = windowSlider.getUpperValue() / 100.0;
-            if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-                for (SidescanPanel panel : panelList) {
-                    panel.config.sliceMinValue = selMin;
-                    panel.config.sliceWindowValue = selMax - selMin;
-                    panel.config.validateValues();
-                }
-            }
-        });
-        add(windowSlider);
+        add(spinLogarithmicDecompression);
+        btnLogarithmicDecompression.setToolTipText("Logarithmic Decompression");
+        add(btnLogarithmicDecompression);
 
         addSeparator();
         add(btnConfig);
@@ -260,14 +256,30 @@ public class SidescanToolbar extends JToolBar {
 
         if (!panelList.isEmpty()) {
             spinNormalization.setValue(panelList.get(0).config.normalization);
+            spinTVG.setValue(panelList.get(0).config.tvgGain);
+            spinLogarithmicDecompression.setValue(panelList.get(0).config.logartihmicDecompression);
         }
         spinNormalization.addChangeListener(alGains);
-
-        if (!panelList.isEmpty()) {
-            spinTVG.setValue(panelList.get(0).config.tvgGain);
-        }
         spinTVG.addChangeListener(alGains);
+        spinLogarithmicDecompression.addChangeListener(alGains);
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }
+
+    public void setSubsystemListener(SubsystemListener subsystemListener) {
+        this.subsystemListener = subsystemListener;
+    }
+
+    public void setCurrentSubsystem(Integer subsystem) {
+        for (int i = 0; i < subsystemButtons.size(); i++) {
+            JToggleButton subsystemButton = subsystemButtons.get(i);
+            if (subsystem == -1) {
+                subsystemButton.setSelected(false);
+            }
+            else if (subsystem.equals(subsystemList.get(i))) {
+                subsystemButton.setSelected(true);
+            }
+        }
+    }
+
 }

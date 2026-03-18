@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -599,7 +599,21 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
         boolean ret = super.fromClipboardText(text);
         if (!ret)
             return ret;
-        StringTokenizer st = new StringTokenizer(text);
+
+        StringTokenizer st = new StringTokenizer(text, ",\t\n\r\f");
+        try {
+            if (st.countTokens() == 2) {
+                setAnglesUsed(false);
+                setRoll(0);
+                setPitch(0);
+                setYaw(0);
+                return true;
+            }
+        } catch (Exception e) {
+            // skip error
+        }
+
+        st = new StringTokenizer(text);
         if (st.countTokens() == 11) {
             setAnglesUsed(false);
             setRoll(0);
@@ -632,9 +646,9 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
         NeptusLog.pub().info("<###> "+l2);
         NeptusLog.pub().info("<###> "+l3);
         try {
-            c2 = l1.getNewAbsoluteLatLonDepth();
+            LocationType la1= l1.getNewAbsoluteLatLonDepth();
             NeptusLog.pub().info("<###> "+l1);
-            NeptusLog.pub().info("<###> "+c2);
+            NeptusLog.pub().info("<###> "+la1);
         }
         catch (Exception e) {
             e.printStackTrace();

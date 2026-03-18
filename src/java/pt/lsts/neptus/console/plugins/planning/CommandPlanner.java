@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,11 +35,13 @@ package pt.lsts.neptus.console.plugins.planning;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -73,6 +75,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -246,10 +249,11 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     break;
                 case "asv":
                 case "usv":
-                    settings += " / S="+asvSpeed.toStringAsDefaultUnits()+")";                    
+                    loiterSettings += "S="+asvSpeed.toStringAsDefaultUnits()+")";
+                    settings += "S="+asvSpeed.toStringAsDefaultUnits()+")";
                     break;
                 case "uav":
-                    settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
+                    settings += uavZUnits.name().charAt(0)+"="+nf.format(uavZ) ;
                     settings += " S="+uavSpeed.toStringAsDefaultUnits()+")";     
                     break;
                 case "rov":
@@ -422,7 +426,36 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     menu.add(new AbstractAction(I18n.text("Change settings")) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
+                            PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true,
+                                    pProps -> {
+                                        List<PluginProperty> ret = new ArrayList<>();
+                                        for (int i = 0; i < pProps.length; i++) {
+                                            PluginProperty p = pProps[i];
+                                            switch (v.getType().toLowerCase()) {
+                                                case "auv":
+                                                case "uuv":
+                                                    if (p.getCategory().equalsIgnoreCase("auv"))
+                                                        ret.add(p);
+                                                    break;
+                                                case "asv":
+                                                case "usv":
+                                                    if (p.getCategory().equalsIgnoreCase("asv"))
+                                                        ret.add(p);
+                                                    break;
+                                                case "uav":
+                                                    if (p.getCategory().equalsIgnoreCase("uav"))
+                                                        ret.add(p);
+                                                    break;
+                                                case "rov":
+                                                    if (p.getCategory().equalsIgnoreCase("rov"))
+                                                        ret.add(p);
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                        return ret.toArray(new PluginProperty[0]);
+                                    });
                         }
                     });
                     items.add(menu);

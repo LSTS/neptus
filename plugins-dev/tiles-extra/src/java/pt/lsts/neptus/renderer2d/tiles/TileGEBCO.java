@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -116,11 +116,10 @@ public class TileGEBCO extends TileHttpFetcher {
         lon1 = Math.min(ret1[1], ret2[1]);
         lon2 = Math.max(ret1[1], ret2[1]);
         
-        String urlGet = "http://www.gebco.net/data_and_products/gebco_web_services/" +
-        		"web_map_service/mapserv?request=getmap&service=wms&" +
-        		"BBOX=" + lon1 + "," + lat1 + "," + lon2 + "," + lat2 +
-        		"&srs=EPSG:4326&format=image/jpeg&layers=gebco_08_grid&" +
-        		"width=256&height=256&version=1.1.1";
+        String urlGet = "https://wms.gebco.net/mapserv?request=getmap&service=wms&" +
+                "BBOX=" + lat1 + "," + lon1 + "," + lat2 + "," + lon2 +
+                "&crs=EPSG:4326&format=image/jpeg&layers=gebco_latest&" +
+                "width=256&height=256&version=1.3.0";
         NeptusLog.pub().info("<###> "+urlGet);
         return urlGet;
     }

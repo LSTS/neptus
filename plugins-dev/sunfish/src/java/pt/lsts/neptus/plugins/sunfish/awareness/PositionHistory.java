@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -66,7 +67,7 @@ public class PositionHistory {
             return;
         }
         NeptusLog.pub().info("Downloading positions for day "+day+"...");
-        URL urlData = new URL(positions_url+day);
+        URL urlData = new URI(positions_url+day).toURL();
         HttpURLConnection conn = (HttpURLConnection) urlData.openConnection();
         if (authKey != null && !authKey.isEmpty()) {
             conn.setRequestProperty ("Authorization", authKey);

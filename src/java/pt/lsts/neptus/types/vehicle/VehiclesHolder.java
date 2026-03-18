@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -54,6 +55,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.CoordinateSystemsHolder;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -173,6 +175,18 @@ public class VehiclesHolder {
                 return veh;
         }
         return null;
+    }
+
+    public static VehicleType getVehicleWithImei(String imei) {
+        Collection<VehicleType> vtList = VehiclesHolder.getVehiclesList().values();
+        if (vtList.isEmpty()) {
+            return null;
+        }
+
+       return vtList.stream().filter(vt -> vt.getProtocolsArgs().containsKey(CommMean.IRIDIUM)).filter(vt -> {
+            IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get(CommMean.IRIDIUM);
+            return args.getImei().equals(imei) || (args.getImei1() != null && args.getImei1().equals(imei));
+        }).findFirst().orElse(null);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,7 +51,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
-import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -61,10 +60,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatter;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.gui.ClockCounter.ClockState;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
@@ -101,7 +100,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             16, 16);
 
     public static enum CronState {
-        STOPED,
+        STOPPED,
         STARTED,
         PAUSED
     };
@@ -119,7 +118,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
     private long maxSecs = -1;
 
-    protected CronState cState = CronState.STOPED;
+    protected CronState cState = CronState.STOPPED;
 
 //    private Timer timer = new Timer(this.getClass().getSimpleName() + ": " + this.hashCode(), true);
 //    private TimerTask tTask = null;
@@ -144,34 +143,19 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
     private void initialize() {
         setBackground(COLOR_OK);
-        GroupLayout layout = new GroupLayout(this);
-        this.setLayout(layout);
-        layout.setAutoCreateGaps(false);
-        layout.setAutoCreateContainerGaps(false);
-
-        layout.setHorizontalGroup(layout
-                .createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup().addComponent(getDisplay()))
-                .addGroup(
-                        layout.createSequentialGroup().addComponent(getStartStopToggleButton())
-                                .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                .addComponent(getCountdownToggleButton()).addGap(10)
-                                .addComponent(getLabelPanel())));
-
-        layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(
-                layout.createSequentialGroup()
-                        .addComponent(getDisplay())
-                        .addGroup(
-                                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                        .addComponent(getStartStopToggleButton())
-                                        .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                        .addComponent(getCountdownToggleButton())
-                                        .addComponent(getLabelPanel()))));
-
-        layout.linkSize(SwingConstants.HORIZONTAL, getStartStopToggleButton(), getPauseResumeToggleButton(),
-                getAlarmValueButton(), getCountdownToggleButton()/* , getResetButton() */);
-        layout.linkSize(SwingConstants.VERTICAL, getStartStopToggleButton(), getPauseResumeToggleButton(),
-                getAlarmValueButton(), getCountdownToggleButton()/* , getResetButton() */);
+        MigLayout migLayout = new MigLayout(
+                "fillx, insets 0",
+                "[][]",
+                "[grow]0[fill]" //, 20:20:30
+        );
+        this.setLayout(migLayout);
+        this.add(getDisplay(), "span, grow, wrap");
+        this.add(getStartStopToggleButton(), "w 20:20:60, h 0:20:30, split 6, gapright 0, grow, top");
+        this.add(getPauseResumeToggleButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getAlarmValueButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getCountdownToggleButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getResetButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getLabelPanel(), "grow");
     }
 
     public void hideButtons() {
@@ -360,7 +344,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             msTime = System.currentTimeMillis() - msStart + msAcum;
         else if (cState == CronState.PAUSED)
             msTime = msStop - msStart + msAcum;
-        else if (cState == CronState.STOPED)
+        else if (cState == CronState.STOPPED)
             msTime = msEnd - msStart + msAcum;
         return msTime;
     }
@@ -428,7 +412,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             }
         }
         else if (aCommand.equalsIgnoreCase(ACTION_RESET)) {
-            if (cState == CronState.STOPED) {
+            if (cState == CronState.STOPPED) {
                 setMaxSecs(0L);
             }
         }
@@ -473,7 +457,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     }
 
     protected void updateState(CronEvent event) {
-        if (cState == CronState.STOPED) {
+        if (cState == CronState.STOPPED) {
             if (event == CronEvent.START) {
                 msTime = 0;
                 msStart = System.currentTimeMillis();
@@ -491,7 +475,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             }
             else if (event == CronEvent.STOP) {
                 msEnd = System.currentTimeMillis();
-                cState = CronState.STOPED;
+                cState = CronState.STOPPED;
                 stopDisplayUpdate();
                 updateDisplay();
                 alreadyReported = false;
@@ -505,7 +489,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             }
             else if (event == CronEvent.STOP) {
                 msEnd = msStop;
-                cState = CronState.STOPED;
+                cState = CronState.STOPPED;
                 stopDisplayUpdate();
                 updateDisplay();
             }
@@ -572,7 +556,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
         if (cState == CronState.STARTED)
             getDisplay().setState(ClockState.START);
-        else if (cState == CronState.STOPED)
+        else if (cState == CronState.STOPPED)
             getDisplay().setState(ClockState.STOP);
         else if (cState == CronState.PAUSED)
             getDisplay().setState(ClockState.PAUSE);

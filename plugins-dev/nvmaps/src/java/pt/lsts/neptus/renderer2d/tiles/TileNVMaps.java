@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,7 +47,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
  * @author pdias
  *
  */
-@MapTileProvider(name = "NV Map Overlay", isBaseMapOrLayer = true)
+@MapTileProvider(name = "NV Map Overlay", isBaseMapOrLayer = true, isExperimental = true)
 public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener {
     
     //TODO put copyright text to show in renderer "© NVMap contributors"

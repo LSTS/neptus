@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,7 +41,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -63,7 +63,7 @@ public class HTTPUtils {
 	
 	public static String post(String url, String content) {
 		try {
-			URLConnection conn = new URL(url).openConnection();
+			URLConnection conn = new URI(url).toURL().openConnection();
 			conn.setDoOutput(true);
 			
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
@@ -102,7 +102,7 @@ public class HTTPUtils {
 		String result = "";
 		
 		try {
-			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URI(url).toURL().openConnection();
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			result = "";
@@ -125,7 +125,7 @@ public class HTTPUtils {
 		HttpURLConnection conn = null;
 		
 		try {
-			conn = (HttpURLConnection) new URL(url).openConnection();
+			conn = (HttpURLConnection) new URI(url).toURL().openConnection();
 			conn.setDoOutput(true);			
 			conn.setRequestMethod("PUT");
 			
@@ -158,7 +158,7 @@ public class HTTPUtils {
 	
 	public static boolean isValidURL(String url) {
 		try {
-			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URI(url).toURL().openConnection();
 			conn.setConnectTimeout(3000);
 			conn.connect();
 			conn.disconnect();
@@ -183,7 +183,7 @@ public class HTTPUtils {
 	public static long getRemoteFileLength(String url) {
 		try {		    
 			HttpURLConnection connection;
-			connection = (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) new URI(url).toURL().openConnection();
 			connection.setConnectTimeout(3000);			
 			connection.connect();
 			long length = connection.getContentLength();
@@ -242,7 +242,7 @@ public class HTTPUtils {
 		
 		
 		try {
-			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URI(url).toURL().openConnection();
 			conn.setConnectTimeout(3000);
 			conn.connect();
 			int bytesRead = 0;

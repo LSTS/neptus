@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,8 @@
 package pt.lsts.neptus.test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import pt.lsts.neptus.NeptusLog;
 
@@ -57,7 +59,7 @@ public class TestRun
     {
         NeptusLog.pub().info("<###> "+System.getProperty("os.name"));
         Runtime rt = Runtime.getRuntime();
-        Process ps = rt.exec("notepad");
+        Process ps = rt.exec(List.of("notepad").toArray(new String[0]));
         ps.waitFor();
         NeptusLog.pub().info("<###> "+ps.exitValue());
     }

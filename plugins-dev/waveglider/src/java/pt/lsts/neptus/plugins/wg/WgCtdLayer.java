@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.Date;
 import java.util.TreeMap;
@@ -193,7 +194,7 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
 
     private boolean fetchHistory(String url) {
         try {
-            URL urlAssets = new URL(url);
+            URL urlAssets = new URI(url).toURL();
             // File tmp = File.createTempFile("neptus", "assets");
             File tmp = new File("ctdLR.txt");
             FileUtils.copyURLToFile(urlAssets, tmp);

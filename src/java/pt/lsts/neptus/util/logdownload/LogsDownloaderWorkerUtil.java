@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -120,9 +120,7 @@ class LogsDownloaderWorkerUtil {
             private ThreadGroup group;
             private long count = 0;
             {
-                SecurityManager s = System.getSecurityManager();
-                group = (s != null) ? s.getThreadGroup() :
-                    Thread.currentThread().getThreadGroup();
+                group = Thread.currentThread().getThreadGroup();
             }
             @Override
             public Thread newThread(Runnable r) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,7 +45,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -80,33 +82,43 @@ import pt.lsts.neptus.util.output.OutputMonitor;
 public class NeptusMain {
 
     private static final LinkedHashMap<String, String> appNames = new LinkedHashMap<>();
+    private static final Map<String, Runnable> appLauncher = new LinkedHashMap<>();
     private static final LinkedHashMap<String, Class<?>> fileHandlers = new LinkedHashMap<>();
     private static final List<Window> openAppWindows = new ArrayList<>();
     private static Loader loader;
+
+    static String defaultApp = "auv";
 
     private static void init() {
         GeneralPreferences.initialize();
 
         // appNames.put("ws", I18n.text("Workspace"));
-        appNames.put("auv", I18n.text("LAUV Console"));
-        appNames.put("mra", I18n.text("Mission Review & Analysis"));
-        appNames.put("la", I18n.text("LAUV SE Console"));
-        appNames.put("uav", I18n.text("UAV Console"));
-        appNames.put("cl", I18n.text("Empty Console"));
+        appNames.putIfAbsent("auv", I18n.text("LAUV Console"));
+        appNames.putIfAbsent("mra", I18n.text("Mission Review & Analysis"));
+        appNames.putIfAbsent("la", I18n.text("LAUV SE Console"));
+        appNames.putIfAbsent("uav", I18n.text("UAV Console"));
+        appNames.putIfAbsent("cl", I18n.text("Empty Console"));
 
         // fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
         // fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_CONFIG, EditorLauncher.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_CONSOLE, ConsoleParse.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_CONFIG, EditorLauncher.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_CONSOLE, ConsoleParse.class);
         // fileHandlers.put(FileUtil.FILE_TYPE_VEHICLE, Workspace.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_CHECKLIST, Workspace.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_INI, EditorLauncher.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_RMF, RMFEditor.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_XML, EditorLauncher.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_CHECKLIST, Workspace.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_INI, EditorLauncher.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_RMF, RMFEditor.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_XML, EditorLauncher.class);
 
-        fileHandlers.put(FileUtil.FILE_TYPE_LSF, NeptusMRA.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2, NeptusMRA.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_LSF, NeptusMRA.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);
+        fileHandlers.putIfAbsent(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2, NeptusMRA.class);
+    }
+
+    static void registerLauncher(String key, String name, Runnable launcher) {
+        appNames.put(key, name);
+        if (launcher != null) {
+            appLauncher.put(key, launcher);
+        }
     }
 
     /**
@@ -120,11 +132,15 @@ public class NeptusMain {
         launch(new Loader(), appargs);
     }
 
+    public static void launch(Loader loader, String[] appargs) {
+        launch(loader, appargs, null);
+    }
+
     /**
      * @param loader A {@link Loader} to use on the opening of the program
      * @param appargs The commandline arguments for the program
      */
-    public static void launch(Loader loader, String[] appargs) {
+    public static void launch(Loader loader, String[] appargs, Function<LaunchInitializerHolder, Boolean> afterInit) {
         ConfigFetch.initialize(); // Don't touch this, leave it as it his
         // benchmark
         long start = System.currentTimeMillis();
@@ -133,12 +149,21 @@ public class NeptusMain {
         if (appNames.isEmpty()) {
             init();
         }
-        
+
         String app = appargs[0];
         loader.start();
         ConfigFetch.setSuperParentFrameForced(loader);
 
         loadPreRequirementsDataExceptConfigFetch(loader, true);
+
+        if (afterInit != null) {
+            LaunchInitializerHolder launchInitializerHolder = new LaunchInitializerHolder(appNames, fileHandlers);
+            Boolean ret = afterInit.apply(launchInitializerHolder);
+            if (ret != null && !ret) {
+                loader.end();
+                return;
+            }
+        }
 
         // When loading one can type the application to start
         String typ = loader.getTypedString();
@@ -161,7 +186,7 @@ public class NeptusMain {
             if (appT != null)
                 app = typ;
             else
-                app = "auv";
+                app = defaultApp;
         }
         else if (app.equalsIgnoreCase("-f") && appargs.length >= 2) {
             loader.setText(I18n.text("Opening file..."));
@@ -223,6 +248,18 @@ public class NeptusMain {
             // appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
+        }
+        else if (appLauncher.containsKey(app)) {
+            ConfigFetch.initialize();
+            try {
+                appLauncher.get(app).run();
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(I18n.textf("Error launching application %app", app), e);
+                GuiUtils.errorMessage(loader, I18n.text("Error launching application"),
+                        I18n.textf("An error occurred while launching the application %app: %error", app,
+                                e.getMessage()));
+            }
         }
         // File loading
         else {

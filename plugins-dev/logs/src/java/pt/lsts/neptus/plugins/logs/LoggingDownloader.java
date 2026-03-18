@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -539,6 +540,7 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
                     NeptusLog.pub().warn("Not able to get IMC System for '" + id + "'");
                     continue;
                 }
+                String defaultHost = sys3.getHostAddress();
                 dw.setHost(sys3.getHostAddress());
                 dw.setLogLabel(id.toLowerCase());
 
@@ -559,9 +561,16 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
 
                 //Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
                 Vector<URI> sUri = sys3.getServiceProvided("ftp", "*");
-                if (sUri.size() > 0) {
-                    dw.setHost(sUri.get(0).getHost());
-                    dw.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
+                if (!sUri.isEmpty()) {
+                    Optional<URI> fMatch = sUri.stream().filter(uri -> uri.getHost() != null && uri.getHost().equalsIgnoreCase(defaultHost))
+                            .findFirst();
+                    if (fMatch.isPresent()) {
+                        dw.setHost(fMatch.get().getHost());
+                        dw.setPort((fMatch.get().getPort() <= 0) ? 21 : fMatch.get().getPort());
+                    } else {
+                        dw.setHost(sUri.get(0).getHost());
+                        dw.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
+                    }
                 }
                 if (sUri.size() > 1) {
                     for (URI uriT : sUri) {

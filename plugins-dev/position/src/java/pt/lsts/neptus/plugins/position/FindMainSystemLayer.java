@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -186,12 +186,20 @@ public class FindMainSystemLayer extends ConsoleLayer {
         else {
             txt.append(absHeadingRadsToLookOrientation.getAbbrev()).append("<br/>");
             txt.append(Math.round(Math.toDegrees(absHeadingRadsToLook))).append("\u00B0<br/>");
+            double absDistanceToLookNMiles = absDistanceToLook / 1852.0;
             int dc = 0;
+            int dcNM = 0;
             if (absDistanceToLook >= 1E3)
                 dc = 2;
             if (absDistanceToLook >= 100E3)
                 dc = 1;
+            if (absDistanceToLookNMiles >= 1E3)
+                dcNM = 2;
+            if (absDistanceToLookNMiles >= 100E3)
+                dcNM = 1;
             txt.append(MathMiscUtils.parseToEngineeringNotation(absDistanceToLook, dc)).append("m");
+            if (absDistanceToLookNMiles >= 1)
+                txt.append("<br/>").append(MathMiscUtils.parseToEngineeringNotation(absDistanceToLookNMiles, dcNM)).append("NM");
         }
         txt.append("</b></div></html>");
         toDraw.setText(txt.toString());

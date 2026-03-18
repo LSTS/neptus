@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,13 +65,19 @@ public class HoveringButton {
     private boolean useHoveringAlfa = true;
     private boolean visible = true;
     private boolean isToggle = true;
+    private boolean paintSelectedState = true;
     
     public HoveringButton(Image image) {
         this.image = image;
         width = image.getWidth(null);
         height = image.getHeight(null);
     }
-    
+
+    public HoveringButton(Image image, boolean paintSelectedState) {
+        this(image);
+        this.paintSelectedState = paintSelectedState;
+    }
+
     /**
      * @return the image
      */
@@ -120,11 +126,14 @@ public class HoveringButton {
             this.selected = selected;
         onSelectedChange(this.selected);
     }
-    
+
+    public void setSelectedWithoutEvent(boolean selected) {
+        this.selected = selected;
+    }
+
     public void toggleSelected() {
         setSelected(!selected);
     }
-    
     /**
      * @return the hovering
      */
@@ -218,7 +227,7 @@ public class HoveringButton {
         g2.setComposite(AlphaComposite.getInstance(type, !useHoveringAlfa ? 0.8f : (hovering ? 0.8f : 0.3f)));
         g2.drawImage(image, x, y, width, height, null);
 
-        if (selected && isToggle) {
+        if (selected && isToggle && paintSelectedState) {
             g2.setColor(COLOR_RED_TRANSP);
             float sz = width / 3.0f;
             g2.setStroke(new BasicStroke(sz));

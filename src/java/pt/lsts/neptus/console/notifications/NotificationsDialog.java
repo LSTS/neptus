@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -52,6 +52,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Hugo
@@ -88,6 +90,11 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     private boolean popupsEnabled = true;
     private boolean focus = false;
 
+    private static final ImageIcon successImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-success.png", 16, 16);
+    private static final ImageIcon infoImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-info.png", 16, 16);
+    private static final ImageIcon warningImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-warning.png", 16, 16);
+    private static final ImageIcon errorImageIcon =ImageUtils.createScaleImageIcon("images/icons/noty-error.png", 16, 16);
+
     /**
      * Construtor
      * @param notifications
@@ -98,6 +105,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         this.console = console;
         this.notifications = notifications;
         NeptusEvents.register(this, console);
+        NeptusEvents.register(this); // Register on the generic event bus
         Toolkit.getDefaultToolkit().addAWTEventListener(this, AWTEvent.MOUSE_EVENT_MASK);
         this.glassPane = new NotificationsGlassPane(console);
 
@@ -115,7 +123,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         jList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == false && jList.getSelectedIndex() != -1) {
+                if (!e.getValueIsAdjusting() && jList.getSelectedIndex() != -1) {
                     Notification noty = jList.getSelectedValue();
                     glassPane.addAtomic(noty);
                 }
@@ -161,11 +169,14 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     }
 
     /**
-     * Sets the visiblity flag of the dialog
+     * Sets the visibility flag of the dialog
      * 
-     * @param flag
+     * @param flag true to show the dialog, false to hide it
      */
     public void visible(boolean flag) {
+        if (flag && !this.isVisible()) {
+            this.jList.clearSelection();
+        }
         this.setVisible(flag);
         glassPane.clear();
         if (flag) {
@@ -173,8 +184,12 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         }
     }
 
+    public boolean isPopupsEnabled() {
+        return popupsEnabled;
+    }
+
     /**
-     * Clears the list and glasspane (popups)
+     * Clears the list and glass pane (popups)
      */
     public void clear() {
         notifications.clear();
@@ -191,6 +206,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         List<Notification> n = notifications.getList();
         Collections.sort(n);
         jList.setListData(n.toArray(new Notification[0]));
+        jList.repaint();
         if (popupsEnabled) {
             glassPane.add(e.getNoty());
         }
@@ -206,14 +222,17 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         focus = false;
     }
 
-    private class NotificationRenderer extends JLabel implements ListCellRenderer<Notification> {
+    private static class NotificationRenderer extends JLabel implements ListCellRenderer<Notification> {
         private static final long serialVersionUID = 1L;
 
         @Override
         public Component getListCellRendererComponent(JList<? extends Notification> list, Notification value,
                 int index, boolean isSelected, boolean cellHasFocus) {
+            String actionTxt = value.getActionListener() != null && !value.isActionTriggered()
+                    ? "[ <b><i>" + I18n.text("action") + "</i></b> ] "
+                    : "";
             setText("<html> " + value.getTimeText() + " [ <b width='100px; display: inline'>" + value.getSrc()
-                    + "</b> ] " + value.getTitle() + "</html>");
+                    + "</b> ] " + actionTxt + value.getTitle() + "</html>");
 
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
@@ -238,6 +257,23 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
                 }
                 setForeground(new Color(0x333333));
             }
+
+            switch (value.getType()) {
+                case ERROR:
+                    setIcon(errorImageIcon);
+                    break;
+                case SUCCESS:
+                    setIcon(successImageIcon);
+                    break;
+                case WARNING:
+                    setIcon(warningImageIcon);
+                    break;
+                case INFO:
+                default:
+                    setIcon(infoImageIcon);
+                    break;
+            }
+
             setEnabled(list.isEnabled());
             setFont(new Font("Arial", Font.PLAIN, 12));
             setOpaque(true);
@@ -251,7 +287,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         if (event instanceof MouseEvent && this.isVisible()) {
             MouseEvent me = (MouseEvent) event;
             String name = me.getComponent().getName() == null ? "" : me.getComponent().getName();
-            if (!name.equals("notification") && focus == false)
+            if (!name.equals("notification") && !focus)
                 this.visible(false);
         }
     }

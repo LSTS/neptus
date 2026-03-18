@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -302,6 +302,9 @@ public class SpeedType {
     }
 
     public String toStringAsDefaultUnits() {
+        if (units == Units.RPM || units == Units.Percentage)
+            return toString();
+
         Units defaultUnits = GeneralPreferences.speedUnits;
         return GuiUtils.getNeptusDecimalFormat(2).format(getAs(defaultUnits)) + " " + defaultUnits.name;
     }

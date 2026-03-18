@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,9 +35,13 @@ package pt.lsts.neptus.plugins.sim;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import pt.lsts.imc.GpsFix;
@@ -45,7 +49,10 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.planeditor.IEditorMenuExtension;
+import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -53,12 +60,17 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-public class SimulationActionsPlugin extends ConsolePanel {
+public class SimulationActionsPlugin extends ConsolePanel implements IEditorMenuExtension {
 
     protected final String menuTools = I18n.text("Tools");
     protected final String menuSimulation = I18n.text("Simulation");
     protected final String menuSendFix = I18n.text("Send GPS Fix");
     protected final String menuChooseHeight = I18n.text("Simulated Height...");
+
+    private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
+    private Vector<ILayerPainter> renderers = new Vector<ILayerPainter>();
+
+    private GpsFixDialog gpsFixDialog;
     
     @NeptusProperty
     private double simulatedHeight = 0;
@@ -72,6 +84,7 @@ public class SimulationActionsPlugin extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
+        gpsFixDialog = new GpsFixDialog(this);
         addMenuItem(menuTools+">"+menuSimulation+">"+menuSendFix, null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,6 +99,11 @@ public class SimulationActionsPlugin extends ConsolePanel {
                 selectHeight();
             }
         });
+
+        renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+        for (IMapPopup str2d : renderersPopups) {
+            str2d.addMenuExtension(this);
+        }
     }
 
     private void selectHeight() {
@@ -103,36 +121,46 @@ public class SimulationActionsPlugin extends ConsolePanel {
     }
     
     private void sendGpsFix() {
-        Vector<MapPanel> pps = getConsole().getSubPanelsOfClass(MapPanel.class); 
+
+        Vector<MapPanel> pps = getConsole().getSubPanelsOfClass(MapPanel.class);
         if (pps.isEmpty()) {
             GuiUtils.errorMessage(I18n.text("Cannot send GPS fix"), I18n.text("There must be a planning panel in the console"));
             return;
         }
         else {
-            LocationType loc = pps.firstElement().getRenderer().getCenter();
-            loc.convertToAbsoluteLatLonDepth();
-            Calendar cal = GregorianCalendar.getInstance();
-
-            GpsFix fix = GpsFix.create( 
-                    "validity", 0xFFFF, 
-                    "type", "MANUAL_INPUT", 
-                    "utc_year", cal.get(Calendar.YEAR),
-                    "utc_month", cal.get(Calendar.MONTH)+1,
-                    "utc_day", cal.get(Calendar.DATE),
-                    "utc_time", cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND),
-                    "lat", loc.getLatitudeRads(),
-                    "lon", loc.getLongitudeRads(),
-                    "height", simulatedHeight,
-                    "satellites", 4,
-                    "cog", 0,
-                    "sog", 0,
-                    "hdop", 1,
-                    "vdop", 1,
-                    "hacc", 2,
-                    "vacc", 2                                    
-                    );
-            send(fix);
+            GuiUtils.centerParent(gpsFixDialog, getConsole());
+            gpsFixDialog.setVisible(true);
         }
+    }
+
+    public void sendGpsFixToCenter() {
+        Vector<MapPanel> pps = getConsole().getSubPanelsOfClass(MapPanel.class);
+        LocationType loc = pps.firstElement().getRenderer().getCenter();
+        sendGpsFix(loc);
+    }
+
+    public void sendGpsFix(LocationType loc) {
+        loc.convertToAbsoluteLatLonDepth();
+        Calendar cal = GregorianCalendar.getInstance();
+        GpsFix fix = GpsFix.create(
+                "validity", 0xFFFF,
+                "type", "MANUAL_INPUT",
+                "utc_year", cal.get(Calendar.YEAR),
+                "utc_month", cal.get(Calendar.MONTH)+1,
+                "utc_day", cal.get(Calendar.DATE),
+                "utc_time", cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND),
+                "lat", loc.getLatitudeRads(),
+                "lon", loc.getLongitudeRads(),
+                "height", simulatedHeight,
+                "satellites", 4,
+                "cog", 0,
+                "sog", 0,
+                "hdop", 1,
+                "vdop", 1,
+                "hacc", 2,
+                "vacc", 2
+        );
+        send(fix);
     }
 
     /* (non-Javadoc)
@@ -142,5 +170,38 @@ public class SimulationActionsPlugin extends ConsolePanel {
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
         
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType
+     * , pt.lsts.neptus.planeditor.IMapPopup)
+     */
+    @Override
+    public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
+        final LocationType l = new LocationType(loc);
+        Vector<JMenuItem> menus = new Vector<JMenuItem>();
+        JMenu gpsFixMenu = new JMenu(I18n.text("Send GPS fix to..."));
+        menus.add(gpsFixMenu);
+
+        AbstractAction sendToCenter = new AbstractAction(I18n.text("Map Center")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendGpsFixToCenter();
+            }
+        };
+        gpsFixMenu.add(new JMenuItem(sendToCenter));
+
+        AbstractAction sendToCoord = new AbstractAction(I18n.text("Here")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendGpsFix(l);
+            }
+        };
+        gpsFixMenu.add(new JMenuItem(sendToCoord));
+
+        return menus;
     }
 }

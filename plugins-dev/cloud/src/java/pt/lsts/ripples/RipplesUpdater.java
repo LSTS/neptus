@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -30,7 +30,6 @@
  * Author: ineeve
  * July 15, 2019
  */
-
 package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
@@ -41,9 +40,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -54,7 +58,9 @@ import com.google.gson.Gson;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -71,17 +77,19 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
 
 @PluginDescription(name = "Ripples Updater", icon = "pt/lsts/ripples/ripples_on.png")
 public class RipplesUpdater extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 8901788326550597186L;
 
-    private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/assets";
-    private final String authKey = GeneralPreferences.ripplesApiKey;
+    @NeptusProperty(name = "Update Interval in Minutes", description = "Valid values between 0.17 (~10s) and 30. Doesn't need restart to apply",
+            units = "minutes", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public double updateIntervalMinutes = 0.17;
 
     private JCheckBoxMenuItem menuItem;
 
@@ -94,12 +102,18 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     private Gson gson = new Gson();
 
-    private LinkedHashMap<String, RipplesAssetState> assetStates = new LinkedHashMap<String, RipplesAssetState>();
-    private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
+    private final LinkedHashMap<String, RipplesAssetState> assetStates = new LinkedHashMap<String, RipplesAssetState>();
+    private final LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
+
+    private Date lastSendTime = null;
 
     public RipplesUpdater(ConsoleLayout console) {
         super(console);
         console.getSystems();
+    }
+
+    public static String validateUpdateIntervalMinutes(double value) {
+        return new DoubleMinMaxValidator(0.17, 30).validate(value);
     }
 
     @Override
@@ -126,19 +140,21 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
     public void initSubPanel() {
         onIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_on.png", 16, 16);
         offIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_off.png", 16, 16);
-        menuItem = addCheckMenuItem(checkMenuTxt + ">" + I18n.text("Connect"), offIcon, new CheckMenuChangeListener() {
+        menuItem = addCheckMenuItem(checkMenuTxt + ">" +
+                (connected ? I18n.text("Disconnect") : I18n.text("Connect")),
+                connected ? onIcon : offIcon, new CheckMenuChangeListener() {
 
             @Override
             public void menuChecked(ActionEvent e) {
-                menuItem.setText(I18n.text("Connect"));
-                menuItem.setIcon(offIcon);
+                menuItem.setText(I18n.text("Disconnect"));
+                menuItem.setIcon(onIcon);
                 connect();
             }
 
             @Override
             public void menuUnchecked(ActionEvent e) {
-                menuItem.setText(I18n.text("Disconnect"));
-                menuItem.setIcon(onIcon);
+                menuItem.setText(I18n.text("Connect"));
+                menuItem.setIcon(offIcon);
                 disconnect();
             }
         });
@@ -194,9 +210,72 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             return;
 
         synchronized (planStates) {
-            planStates.put(pcs.getSourceName(), pcs);
+            if (!planStates.containsKey(pcs.getSourceName()) ||
+                    pcs.getTimestampMillis() > planStates.get(pcs.getSourceName()).getTimestampMillis()) {
+                planStates.put(pcs.getSourceName(), pcs);
+            }
         }
 
+
+    }
+
+    @Subscribe
+    public void on(StateReport message) {
+        if (!this.connected)
+            return;
+
+        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+            if (IMCUtil.computeCrc16(bytes, 0, 0) == message.getPlanChecksum()) {
+                PlanControlState pcs = planStates.get(message.getSourceName());
+                if (pcs == null) {
+                    pcs = new PlanControlState();
+                    pcs.setSrc(message.getSrc());
+                    pcs.setSrcEnt(message.getSrcEnt());
+                    pcs.setPlanId(plan);
+                    pcs.setState(PlanControlState.STATE.EXECUTING);
+                } else {
+                    if (message.getTimestampMillis() > pcs.getTimestampMillis()) {
+                        pcs.setTimestampMillis(message.getTimestampMillis());
+
+                        if (plan.equalsIgnoreCase(pcs.getPlanId())) {
+                            pcs.setState(PlanControlState.STATE.EXECUTING);
+                        } else {
+                            pcs.setPlanId(plan);
+                            pcs.setManEta(-1);
+                            pcs.setPlanId("");
+                            pcs.setManType(-1);
+                            pcs.setPlanProgress(-1);
+                            pcs.setState(PlanControlState.STATE.EXECUTING);
+                        }
+                    }
+                }
+
+                synchronized (planStates) {
+                    planStates.put(pcs.getSourceName(), pcs);
+                }
+
+                break;
+            }
+        }
+
+        // Update the asset state with the latest location
+        LocationType location = new LocationType();
+        location.setLatitudeDegs(message.getLatitude());
+        location.setLongitudeDegs(message.getLongitude());
+        double headingRads = message.getHeading() / (0xFFFF / (2* Math.PI));
+        RipplesAssetState ripplesState = new RipplesAssetState((int) message.getTimestamp(), location.getLatitudeDegs(),
+                location.getLongitudeDegs(), Math.toDegrees(headingRads), -1);
+        synchronized (assetStates) {
+            if (assetStates.containsKey(message.getSourceName())) {
+                RipplesAssetState oldState = assetStates.get(message.getSourceName());
+                if (ripplesState.getTimestamp() > oldState.getTimestamp()) {
+                    assetStates.put(message.getSourceName(), ripplesState);
+                }
+            } else {
+                assetStates.put(message.getSourceName(), ripplesState);
+            }
+        }
     }
 
     private RipplesPlan pcsToRipplesPlan(PlanControlState pcs) {
@@ -205,10 +284,14 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             return new RipplesPlan();
         }
         if (!getConsole().getMission().getIndividualPlansList().containsKey(pcs.getPlanId())) {
-            return new RipplesPlan();
+            RipplesPlan plan = new RipplesPlan();
+            if (pcs.getState() != PlanControlState.STATE.READY) {
+                plan.setId(pcs.getPlanId());
+            }
+            return plan;
         }
         PlanType planType = getConsole().getMission().getIndividualPlansList().get(pcs.getPlanId());
-        if (planType == null) {
+        if (planType == null || pcs.getState() == PlanControlState.STATE.READY) {
             return new RipplesPlan();
         }
         ArrayList<double[]> locs = new ArrayList<double[]>();
@@ -223,12 +306,58 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
     @Periodic(millisBetweenUpdates = 1000)
     public void sendUpdatesToRipples() {
         if (!this.connected) {
+            lastSendTime = null;
             return;
         }
 
+        double pollIntervalMin = Math.max(0.17, Math.min(30, updateIntervalMinutes));
+        Duration pollInterval = pollIntervalMin >= 1 ? Duration.ofMinutes((long) pollIntervalMin)
+                : Duration.ofSeconds((long) (60 * pollIntervalMin));
+        if (lastSendTime != null && System.currentTimeMillis() - lastSendTime.getTime() < pollInterval.toMillis()) {
+            return;
+        }
+        Date prevSentTime = lastSendTime;
+        lastSendTime =  new Date();
+
         try {
+            // Let us see if we have plan data to send but no position data
+            List<String> missingSystemsPositions = new ArrayList<>();
+            for (String sysName : planStates.keySet()) {
+                PlanControlState pstate = planStates.get(sysName);
+                if (pstate.getTimestampMillis() < prevSentTime.getTime())
+                    continue;
+                if (!assetStates.containsKey(sysName)) {
+                    missingSystemsPositions.add(sysName);
+                }
+            }
+
+            // update asset states with the latest plan data
+            assetStates.forEach((sysName, assetState) -> {
+                RipplesAssetState newAssetState = fillAssetState(sysName, assetState);
+                if (newAssetState == null)
+                    return;
+                assetStates.replace(sysName, newAssetState);
+            });
+
+            // Add the missing ones if planinfo later than the asset state
+            for (String sysName : missingSystemsPositions) {
+                RipplesAssetState newAssetState = fillAssetState(sysName, null);
+                if (newAssetState != null) {
+                    assetStates.put(sysName, newAssetState);
+                }
+            }
+        } catch (Exception e) {
+            NeptusLog.pub().warn("Error checking for plan data: " + e.getMessage());
+        }
+
+        try {
+            System.out.println("Sending updates to Ripples");
             ArrayList<RipplesAsset> payload = new ArrayList<>();
             assetStates.forEach((sysName, assetState) -> {
+                if (assetState.getLatitude() == 0 && assetState.getLongitude() == 0) {
+                    return;
+                }
+
                 PlanControlState pcs = planStates.get(sysName);
                 RipplesPlan plan = new RipplesPlan();
                 if (pcs != null) {
@@ -243,6 +372,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             try {
                 String assetsAsJson = gson.toJson(payload);
                 NeptusLog.pub().info("Sending update for " + payload.size() + " assets");
+                System.out.println("Sending update for " + payload.size() + " assets");
                 sendPost(assetsAsJson);
             }
             catch (Exception e) {
@@ -258,9 +388,26 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
         }
     }
 
+    private static RipplesAssetState fillAssetState(String sysName, RipplesAssetState assetState) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(sysName);
+        if (sys == null)
+            return null;
+
+        LocationType loc = sys.getLocation().getNewAbsoluteLatLonDepth();
+        long locTimeMillis = sys.getLocationTimeMillis();
+        double headingDegress = sys.getYawDegrees();
+        if (loc == null || assetState != null && assetState.getTimestamp() > locTimeMillis / 1000.0)
+            return null;
+
+        return new RipplesAssetState((int) (locTimeMillis / 1000.0), loc.getLatitudeDegs(),
+                loc.getLongitudeDegs(), AngleUtils.nomalizeAngleDegrees360(headingDegress), -1);
+    }
+
     private String sendPost(String data) throws Exception {
         if (this.connected) {
-            URL url = new URL(this.ripplesPostUrl);
+            String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/assets";
+            String authKey = GeneralPreferences.ripplesApiKey;
+            URL url = new URI(ripplesPostUrl).toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setDoOutput(true);

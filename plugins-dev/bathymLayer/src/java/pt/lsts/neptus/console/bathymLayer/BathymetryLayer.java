@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -267,6 +267,11 @@ public class BathymetryLayer extends ConsoleLayer {
     public void on(EstimatedState state) {
         try {
             Point2D pt = locToPoint(IMCUtils.getLocation(state));
+            if (pt == null)
+                return;
+            if (state.getDepth() == -1 || state.getAlt() == -1)
+                return;
+
             double width = 0;
             double alt = 0;
             if (state.getAlt() != -1) {
@@ -286,7 +291,7 @@ public class BathymetryLayer extends ConsoleLayer {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn("Error calculating bathymetry: {}", e.getMessage());
         }
     }
 }

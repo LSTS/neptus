@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -55,10 +55,10 @@ public class TileArcGisOcean extends TileHttpFetcher implements ConfigurationLis
 
     private static Map<String, TileArcGisOcean> tilesMap = Collections.synchronizedMap(new HashMap<String, TileArcGisOcean>());
 
-    private static final int MAX_LEVEL_OF_DETAIL = 13;
-    
-    private static String BASE_URL = "http://services.arcgisonline.com/ArcGIS/rest/services/";
-    private static String LAYER_MAP = "Ocean_Basemap";
+    private static final int MAX_LEVEL_OF_DETAIL = 10;
+
+    private static String BASE_URL = "https://services.arcgisonline.com/arcgis/rest/services/";
+    private static String LAYER_MAP = "Ocean/World_Ocean_Base";
     private static String BASE_URL_END = "/MapServer/tile/";
 
     public TileArcGisOcean(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image)
@@ -104,7 +104,8 @@ public class TileArcGisOcean extends TileHttpFetcher implements ConfigurationLis
     protected String createTileRequestURL() {
         if (levelOfDetail > MAX_LEVEL_OF_DETAIL)
             return "http://non-existing-url.nope/";
-        
+
+        //  https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer/tile/4/6/6
         // http://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/10/399/169
         String urlGet = BASE_URL + LAYER_MAP + BASE_URL_END + levelOfDetail + "/" + tileY + "/" + (tileX);
         NeptusLog.pub().debug("<###> "+urlGet);

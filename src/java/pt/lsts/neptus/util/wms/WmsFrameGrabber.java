@@ -8,6 +8,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -68,7 +69,7 @@ public class WmsFrameGrabber {
 
 		baseUrl += extra;
 		try {
-			URL url = new URL(baseUrl);
+			URL url = new URI(baseUrl).toURL();
 			System.out.println(url);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			if (conn.getResponseCode() == 200)

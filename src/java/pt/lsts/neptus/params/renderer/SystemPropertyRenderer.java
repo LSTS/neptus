@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.params.renderer;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.SystemColor;
 
 import javax.swing.JTable;
 
@@ -45,10 +46,18 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
  */
 @SuppressWarnings("serial")
 public class SystemPropertyRenderer extends DefaultCellRenderer implements Cloneable {
-    private Color dirtyColor = new Color(255, 108, 108);
-    private Color syncColor = new Color(108, 255, 108);
+    private final Color dirtyColor = new Color(255, 108, 108);
+    private final Color syncColor = new Color(108, 255, 108);
+    private final Color syncFakeColor = new Color(108, 200, 255);
 
-    private boolean sync = false;
+    public enum SystemPropertySyncState {
+        SYNC,
+        SYNC_FAKE,
+        DIRTY,
+        NONE
+    }
+
+    private SystemPropertySyncState sync = SystemPropertySyncState.DIRTY;
     
     private final String unitsStr;
     
@@ -81,16 +90,26 @@ public class SystemPropertyRenderer extends DefaultCellRenderer implements Clone
         return super.getTableCellRendererComponent(table, value, false, hasFocus, row, column);
     }
     
-    public void setPropertyInSync(boolean sync) {
+    public void setPropertyInSync(SystemPropertySyncState sync) {
         setShowOddAndEvenRows(true);
         this.sync = sync;
-        if (this.sync) {
-            setOddBackgroundColor(syncColor);
-            setEvenBackgroundColor(syncColor);
-        }
-        else {
-            setOddBackgroundColor(dirtyColor);
-            setEvenBackgroundColor(dirtyColor);
+        switch (this.sync) {
+            case SYNC:
+                setOddBackgroundColor(syncColor);
+                setEvenBackgroundColor(syncColor);
+                break;
+            case SYNC_FAKE:
+                setOddBackgroundColor(syncFakeColor);
+                setEvenBackgroundColor(syncFakeColor);
+                break;
+            case DIRTY:
+                setOddBackgroundColor(dirtyColor);
+                setEvenBackgroundColor(dirtyColor);
+                break;
+            case NONE:
+            default:
+                setOddBackgroundColor(SystemColor.window);
+                setEvenBackgroundColor(SystemColor.window);
         }
     }
     

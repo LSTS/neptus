@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -177,21 +177,19 @@ public class GroovyEngine {
                     updateBindings();
                     binds.setProperty("out", ps);
                     engine.run(groovyScript, binds);
-                    console.disableStopButton();
-                    stopScript();
                 }
                 catch (Exception e) { // CompilationFailedException | ResourceException | ScriptException
-                    NeptusLog.pub().error("Exception Caught during execution of script: " + groovyScript, e);// e.printStackTrace();
+                    NeptusLog.pub().error("Exception Caught during execution of script: " + groovyScript, e);
                     console.appendOutput("Error: \n\t" + e.getMessage());
+                }
+                finally {
+                    if (Thread.currentThread().isInterrupted()) {
+                        NeptusLog.pub().info("Exiting script execution: " + groovyScript);
+                    }
                     console.disableStopButton();
                     stopScript();
-
-                }
-                catch (ThreadDeath e) {
-                    NeptusLog.pub().info("Exiting script execution: " + groovyScript);
                 }
             }
-
         };
         runningThread.start();
 

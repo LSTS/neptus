@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -229,6 +229,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "Filter", userLevel = LEVEL.REGULAR)
     public SortOrderEnum systemsOrdering = SortOrderEnum.SORTED;
 
+    @NeptusProperty(name = "Is Filter By Time Information Shown", description = "This configures if the time information is used to filter shown information.",
+            category = "Filter", userLevel = LEVEL.REGULAR)
+    public boolean isFilterByTimeInformationShown = true;
+
     @NeptusProperty(name = "Show System With Authority Equal Or Above", description = "This configures if the systems should be shown dependent on the Authority State", 
             category = "Filter", userLevel = LEVEL.REGULAR)
     public IMCAuthorityState showSystemWithAuthorityEqualOrAbove = IMCAuthorityState.OFF;
@@ -273,6 +277,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawSystemLocAge = true;
 
+    @NeptusProperty(name = "Draw System Desired Heading", description = "Configures if this component will draw the system desired heading on the renderer",
+            category = "Renderer", userLevel = LEVEL.REGULAR)
+    public boolean drawSystemDesiredHeading = false;
+
     @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public boolean useMilStd2525LikeSymbols = false;
@@ -281,11 +289,11 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public MilStd2525SymbolsFilledEnum milStd2525FilledOrNot = MilStd2525SymbolsFilledEnum.FILLED;
 
-    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disapear from render if inactive (0 to disable)", 
+    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disappear from render if inactive (0 to disable)",
             category = "Systems in Renderer", userLevel = LEVEL.REGULAR)
     public int minutesToHideSystemsWithoutKnownLocation = 5;
 
-    @NeptusProperty(name = "Draw Circle Arround System Icon In Render Dependent Of System Type", description = "This configures if the circle arround the symbol in render is to be drawn dependent of system type",
+    @NeptusProperty(name = "Draw Circle Around System Icon In Render Dependent Of System Type", description = "This configures if the circle around the symbol in render is to be drawn dependent of system type",
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawCircleInRenderDependentOfSystemType = true;
     
@@ -1232,7 +1240,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             boolean showHeight) {
         // long timeStampMillis = System.currentTimeMillis();
 
-        long maxAgeTimeMillis = DateTimeUtil.MINUTE;
+        long maxAgeTimeMillis = isFilterByTimeInformationShown ? DateTimeUtil.MINUTE : -1;
 
         String lineSep = htmlFragmentOrSimpleText ? "<br>" : "\n";
         String txtInfo = "";
@@ -1930,6 +1938,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     minimumSpeedToBeStopped);
         }
 
+        // To draw the desired heading pointer
+        if (lod >= LOD_MIN_TO_SHOW_SPEED_VECTOR && drawSystemDesiredHeading) {
+            SystemPainterHelper.drawSystemDesiredHeading(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
+                    minimumSpeedToBeStopped);
+        }
+
         g2.dispose();
     }
 
@@ -2127,6 +2141,18 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 double gSpeed = ((Number) obj).doubleValue();
                 SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, courseDegrees, gSpeed, color, iconWidth,
                         isLocationKnownUpToDate, minimumSpeedToBeStopped);
+            }
+        }
+
+        // To draw the desired heading pointer
+        obj = sys.retrieveData(SystemUtils.DESIRED_HEADING_DEGS_KEY);
+        if (lod >= (LOD_MIN_TO_SHOW_SPEED_VECTOR + LOD_MIN_OFFSET_FOR_EXTERNAL) && obj != null) {
+            double desiredHeadingDegrees = ((Number) obj).doubleValue();
+            obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
+            if (obj != null) {
+                double gSpeed = ((Number) obj).doubleValue();
+                SystemPainterHelper.drawSystemDesiredHeading(renderer, g2, desiredHeadingDegrees, iconWidth,
+                        isLocationKnownUpToDate, minimumSpeedToBeStopped, gSpeed);
             }
         }
 

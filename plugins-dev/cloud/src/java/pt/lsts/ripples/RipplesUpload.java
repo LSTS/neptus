@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -372,7 +373,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
         
         try {
             Gson gson = new Gson();
-            URL url = new URL(ripplesActiveSysUrl);
+            URL url = new URI(ripplesActiveSysUrl).toURL();
     
             HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
             NeptusLog.pub().info(" through HTTP: " + ripplesActiveSysUrl);
@@ -407,7 +408,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
         
         try {
             JsonParser parser = new JsonParser();
-            URL url = new URL(firebasePath.trim() + (firebasePath.trim().endsWith("/") ? "" : "/") + ".json");
+            URL url = new URI(firebasePath.trim() + (firebasePath.trim().endsWith("/") ? "" : "/") + ".json").toURL();
             
             JsonElement root = parser.parse(new JsonReader(new InputStreamReader(url.openConnection().getInputStream())));
             Set<Entry<String, JsonElement>> assets = root.getAsJsonObject().get("assets").getAsJsonObject().entrySet();

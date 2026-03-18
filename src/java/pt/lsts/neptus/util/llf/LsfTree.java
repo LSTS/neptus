@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -93,7 +93,7 @@ public class LsfTree extends JTree {
 			    String fieldType = entry.getTypeOf(fieldName);
 			    LLFField field = new LLFField(fieldName, fieldType);
 			    treeModel.insertNodeInto(new DefaultMutableTreeNode(field),fileNode, treeModel.getChildCount(fileNode));
-			    }
+			}
 		}
 		catch (Exception e) {			
 		    e.printStackTrace();

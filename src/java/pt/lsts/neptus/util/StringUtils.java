@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -114,7 +114,7 @@ public class StringUtils {
      * @param placeEllipsisIfCuted If is truncated, adds an ellipsis at the end
      * @return
      */
-    public static final String wrapEveryNChars(String txt, short lineLength, int maxCharacters,
+    public static String wrapEveryNCharsOld(String txt, short lineLength, int maxCharacters,
             boolean placeEllipsisIfCuted) {
         boolean hasLimit = true;
         if (maxCharacters <= 0)
@@ -141,7 +141,71 @@ public class StringUtils {
 	    }
 	    return ret;
 	}
-	
+
+    public static String wrapEveryNChars(String txt, short lineLength, int maxCharacters,
+                                            boolean placeEllipsisIfCuted) {
+        if (txt == null || txt.isEmpty()) {
+            return "";
+        }
+
+        boolean hasLimit = maxCharacters > 0;
+        boolean isCut = false;
+
+        // Apply the global max length limit right away
+        if (hasLimit && txt.length() > maxCharacters) {
+            txt = txt.substring(0, maxCharacters);
+            isCut = true;
+        }
+
+        // If the line length limit is invalid, return the text (with ellipsis if it was cut)
+        if (lineLength <= 1) {
+            return txt + (isCut && placeEllipsisIfCuted ? "..." : "");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int start = 0;
+
+        while (start < txt.length()) {
+            // Calculate our absolute maximum reach for this line
+            int end = Math.min(start + lineLength, txt.length());
+
+            // 1. Check for pre-existing newlines in the current chunk
+            int nextNewLine = txt.indexOf('\n', start);
+            if (nextNewLine != -1 && nextNewLine < end) {
+                // We found a natural break! Append up to and including the newline.
+                sb.append(txt.substring(start, nextNewLine + 1));
+                start = nextNewLine + 1;
+                continue; // Skip the rest of the loop and start the next line
+            }
+
+            // 2. If the remaining text fits perfectly, append it and we are done
+            if (end == txt.length()) {
+                sb.append(txt.substring(start));
+                break;
+            }
+
+            // 3. Search backwards from the line limit to find a space
+            int breakPoint = txt.lastIndexOf(' ', end);
+
+            if (breakPoint > start) {
+                // Found a space! Break there to keep the word and punctuation intact
+                sb.append(txt.substring(start, breakPoint)).append("\n");
+                start = breakPoint + 1; // Skip the space so it doesn't start the new line
+            } else {
+                // Fail-safe: A single word is longer than the lineLength. Force a cut.
+                sb.append(txt.substring(start, end)).append("\n");
+                start = end;
+            }
+        }
+
+        // Append the ellipsis at the very end if we truncated the original text
+        if (isCut && placeEllipsisIfCuted) {
+            sb.append("...");
+        }
+
+        return sb.toString();
+    }
+
 	public static void main(String[] args) {
 		System.out.println(isTokenInList("UDP, RTPS", "UDP"));
 		System.out.println(isTokenInList("UDP,RTPS", "UDP"));
@@ -153,13 +217,38 @@ public class StringUtils {
 "4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - I/O exception (java.net.NoRouteToHostException) caught when connecting to the target host: No route to host: connect"+
 "- Retrying connect"+
 "4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - Retrying connect xxxx END";
-		System.out.println(wrapEveryNChars(txt, (short) 100));
-		System.out.println("\n\n------------------------------------------------\n\n");
-		System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
+        System.out.println(wrapEveryNCharsOld(txt, (short) 100, -1, false));
+        System.out.println("\n\n--------\n\n");
+        System.out.println(wrapEveryNChars(txt, (short) 100, -1, false));
+
         System.out.println("\n\n------------------------------------------------\n\n");
-        System.out.println(wrapEveryNChars(txt, (short) 100, 1000, true));
-        System.out.println("\n\n------------------------------------------------\n\n");
+		System.out.println(wrapEveryNCharsOld(txt, (short) 100, 100, true));
         System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
+
+        System.out.println("\n\n------------------------------------------------\n\n");
+        System.out.println(wrapEveryNCharsOld(txt, (short) 100, 1000, true));
+        System.out.println(wrapEveryNChars(txt, (short) 100, 1000, true));
+
+        System.out.println("\n\n------------------------------------------------\n\n");
+        System.out.println(wrapEveryNCharsOld(txt, (short) 100, 100, true));
+        System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
+        System.out.println("\n\n--------\n\n");
+        System.out.println(wrapEveryNCharsOld(txt, (short) 120, 100, true));
         System.out.println(wrapEveryNChars(txt, (short) 120, 100, true));
+
+
+        String testInput = "Hello world! This is a long sentence, it should wrap correctly. " +
+                "Check this out:\n" + // Manual newline here
+                "ThisIsALongWordThatExceedsTheLimit.\n" + // Long word + newline
+                "Punctuation check: one, two, and three.";
+
+        short lineLength = 20;
+        int maxChars = 200;
+
+        String result = wrapEveryNChars(testInput, lineLength, maxChars, true);
+
+        System.out.println("--- Wrapped Output ---");
+        System.out.println(result);
+        System.out.println("-----------------------");
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,7 +41,11 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -593,74 +597,110 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
     
     /**
-     * This should be override, this implementation does not do anything.
+     * This should be overridden, this implementation does not do anything.
      */
-    public static void clearDiskCache() {
-        
-    }
-    
+    //public static void clearDiskCache(String... tileQuadKeys) {
+    //}
+
     /**
      * This will delete the disk cache. This will run on a Thread.
-     * A public static method clearDiskCache() should be created for every class extending Tile. 
+     * A public static method clearDiskCache(String... tileQuadKeys) should be created for every class extending Tile.
      * @param tileClassId This should be the class {@link Class#getSimpleName()}.
+     *                    If null will delete all cache.
+     * @param tileQuadKeys This should be the quad keys of the tiles to delete.
      */
-    protected static void clearDiskCache(String tileClassId) {
+    public static void clearDiskCache(String tileClassId) {
+        clearDiskCache(tileClassId, null);
+    }
+
+    /**
+     * This will delete the disk cache. This will run on a Thread.
+     * A public static method clearDiskCache(String... tileQuadKeys) should be created for every class extending Tile.
+     * @param tileClassId This should be the class {@link Class#getSimpleName()}.
+     *                    If null will delete all cache.
+     * @param tileQuadKeys This should be the quad keys of the tiles to delete. Also will delete all tiles from the zooms above
+     */
+    public static void clearDiskCache(String tileClassId, List<String> tileQuadKeys) {
         final String path = TILE_BASE_CACHE_DIR + "/" + tileClassId;
         Thread t = new Thread(() -> {
             tileCacheDiskClearOrTileSaveLock.writeLock().lock();
+            int bCount = 0, zCount = 0, xCount = 0, yCount = 0;
+            int zCountDelErr = 0, xCountDelErr = 0, yCountDelErr = 0;
             try {
                 File base = new File(path);
-                File[] zList = base.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().length() > 0
+                File[] zList = base.listFiles(pathname -> pathname.isDirectory() && (!pathname.getName().isEmpty()
                         && pathname.getName().charAt(0) == 'z'));
                 if (zList == null)
                     return;
                 for (File fileZ : zList) {
                     String zStr = fileZ.getName().replace("z", "");
                     try {
-                        Integer.parseInt(zStr);
-                        File[] xList = fileZ.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().length() > 0
+                        int zLevel = Integer.parseInt(zStr);
+                        File[] xList = fileZ.listFiles(pathname -> pathname.isDirectory() && (!pathname.getName().isEmpty()
                                 && pathname.getName().charAt(0) == 'x'));
                         if (xList == null)
                             continue;
                         for (File fileX : xList) {
                             String xStr = fileX.getName().replace("x", "");
                             try {
-                                Integer.parseInt(xStr);
+                                int tileX = Integer.parseInt(xStr);
                                 File[] yList = fileX.listFiles(pathname -> pathname.isFile()
                                         && TILE_FX_EXTENSION.equalsIgnoreCase(FileUtil
-                                                .getFileExtension(pathname))
-                                                 && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'y'));
+                                        .getFileExtension(pathname))
+                                        && (!pathname.getName().isEmpty() && pathname.getName().charAt(0) == 'y'));
                                 if (yList == null)
                                     continue;
                                 for (File fileY : yList) {
                                     String yStr = fileY.getName().replace("y", "").replace("." + TILE_FX_EXTENSION, "");
                                     try {
-                                        Integer.parseInt(yStr);
-                                        fileY.delete();
+                                        int tileY = Integer.parseInt(yStr);
+                                        String quadkey = MapTileUtil.tileXYToQuadKey(tileX, tileY, zLevel);
+                                        if (tileQuadKeys != null && tileQuadKeys.stream().noneMatch(s -> quadkey.startsWith(s)))
+                                            continue;
+
+                                        if (fileY.delete())
+                                            yCount++;
+                                        else
+                                            yCountDelErr++;
                                     }
                                     catch (Exception e) {
-                                        e.printStackTrace();
+                                        NeptusLog.pub().debug("Error deleting tile Y file: {} : {}", fileY.getAbsolutePath(), e.getMessage());
                                     }
                                 }
-                                fileX.delete();
+                                if (tileQuadKeys == null || tileQuadKeys.isEmpty() || Objects.requireNonNull(fileX.listFiles()).length == 0) {
+                                    if (fileX.delete())
+                                        xCount++;
+                                    else
+                                        xCountDelErr++;
+                                }
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().debug("Error deleting tile X folder: {} : {}", fileX.getAbsolutePath(), e.getMessage());
                             }
                         }
-                        fileZ.delete();
+                        if (tileQuadKeys == null || tileQuadKeys.isEmpty() || Objects.requireNonNull(fileZ.listFiles()).length == 0) {
+                            if (fileZ.delete())
+                                zCount++;
+                            else
+                                zCountDelErr++;
+                        }
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
+                        NeptusLog.pub().debug("Error deleting tile Z folder: {} : {}", fileZ.getAbsolutePath(), e.getMessage());
                     }
                 }
-                base.delete();
+                if (tileQuadKeys == null || tileQuadKeys.isEmpty() || Objects.requireNonNull(base.listFiles()).length == 0) {
+                    bCount = base.delete() ? bCount + 1 : bCount;
+                }
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().debug("Error deleting tile base folder: {} : {}", path, e.getMessage());
             }
             finally {
                 tileCacheDiskClearOrTileSaveLock.writeLock().unlock();
+                NeptusLog.pub().info("Deleted {} {} folders, {} z folders, {} x folders, {} y files. Errors: {} z folders, {} x folders, {} y files.",
+                        bCount, tileClassId, zCount, xCount, yCount, zCountDelErr, xCountDelErr, yCountDelErr);
+
             }
         });
         t.setDaemon(true);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,6 +68,7 @@ import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.lica.LicaMgmt;
 import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
@@ -199,6 +200,9 @@ public class ConfigFetch {
      * @param configFile Configuration file name
      */
     private ConfigFetch(String configFile) {
+        LicaMgmt lis = new LicaMgmt();
+        lis.checkAndLoad();
+
         // Set Environment
         if (ConfigFetch.class.getResource("/version.txt").toString().startsWith("jar:")) {
             runEnvironment = Environment.PRODUCTION;
@@ -208,7 +212,14 @@ public class ConfigFetch {
         NeptusLog.init();
         
         // Set Default Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> NeptusLog.pub().error("Uncaught Exception! " + ReflectionUtil.getCallerStamp(), e));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            StringBuilder sb = new StringBuilder();
+            for (StackTraceElement ste : e.getStackTrace()) {
+                sb.append(ste.toString()).append("\n");
+            }
+            NeptusLog.pub().error("Uncaught Exception! {}\nStack trace:\n{}",
+                    ReflectionUtil.getCallerStamp(), sb.toString(), e);
+        });
 
         init();
         loadSchemas();

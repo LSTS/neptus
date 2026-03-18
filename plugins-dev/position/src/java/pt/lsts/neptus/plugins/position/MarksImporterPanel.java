@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2026 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -264,9 +266,9 @@ public class MarksImporterPanel extends JPanel {
         }
         catch (Exception e) {
             try {
-                url = new URL(urlStr);
+                url = new URI(urlStr).toURL();
             }
-            catch (MalformedURLException e1) {
+            catch (MalformedURLException | URISyntaxException e1) {
                 e1.printStackTrace();
                 String msgStr = I18n.textf("KML %url is not a valid URL", urlStr);
                 GuiUtils.showErrorPopup("KML", msgStr);
