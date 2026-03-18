@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2025.08.0 (merge/sabuvis2master,1f824f0fc)" modules="HEAD,65b8f31" system="waverider-2" i18n="en_US">
+<config format="1" version="2025.08.0 (merge/sabuvis2master,111ead240)" modules="HEAD,65b8f31" system="waverider-2" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -249,6 +249,101 @@
       <default>1:2:0:20000:1500, 0:2:1:20000:1500</default>
       <units/>
       <desc>List of &lt;Index&gt;:&lt;PWM chip&gt;:&lt;Channel&gt;:&lt;Period&gt;:&lt;Duty Cycle&gt;</desc>
+    </param>
+  </section>
+  <section name="Text Actions" name-i18n="Text Actions">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Actions</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Reply timeout">
+      <name-i18n>Reply timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc/>
+      <min>30</min>
+    </param>
+    <param name="Documentation URL">
+      <name-i18n>Documentation URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>https://bit.ly/2LZ0EOc</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Valid Commands">
+      <name-i18n>Valid Commands</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>abort, errors, info, force, go, help, phone, sk, start</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Hash">
+      <name-i18n>Hash</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
     </param>
   </section>
   <section name="Course &amp; Speed Controller" name-i18n="Course &amp; Speed Controller">
@@ -953,6 +1048,15 @@
       <desc>Attack angle when lateral track error equals corridor width</desc>
       <min>2</min>
       <max>45</max>
+    </param>
+    <param name="Use Loiter Gains -- Enabled">
+      <name-i18n>Use Loiter Gains -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable separate gains for loiter control.If false, gains for path control are used for loiter control as well.</desc>
     </param>
     <param name="Corridor Loiter -- Width">
       <name-i18n>Corridor Loiter -- Width</name-i18n>
@@ -2126,6 +2230,120 @@
       <desc>Name of the configuration section with participant addresses</desc>
     </param>
   </section>
+  <section name="Boot Monitor" name-i18n="Boot Monitor">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Boot Monitor</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Boot Message Delay">
+      <name-i18n>Boot Message Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Delay, in seconds, before dispatching boot message. Value can not be less than 1s.</desc>
+      <min>1</min>
+    </param>
+    <param name="Boot Message TTL">
+      <name-i18n>Boot Message TTL</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>300</default>
+      <units/>
+      <desc>Boot message time-to-live, in seconds. Value can not be less than 60s.</desc>
+      <min>60</min>
+    </param>
+    <param name="Default SMS Recipient Number">
+      <name-i18n>Default SMS Recipient Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Phone number of the SMS recipient</desc>
+    </param>
+    <param name="Task Label for SMS Number">
+      <name-i18n>Task Label for SMS Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>Monitors.Emergency</default>
+      <units/>
+      <desc>Task Label for SMS Number</desc>
+    </param>
+    <param name="Task Parameter for SMS Number">
+      <name-i18n>Task Parameter for SMS Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>SMS Recipient Number</default>
+      <units/>
+      <desc>Task Parameter for SMS Number</desc>
+    </param>
+    <param name="External Info Text">
+      <name-i18n>External Info Text</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>waverider-2</default>
+      <units/>
+      <desc>External information to be sent in the boot message</desc>
+    </param>
+  </section>
   <section name="Clock" name-i18n="Clock">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2230,6 +2448,164 @@
       <default>false</default>
       <units/>
       <desc>Change log file after synchronization</desc>
+    </param>
+  </section>
+  <section name="Emergency Monitor" name-i18n="Emergency Monitor">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Emergency Monitor</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="SMS Recipient Number">
+      <name-i18n>SMS Recipient Number</name-i18n>
+      <type>list:string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>+351930425523</default>
+      <units/>
+      <desc>Phone numbers of the SMS recipients</desc>
+      <min-size>1</min-size>
+    </param>
+    <param name="Lost Communications Timeout">
+      <name-i18n>Lost Communications Timeout</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>s</units>
+      <desc>Lost Communications Timeout</desc>
+      <min>60.0</min>
+    </param>
+    <param name="Transmission Interface">
+      <name-i18n>Transmission Interface</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Both</default>
+      <units/>
+      <desc>Desired transmission interface</desc>
+      <values>GSM, Iridium, Both</values>
+      <values-i18n>GSM, Iridium, Both</values-i18n>
+    </param>
+    <param name="Expiration Time - Abort SMS">
+      <name-i18n>Expiration Time - Abort SMS</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>s</units>
+      <desc>Abort SMS Timeout</desc>
+      <min>30.0</min>
+    </param>
+    <param name="Expiration Time - Lost Communications">
+      <name-i18n>Expiration Time - Lost Communications</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units>s</units>
+      <desc>Expiration time of lost communications SMS</desc>
+      <min>0.0</min>
+    </param>
+    <param name="External Info Text">
+      <name-i18n>External Info Text</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>waverider-2</default>
+      <units/>
+      <desc>External information to be sent in the boot message</desc>
     </param>
   </section>
   <section name="Entity Monitor" name-i18n="Entity Monitor">
@@ -2379,7 +2755,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Spew</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -4196,7 +4572,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>Compass Calibration Maneuver</default>
       <units/>
       <desc>Entity label of Compass Calibration task to receive hard iron corrections from.</desc>
     </param>
@@ -4759,6 +5135,127 @@
       <desc>List of messages ordered by loading order</desc>
     </param>
   </section>
+  <section name="Communications Manager" name-i18n="Communications Manager">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Communications Manager</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Iridium - Entity Label">
+      <name-i18n>Iridium - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Modem</default>
+      <units/>
+      <desc>Entity label of Iridium modem</desc>
+    </param>
+    <param name="GSM - Entity Label">
+      <name-i18n>GSM - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>SMS</default>
+      <units/>
+      <desc>Entity label of GSM modem</desc>
+    </param>
+    <param name="GSM Address Section">
+      <name-i18n>GSM Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GSM Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with gsm modem addresses</desc>
+    </param>
+    <param name="Acoustic Address Section">
+      <name-i18n>Acoustic Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Evologics Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with acoustic modem addresses</desc>
+    </param>
+    <param name="Iridium Reports Period">
+      <name-i18n>Iridium Reports Period</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20000</default>
+      <units/>
+      <desc>Period, in seconds, between transmission of states via Iridium. Value of 0 disables transmission.</desc>
+    </param>
+    <param name="Process AcousticOperation Messages">
+      <name-i18n>Process AcousticOperation Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable CommManager to process and convert legacy message -&gt; AcousticOperation</desc>
+    </param>
+    <param name="Send Iridium plain texts">
+      <name-i18n>Send Iridium plain texts</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Send Iridium text messages as plain text (and not IMC)</desc>
+    </param>
+  </section>
   <section name="Service Discovery" name-i18n="Service Discovery">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -5267,6 +5764,232 @@
       <default/>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
+    </param>
+  </section>
+  <section name="SMS" name-i18n="SMS">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>SMS</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>uart:///dev/ttyUSB3:115200</default>
+      <units/>
+      <desc>IO device URI in the form "uart:///dev/tty[a-zA-Z][0-9]:BAUD" or "uart:///dev/uart/[0-9]:BAUD"</desc>
+    </param>
+    <param name="Time to Check Mailbox in Seconds">
+      <name-i18n>Time to Check Mailbox in Seconds</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Time to wait before checking mailbox in seconds</desc>
+      <min>30</min>
+    </param>
+    <param name="Maximum Time to Accept SMS in Hours">
+      <name-i18n>Maximum Time to Accept SMS in Hours</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24</default>
+      <units/>
+      <desc>Maximum time to accept an incoming SMS in Hours</desc>
+      <min>1</min>
+    </param>
+    <param name="PIN Number">
+      <name-i18n>PIN Number</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>PIN number to unlock the SIM card</desc>
+    </param>
+    <param name="Number of Consecutive Errors to Restart Task">
+      <name-i18n>Number of Consecutive Errors to Restart Task</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Number of consecutive errors to restart the task</desc>
+      <min>2</min>
+    </param>
+    <param name="Send SMS Text Messages">
+      <name-i18n>Send SMS Text Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Send SMS text messages. If false, only received SMS will be processed without sending any SMS text messages</desc>
+    </param>
+    <param name="Check Device Handle Timeout" editable="false">
+      <name-i18n>Check Device Handle Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Time in seconds between device handle checks. If zero, the device handle will not be checked periodically.</desc>
+      <min>0.0</min>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
