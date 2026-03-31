@@ -807,8 +807,6 @@ public abstract class AbstractElement
                 "Names must begin with a letter ([A-Za-z]) and may be followed by any number of letters,"
                 + "<br>digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\")."));
         
-        paramsPanel = getParametersPanel(editable,map);
-        
         if (parentComp == null || SwingUtilities.getWindowAncestor(parentComp) == null) {
             dialog = new JDialog((Frame)ConfigFetch.getSuperParentFrame());
         }
@@ -830,7 +828,9 @@ public abstract class AbstractElement
         idPanel.add(objName);
         idPanel.add(obstacleCheck);
         idPanel.add(hiddenCheck);
-        
+
+        paramsPanel = getParametersPanel(editable, map);
+
         if (takenNames == null) {
             objName.setEnabled(false);
             objName.setText(id);

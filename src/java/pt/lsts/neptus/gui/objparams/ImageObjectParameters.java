@@ -369,7 +369,15 @@ public class ImageObjectParameters extends ParametersPanel {
     public void setTransparency(int transparency) {
         transparencySlider.setValue(transparency);
     }
-    
+
+    public boolean isTransparencyEnable() {
+        return transparencySlider.isEnabled();
+    }
+
+    public void setTransparencyEnable(boolean enable) {
+        transparencySlider.setEnabled(enable);
+    }
+
     public double getRotationDegs() {
         double rot = Double.parseDouble(rotationFormattedTextField.getText());
         return rot;

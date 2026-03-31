@@ -35,6 +35,7 @@ package pt.lsts.neptus.types.map;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 
@@ -84,6 +85,8 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     private Image heightImage = null; // depth image
 
     private ImageObjectParameters params = new ImageObjectParameters();
+    private ActionListener transparencyChangeEvent = null;
+
     /**
      * 
      */
@@ -507,6 +510,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     @Override
     public ParametersPanel getParametersPanel(boolean editable, MapType map) {
+        hiddenCheck.removeActionListener(transparencyChangeEvent);
         params.setCenter(new LocationType(getCenterLocation()));
         params.setImageFileName(getImageFileName());
         params.setImageScale(getImageScale());
@@ -518,6 +522,18 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         params.setBathimFile(getBathymetricImageFileName());
         params.setTransparency(getTransparency());
         params.setRotationDegs(getYawDeg());
+
+        if (transparencyChangeEvent == null) {
+            transparencyChangeEvent = e -> {
+                params.setTransparencyEnable(!hiddenCheck.isSelected());
+                if (!hiddenCheck.isSelected())
+                    params.setTransparency(0);
+            };
+        }
+
+        params.setTransparencyEnable(!hiddenCheck.isSelected());
+        hiddenCheck.addActionListener(transparencyChangeEvent);
+
         return params;
     }
 
