@@ -22,7 +22,6 @@
     <limits>
       <valid-zunits>depth</valid-zunits>
     </limits>
-    <coordinate-system-label>SNAME</coordinate-system-label>
   </properties>
   <feasibleManeuvers>
     <maneuver>

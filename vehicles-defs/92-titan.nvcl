@@ -26,7 +26,6 @@
       <max-speed>10</max-speed>
       <max-duration-hours>0.3</max-duration-hours>
     </limits>
-    <coordinate-system-label>SNAME</coordinate-system-label>
   </properties>
   <feasibleManeuvers>
     <maneuver>

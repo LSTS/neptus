@@ -21,7 +21,6 @@
         <b>64</b>
       </icon-color>
     </appearance>
-    <coordinate-system-label>SNAME</coordinate-system-label>
   </properties>
   <feasibleManeuvers>
     <maneuver>
