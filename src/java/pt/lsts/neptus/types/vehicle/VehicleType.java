@@ -322,6 +322,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 this.setIconColor(new Color(rr, gg, bb));
             }
 
+            // OPTIONAL
             // this.setCoordinateSystemUsedLabel(doc.selectSingleNode("/"+rootElemName+"/properties/coordinate-system").getText());
             nd = doc.selectSingleNode("/" + rootElemName + "/properties/coordinate-system-label");
             if (nd != null)
@@ -331,11 +332,6 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 if (nd != null) {
                     String xml1 = nd.asXML();
                     CoordinateSystem cs = new CoordinateSystem(xml1);
-                    this.setCoordinateSystem(cs);
-                }
-                else {
-                    // TODO Ver melhor esta parte
-                    CoordinateSystem cs = new CoordinateSystem();
                     this.setCoordinateSystem(cs);
                 }
             }

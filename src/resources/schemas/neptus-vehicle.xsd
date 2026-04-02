@@ -200,7 +200,7 @@ Author: Paulo Dias, José Pinto
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
-						<xs:choice>
+						<xs:choice minOccurs="0">
 							<xs:element name="coordinate-system-label" type="xs:string"/>
 							<xs:element name="coordinate-system-def" type="coordinateSystem"/>
 						</xs:choice>
