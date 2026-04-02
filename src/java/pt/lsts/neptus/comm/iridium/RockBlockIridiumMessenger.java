@@ -161,16 +161,16 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     }
 
     private void setRockBlockPassword(String password) {
-        if (password == null)
+        if (password == null) {
             this.rockBlockPassword = null;
+            return;
+        }
 
         this.rockBlockPassword = DatatypeConverter.printBase64Binary(password.getBytes(StandardCharsets.UTF_8));
     }
 
     private void setRockBlockUsername(String username) {
-        if (username == null)
-            this.rockBlockUsername = null;
-        this.rockBlockUsername = username;
+        this.rockBlockUsername = username; // it is ok username be null
     }
 
     private String getGmailUsername() {
@@ -186,16 +186,16 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     }
 
     private void setGmailPassword(String password) {
-        if (password == null)
+        if (password == null) {
             this.gmailPassword = null;
+            return;
+        }
 
         this.gmailPassword = DatatypeConverter.printBase64Binary(password.getBytes(StandardCharsets.UTF_8));
     }
 
     private void setGmailUsername(String username) {
-        if (username == null)
-            this.gmailUsername = null;
-        this.gmailUsername = username;
+        this.gmailUsername = username; // username may be null
     }
 
     private boolean askCredentials() throws IOException {
