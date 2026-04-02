@@ -89,6 +89,8 @@ public class IridiumManager {
     private RockBlockIridiumMessenger rockBlockMessenger;
     private HubIridiumMessenger hubMessenger;
     private SimulatedMessenger simMessenger;
+    private CloudloopIridiumMessenger cloudloopMessenger;
+
     private ScheduledExecutorService service = null;
     //private IridiumMessenger currentMessenger;
 
@@ -105,6 +107,7 @@ public class IridiumManager {
         RockBlockIridiumMessenger,
         HubIridiumMessenger,
         SimulatedMessenger,
+        CloudloopMessenger,
     }
     
     private IridiumManager() {
@@ -112,6 +115,7 @@ public class IridiumManager {
         rockBlockMessenger = new RockBlockIridiumMessenger();
         hubMessenger = new HubIridiumMessenger();
         simMessenger = new SimulatedMessenger();
+        cloudloopMessenger = new CloudloopIridiumMessenger();
     }
     
     public IridiumMessenger getCurrentMessenger() {
@@ -122,6 +126,8 @@ public class IridiumManager {
                 return hubMessenger;
             case RockBlockIridiumMessenger:
                 return rockBlockMessenger;
+            case CloudloopMessenger:
+                return cloudloopMessenger;
             default:
                 return simMessenger;
         }
@@ -133,7 +139,7 @@ public class IridiumManager {
 
         Date lastTime = new Date(System.currentTimeMillis() - (hourPart > 0 ? Duration.ofHours(hourPart).toMillis() : 0)
                 - (minutePart > 0 ? Duration.ofMinutes(minutePart).toMillis() : 0));
-        //Date lastTime = new GregorianCalendar(2024, Calendar.NOVEMBER, 6).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
+        // Date lastTime = new GregorianCalendar(2026, Calendar.MARCH, 30).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
 
         @Override
         public void run() {
