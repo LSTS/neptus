@@ -39,6 +39,7 @@ import java.awt.Window;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -232,7 +233,7 @@ public class ConsoleParse implements FileHandler {
         }
         catch (Exception e) {
             GuiUtils.errorMessage(null, e);
-            NeptusLog.pub().error(" Console Base open file " + consoleURL + " error [" + e.getStackTrace() + "]", e);
+            NeptusLog.pub().error(" Console Base open file {} error [{}]", consoleURL, Arrays.toString(e.getStackTrace()), e);
         }
     }
     
