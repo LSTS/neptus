@@ -259,14 +259,12 @@ public class FileUtil {
      * @return
      */
     public static String getFileAsString(String url) {
-        FileInputStream fis = null;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int len;
         byte[] ba = null;
         String result = null;
         String actualEncoding = "UTF-8";
-        try {
-            fis = new FileInputStream(url);
+        try (FileInputStream fis = new FileInputStream(url);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             ba = new byte[1024];
             while ((len = fis.read(ba)) > 0) {
                 bos.write(ba, 0, len);
@@ -293,15 +291,6 @@ public class FileUtil {
         }
         catch (IOException e) {
             NeptusLog.pub().error(FileUtil.class, e);
-        }
-        finally {
-            if (fis != null)
-                try {
-                    fis.close();
-                }
-                catch (IOException e) {
-                    NeptusLog.pub().error(FileUtil.class, e);
-                }
         }
 
         return result;
@@ -382,18 +371,15 @@ public class FileUtil {
      * @return
      */
     public static byte[] getFileAsByteArray(String url) {
-        FileInputStream fis = null;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int len;
         byte[] ba = null;
-        try {
-            fis = new FileInputStream(url);
+        try (FileInputStream fis = new FileInputStream(url);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             ba = new byte[1024];
             while ((len = fis.read(ba)) > 0) {
                 bos.write(ba, 0, len);
             }
             ba = bos.toByteArray();
-            fis.close();
         }
         catch (FileNotFoundException e) {
             // e.printStackTrace();
@@ -617,17 +603,15 @@ public class FileUtil {
      * @throws Exception
      */
     public static void appendToFile(File destination, InputStream source) throws Exception {
-        FileOutputStream fos = new FileOutputStream(destination, true);
+        try (FileOutputStream fos = new FileOutputStream(destination, true)) {
+            byte[] buff = new byte[1024];
+            int readBytes = source.read(buff);
 
-        byte[] buff = new byte[1024];
-        int readBytes = source.read(buff);
-
-        while (readBytes > 0) {
-            fos.write(buff, 0, readBytes);
-            readBytes = source.read(buff);
+            while (readBytes > 0) {
+                fos.write(buff, 0, readBytes);
+                readBytes = source.read(buff);
+            }
         }
-
-        fos.close();
     }
 
     /**
@@ -648,9 +632,9 @@ public class FileUtil {
      * @throws Exception
      */
     public static void appendToFile(File destination, File fileToBeAppended) throws Exception {
-        FileInputStream fis = new FileInputStream(fileToBeAppended);
-        appendToFile(destination, fis);
-        fis.close();
+        try (FileInputStream fis = new FileInputStream(fileToBeAppended)) {
+            appendToFile(destination, fis);
+        }
     }
 
     /**
@@ -810,10 +794,8 @@ public class FileUtil {
         try {
             File in = new File(source);
             File out = new File(dest);
-            FileInputStream fis = new FileInputStream(in);
-            ret = StreamUtil.copyStreamToFile(fis, out);
-            try {
-                fis.close();
+            try (FileInputStream fis = new FileInputStream(in)) {
+                ret = StreamUtil.copyStreamToFile(fis, out);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -837,15 +819,10 @@ public class FileUtil {
         try {
             File in = new File(source);
             File out = new File(destDir, in.getName());
-            FileInputStream fis = new FileInputStream(in);
-            boolean ret = StreamUtil.copyStreamToFile(fis, out);
-            try {
-                fis.close();
+            try (FileInputStream fis = new FileInputStream(in)) {
+                boolean ret = StreamUtil.copyStreamToFile(fis, out);
+                return ret;
             }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-            return ret;
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
