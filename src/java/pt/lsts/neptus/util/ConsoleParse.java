@@ -37,7 +37,8 @@ import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.io.File;
-import java.net.URL;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -215,21 +216,23 @@ public class ConsoleParse implements FileHandler {
     }
 
     public static void parseFile(String consoleURL, ConsoleLayout console) {
-        Document doc = null;
-        
         try {
             File fx = new File(consoleURL);
-            URL url = fx.toURI().toURL();
+            // Ensure the file actually exists and is readable before even trying
+            if (!fx.exists() || !fx.canRead()) {
+                throw new IOException("File missing or locked: " + fx.getAbsolutePath());
+            }
 
             SAXReader reader =  new SAXReader();
-            doc = reader.read(url);
-            Element rootconsole = (Element) doc.selectSingleNode("//" + ConsoleLayout.DEFAULT_ROOT_ELEMENT);
-            parseElement(rootconsole, console, consoleURL);
+            try (FileInputStream fis = new FileInputStream(fx)) {
+                Document doc = reader.read(fis);
+                Element rootConsole = (Element) doc.selectSingleNode("//" + ConsoleLayout.DEFAULT_ROOT_ELEMENT);
+                parseElement(rootConsole, console, consoleURL);
 
-            console.setXmlDoc(doc);
-            console.setFileName(new File(consoleURL));
-            console.setConsoleChanged(false);
-
+                console.setXmlDoc(doc);
+                console.setFileName(new File(consoleURL));
+                console.setConsoleChanged(false);
+            }
         }
         catch (Exception e) {
             GuiUtils.errorMessage(null, e);
