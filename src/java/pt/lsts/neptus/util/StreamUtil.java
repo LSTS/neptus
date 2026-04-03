@@ -131,24 +131,13 @@ public class StreamUtil {
      * @return
      */
     public static boolean copyStreamToFile (InputStream inStream, File outFile, boolean append) {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(outFile, append);
+        try (FileOutputStream fos = new FileOutputStream(outFile, append)) {
             boolean ret = copyStreamToStream(inStream, fos);
             return ret;
         }
         catch (Exception e) {
             NeptusLog.pub().error("copyStreamToFile", e);
             return false;
-        }
-        finally {
-            try {
-                if (fos != null)
-                    fos.close();
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error("copyStreamToFile", e);
-            }
         }
     }
     
