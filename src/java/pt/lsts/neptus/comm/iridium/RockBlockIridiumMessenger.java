@@ -95,7 +95,7 @@ import static pt.lsts.neptus.comm.iridium.HubIridiumMessenger.updateVehicleWithL
  * This class uses the RockBlock HTTP API (directly) to send messages to Iridium destinations and a gmail inbox to poll
  * for incoming messages
  * 
- * @see https://www.groundcontrol.com/wp-content/uploads/2022/02/RockBLOCK-Web-Services-User-Guide.pdf
+ * @see https://docs.groundcontrol.com/iot/rockblock/web-services/sending-mt-message
  * @author zp
  */
 @IridiumProvider(id="rock7", name="RockBlock Messenger", description="Sends Iridium messages directly via RockBlock web service and receives new messages by polling a gmail address")
@@ -104,7 +104,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     protected HttpClientConnectionHelper httpComm;
 
     protected boolean available = true;
-    protected static String serverUrl = "https://secure.rock7mobile.com/rockblock/MT";
+    protected static String serverUrl = "https://rockblock.rock7.com/rockblock/MT";
+    protected static String serverCheckUrl = "https://rockblock.rock7.com/rockblock";
     protected Set<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
 
@@ -523,7 +524,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
                 if (result == null) {
                     try {
-                        URL url = new URI("http://secure.rock7mobile.com/rockblock").toURL();
+                        URL url = new URI(serverCheckUrl).toURL();
                         NeptusLog.pub().info("Checking RockBlock server at {}", url);
                         int len = url.openConnection().getContentLength();
                         if (len > 0) {
