@@ -50,6 +50,9 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 public class LineSegmentElement extends SimpleMapElement {
+    {
+        useRotationYawParameterEditor = true;
+    }
 
     @NeptusProperty
     public double length = 100;

@@ -56,6 +56,11 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class SimpleMapElement extends AbstractElement {
 
+    protected boolean useCenterLocationParameterEditor = true;
+    protected boolean useRotationRollParameterEditor = false;
+    protected boolean useRotationPitchParameterEditor = false;
+    protected boolean useRotationYawParameterEditor = false;
+
     public SimpleMapElement(MapGroup mg, MapType map) {
         super(mg, map);
         //id = id.replaceFirst("me", getType());
@@ -105,31 +110,68 @@ public class SimpleMapElement extends AbstractElement {
 
     @Override
     public ParametersPanel getParametersPanel(boolean editable, MapType map) {
-        return new CustomParametersPanel(PluginUtils.getPluginProperties(this)) {
-            private static final long serialVersionUID = 1L;
+//        return new CustomParametersPanel(PluginUtils.getPluginProperties(this)) {
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public String getErrors() {
+//                String[] errors = PluginUtils.validatePluginProperties(SimpleMapElement.this, psp.getProperties());
+//
+//                if (errors == null || errors.length == 0)
+//                    return null;
+//
+//                String ret = "";
+//                for (String err : errors)
+//                    ret += err + "\n";
+//
+//                return ret;
+//            }
+//        };
+        CustomParametersPanel cpp = new CustomParametersPanel(this, PluginUtils.getPluginProperties(this),
+                useCenterLocationParameterEditor, useRotationRollParameterEditor, useRotationPitchParameterEditor,
+                useRotationYawParameterEditor);
 
-            @Override
-            public String getErrors() {
-                String[] errors = PluginUtils.validatePluginProperties(SimpleMapElement.this, psp.getProperties());
+        //cpp.setRotation(getRollDeg(), getPitchDeg(), getYawDeg());
+        if (getCenterLocation() == null) {
+            setCenterLocation(new LocationType());
+            getCenterLocation().setLocation(getMapGroup().getCoordinateSystem());
+        }
 
-                if (errors == null || errors.length == 0)
-                    return null;
+        cpp.setCenterLocation(getCenterLocation());
+        if (useRotationRollParameterEditor)
+            cpp.setRollDegs(getRollDeg());
+        if (useRotationPitchParameterEditor)
+            cpp.setPitchDegs(getPitchDeg());
+        if (useRotationYawParameterEditor)
+            cpp.setYawDegs(getYawDeg());
 
-                String ret = "";
-                for (String err : errors)
-                    ret += err + "\n";
+        cpp.setEditable(editable);
 
-                return ret;
-            }
-        };
-
+        paramsPanel = cpp;
+        return cpp;
     }
 
     @Override
-    public void initialize(ParametersPanel paramsPanel) {
-        Property[] props = ((CustomParametersPanel) paramsPanel).getProperties();
+    public void initialize(ParametersPanel pPanel) {
+        if (!(pPanel instanceof CustomParametersPanel)) {
+            System.err.println("Not my parameters!... Default parameters will be set.");
+            return;
+        }
+
+        CustomParametersPanel paramsPanel = (CustomParametersPanel) pPanel;
+
+        Property[] props = paramsPanel.getProperties();
         PluginUtils.setPluginProperties(this, props);
+
+        setCenterLocation(paramsPanel.getCenterLocation());
+        if (useRotationRollParameterEditor)
+            setRollDeg(paramsPanel.getRollDegs());
+        if (useRotationPitchParameterEditor)
+            setPitchDeg(paramsPanel.getPitchDegs());
+        if (useRotationYawParameterEditor)
+            setYawDeg(paramsPanel.getYawDegs());
     }
+
 
     @Override
     public boolean containsPoint(LocationType point, StateRenderer2D renderer) {
