@@ -65,7 +65,7 @@ public class AngleEditorDegs extends AbstractPropertyEditor {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				double oldAngle = angleRads;
-				double newAngle = AnglePanel.angleDialogRads(textField, angleRads);
+				double newAngle = Math.toDegrees(AnglePanel.angleDialogRads(textField, angleRads));
 				
 				setValue(newAngle);
 				firePropertyChange(oldAngle, newAngle);
