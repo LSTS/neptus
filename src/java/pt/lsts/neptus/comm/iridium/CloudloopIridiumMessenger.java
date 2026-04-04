@@ -330,7 +330,7 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
         }
 
         JsonObject jsonObject = arrVal.asObject();
-        // May be the result
+        // Maybe the result
         JsonValue msgRecordsNode = jsonObject.get("messageRecords");
         if (msgRecordsNode == null || !msgRecordsNode.isArray()) {
             throw new Exception("Cloudloop server failed to deliver a proper message list '" + jsonResult + "'");
