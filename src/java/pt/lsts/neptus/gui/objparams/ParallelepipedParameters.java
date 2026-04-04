@@ -50,10 +50,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.gui.TextureComboChooser;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.texture.TextureType;
@@ -81,16 +83,12 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JPanel jPanel = null;
 	private JLabel jLabel1 = null;
 	private JFormattedTextField rollField = null;
-	private JLabel jLabel2 = null;
 	private JLabel jLabel3 = null;
 	private JFormattedTextField pitchField = null;
-	private JLabel jLabel9 = null;
 	private JLabel jLabel10 = null;
 	private JFormattedTextField yawField = null;
 	private JPanel jPanel1 = null;
 	private JPanel jPanel2 = null;
-	private JLabel jLabel4 = null;
-	private JLabel jLabel11 = null;
 	private JLabel jLabel12 = new JLabel(I18n.text("Texture:"));
 	private JLabel lblFilled = new JLabel(I18n.text("Filled:"));
 	private JCheckBox chkFilled = new JCheckBox();
@@ -107,8 +105,11 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 
 	public void setDimensions(double dimx, double dimy, double dimz) {
 		getXDim().setText(String.valueOf(dimx));
+		getXDim().setCaretPosition(0);
 		getYDim().setText(String.valueOf(dimy));
+		getYDim().setCaretPosition(0);
 		getZDim().setText(String.valueOf(dimz));
+		getZDim().setCaretPosition(0);
 	}
 	
 	public void setFilled(boolean filled) {
@@ -117,8 +118,11 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	
 	public void setRotation(double roll, double pitch, double yaw) {
 		getRollField().setText(String.valueOf(roll));
+		getRollField().setCaretPosition(0);
 		getPitchField().setText(String.valueOf(pitch));
+		getPitchField().setCaretPosition(0);
 		getYawField().setText(String.valueOf(yaw));
+		getYawField().setCaretPosition(0);
 	}
 	
 	
@@ -156,7 +160,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JTextField getXDim() {
 		if (XDim == null) {
 			XDim = new JTextField();
-			XDim.setPreferredSize(new java.awt.Dimension(40,20));
+			XDim.setPreferredSize(new java.awt.Dimension(80,20));
 			XDim.addFocusListener(new SelectAllFocusListener());
 		}
 		return XDim;
@@ -169,7 +173,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JTextField getYDim() {
 		if (YDim == null) {
 			YDim = new JTextField();
-			YDim.setPreferredSize(new java.awt.Dimension(40,20));
+			YDim.setPreferredSize(new java.awt.Dimension(80,20));
 			YDim.addFocusListener(new SelectAllFocusListener());
 		}
 		return YDim;
@@ -182,7 +186,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JTextField getZDim() {
 		if (ZDim == null) {
 			ZDim = new JTextField();
-			ZDim.setPreferredSize(new java.awt.Dimension(40,20));
+			ZDim.setPreferredSize(new java.awt.Dimension(80,20));
 			ZDim.addFocusListener(new SelectAllFocusListener());
 		}
 		return ZDim;
@@ -305,26 +309,23 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	 */    
 	private JPanel getJPanel() {
 		if (jPanel == null) {
-			jPanel = new JPanel();
+			jPanel = new JPanel(new MigLayout("center, wrap 6", "[]5[]20[]5[]20[]5[]", "[]"));
 			jLabel1 = new JLabel();
-			jLabel2 = new JLabel();
 			jLabel3 = new JLabel();
-			jLabel9 = new JLabel();
 			jLabel10 = new JLabel();
 			jLabel1.setText(I18n.text("Roll:"));
-			jLabel2.setText("   ");
 			jLabel3.setText(I18n.text("Pitch:"));
-			jLabel9.setText("   ");
 			jLabel10.setText(I18n.text("Yaw:"));
-			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Rotation"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
-			jPanel.add(jLabel1, null);
-			jPanel.add(getRollField(), null);
-			jPanel.add(jLabel2, null);
-			jPanel.add(jLabel3, null);
-			jPanel.add(getPitchField(), null);
-			jPanel.add(jLabel9, null);
-			jPanel.add(jLabel10, null);
-			jPanel.add(getYawField(), null);
+			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
+                    I18n.textf("Rotation (%angleSymbol)", CoordinateUtil.CHAR_DEGREE) ,
+                    javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                    null, null));
+			jPanel.add(jLabel1, "sg labels");
+			jPanel.add(getRollField(), "sg values");
+			jPanel.add(jLabel3, "sg labels");
+			jPanel.add(getPitchField(), "sg values");
+			jPanel.add(jLabel10, "sg labels");
+			jPanel.add(getYawField(), "sg values");
 		}
 		return jPanel;
 	}
@@ -336,9 +337,9 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JFormattedTextField getRollField() {
 		if (rollField == null) {
 			rollField = new JFormattedTextField(df);
-			rollField.setPreferredSize(new java.awt.Dimension(40,20));
+			rollField.setPreferredSize(new java.awt.Dimension(80,20));
 			rollField.setText("0.0");
-			rollField.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+			rollField.setHorizontalAlignment(JTextField.LEADING);
 			rollField.addFocusListener(new SelectAllFocusListener());
 		}
 		return rollField;
@@ -351,8 +352,8 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JFormattedTextField getPitchField() {
 		if (pitchField == null) {
 			pitchField = new JFormattedTextField(df);
-			pitchField.setPreferredSize(new java.awt.Dimension(40,20));
-			pitchField.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+			pitchField.setPreferredSize(new java.awt.Dimension(80,20));
+			pitchField.setHorizontalAlignment(JTextField.LEADING);
 			pitchField.setText("0.0");
 			pitchField.addFocusListener(new SelectAllFocusListener());
 		}
@@ -366,8 +367,8 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JFormattedTextField getYawField() {
 		if (yawField == null) {
 			yawField = new JFormattedTextField(df);
-			yawField.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-			yawField.setPreferredSize(new java.awt.Dimension(40,20));
+			yawField.setHorizontalAlignment(JTextField.LEADING);
+			yawField.setPreferredSize(new java.awt.Dimension(80,20));
 			yawField.setText("0.0");
 			yawField.addFocusListener(new SelectAllFocusListener());
 		}
@@ -401,20 +402,16 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	 */    
 	private JPanel getJPanel2() {
 		if (jPanel2 == null) {
-			jPanel2 = new JPanel();
-			jLabel4 = new JLabel();
-			jLabel11 = new JLabel();
-			jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Dimension"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
-			jLabel4.setText("   ");
-			jLabel11.setText("   ");
-			jPanel2.add(jLabel5, null);
-			jPanel2.add(getXDim(), null);
-			jPanel2.add(jLabel4, null);
-			jPanel2.add(jLabel6, null);
-			jPanel2.add(getYDim(), null);
-			jPanel2.add(jLabel11, null);
-			jPanel2.add(jLabel7, null);
-			jPanel2.add(getZDim(), null);
+			jPanel2 = new JPanel(new MigLayout("center, wrap 6", "[]5[]20[]5[]20[]5[]", "[]"));
+			jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
+                    I18n.text("Dimension (m)"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                    javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
+			jPanel2.add(jLabel5, "sg labels");
+			jPanel2.add(getXDim(), "sg values");
+			jPanel2.add(jLabel6, "sg labels");
+			jPanel2.add(getYDim(), "sg values");
+			jPanel2.add(jLabel7, "sg labels");
+			jPanel2.add(getZDim(), "sg values");
 		}
 		return jPanel2;
 	}
@@ -437,7 +434,8 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 		}
 		return jPanel3;
 	}
-            	public static void main(String args[]) {
+
+    public static void main(String[] args) {
 		JFrame tstFrame = new JFrame("Dialog Unitary Test");
 		tstFrame.setLayout(new BorderLayout());
 		ParallelepipedParameters params = new ParallelepipedParameters();
