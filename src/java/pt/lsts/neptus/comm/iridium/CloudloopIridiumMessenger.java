@@ -375,6 +375,7 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
                     }
                 }
 
+                Date now = new Date();
                 IridiumMessage irMsg = IridiumMessage.deserialize(msgSnippetBytes);
                 if (!"MO".equalsIgnoreCase(msgDirection)) {
                     // So it is possibly an MT sent by a C2 or other to the vehicle
@@ -382,6 +383,11 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
                 } else if (irMsg.source == ImcId16.NULL_ID.intValue()) {
                     // Let us try to fill the source from imei
                     irMsg.source = findSystemIdByThingId(msgThingId);
+                }
+
+                // If not set, set the timestamp
+                if (!new Date(irMsg.timestampMillis).before(now) && msgAtDate != null) {
+                    irMsg.timestampMillis = msgAtDate.getTime();
                 }
 
                 ret.add(irMsg);
