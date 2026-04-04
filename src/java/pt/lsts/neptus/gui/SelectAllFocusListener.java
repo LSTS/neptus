@@ -48,4 +48,12 @@ public class SelectAllFocusListener extends FocusAdapter {
 			}
 		}
 	}
+
+    public void focusLost(FocusEvent e) {
+        if (e.getSource() instanceof JTextComponent) {
+            JTextComponent tc = (JTextComponent)e.getSource();
+            if (tc.getCaretPosition() != 0)
+                tc.setCaretPosition(0);
+        }
+    }
 }
