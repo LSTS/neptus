@@ -1306,6 +1306,20 @@ public class GuiUtils {
         return new String(secretField.getPassword());
     }
 
+    public static String askNonSecretCredentials(Component parent, String title, String nonSecretName, String value) {
+        TableLayout tl = new TableLayout(new double[] {0.33, 0.67}, new double[] {0.5,0.5});
+        tl.setHGap(3);
+        JPanel p = new JPanel(tl);
+        JTextField nonSecretField = new JTextField(value);
+
+        p.add(new JLabel(nonSecretName + ":"), "0,0");
+        p.add(nonSecretField, "1,0");
+        int op = JOptionPane.showConfirmDialog(parent, p, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/key.png"));
+        if (op == JOptionPane.CANCEL_OPTION)
+            return null;
+        return nonSecretField.getText();
+    }
+
     public static JComboBox<String> vehiclesCombo(boolean onlyActiveVehicles) {
         ArrayList<String> vehicles = new ArrayList<>();
         
