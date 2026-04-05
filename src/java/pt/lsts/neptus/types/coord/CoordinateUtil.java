@@ -1149,7 +1149,6 @@ public class CoordinateUtil {
      * @return
      */
     private static double[] toECEF(double latDegrees, double lonDegrees, double depth) {
-
         double[] lld = {latDegrees, lonDegrees, depth};
 
         lld[0] = Math.toRadians(lld[0]);
@@ -1159,7 +1158,7 @@ public class CoordinateUtil {
         double sin_lat = Math.sin(lld[0]);
         double cos_lon = Math.cos(lld[1]);
         double sin_lon = Math.sin(lld[1]);
-        double rn = c_wgs84_a / Math.sqrt(1.0 - c_wgs84_e2 * sin_lat * sin_lat);
+        double rn = computeRn(lld[0]);
         double[] ned = new double[3];
         ned[0] = (rn - lld[2]) * cos_lat * cos_lon;
         ned[1] = (rn - lld[2]) * cos_lat * sin_lon;
@@ -1170,13 +1169,16 @@ public class CoordinateUtil {
 
     /**
      * Copied from Dune
-     * 
-     * @param lat
-     * @return
+     * <p>
+     * Compute the radius of curvature in the prime vertical (Rn).
+     *
+     * @param latRads WGS-84 latitude (rad).
+     *
+     * @return radius of curvature in the prime vertical (rad).
      */
-    private static double n_rad(double lat) {
-        double lat_sin = Math.sin(lat);
-        return c_wgs84_a / Math.sqrt(1 - c_wgs84_e2 * (lat_sin * lat_sin));
+    private static double computeRn(double latRads) {
+        double lat_sin = Math.sin(latRads);
+        return c_wgs84_a / Math.sqrt(1.0 - c_wgs84_e2 * (lat_sin * lat_sin));
     }
 
     /**
@@ -1193,7 +1195,7 @@ public class CoordinateUtil {
         double p = Math.sqrt(x * x + y * y);
         lld[1] = Math.atan2(y, x);
         lld[0] = Math.atan2(z / p, 0.01);
-        double n = n_rad(lld[0]);
+        double n = computeRn(lld[0]);
         lld[2] = p / Math.cos(lld[0]) - n;
         double old_hae = -1e-9;
         double num = z / p;
@@ -1202,7 +1204,7 @@ public class CoordinateUtil {
             old_hae = lld[2];
             double den = 1 - c_wgs84_e2 * n / (n + lld[2]);
             lld[0] = Math.atan2(num, den);
-            n = n_rad(lld[0]);
+            n = computeRn(lld[0]);
             lld[2] = p / Math.cos(lld[0]) - n;
         }
 
@@ -1256,18 +1258,47 @@ public class CoordinateUtil {
 
     /**
      * Copied from Dune
-     * 
-     * @param loc
+     *
+     * @param latDegrees
+     * @param lonDegrees
+     * @param depth
      * @param n
      * @param e
      * @param d
+     * @return
      */
     public static double[] WGS84displace(double latDegrees, double lonDegrees, double depth, double n, double e, double d) {
+        // Change this to useElliptical in the future
+        return WGS84displace(latDegrees, lonDegrees, depth, n, e, d, false);
+    }
+
+    /**
+     * Copied from Dune
+     *
+     * @param latDegrees
+     * @param lonDegrees
+     * @param depth
+     * @param n
+     * @param e
+     * @param d
+     * @param useElliptical
+     * @return
+     */
+    public static double[] WGS84displace(double latDegrees, double lonDegrees, double depth, double n, double e, double d,
+                                         boolean useElliptical) {
         // Convert reference to ECEF coordinates
         double[] xyz = toECEF(latDegrees, lonDegrees, depth);
         double[] lld = {latDegrees, lonDegrees, depth };
+
         // Compute Geocentric latitude
-        double phi = Math.atan2(xyz[2], Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]));
+        double p = Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]);
+        double phi;
+        if (useElliptical) {
+            double N = computeRn(Math.toRadians(lld[0]));
+            phi = Math.atan2(xyz[2], p * (1.0 - c_wgs84_e2 * N / (N + depth)));
+        } else {
+            phi = Math.atan2(xyz[2], p);
+        }
 
         // Compute all needed sine and cosine terms for conversion.
         double slon = Math.sin(Math.toRadians(lld[1]));
@@ -1571,5 +1602,23 @@ public class CoordinateUtil {
         NeptusLog.pub().info("-------------------------------------------------------");
         String lonMTestStr = dmsToLatLonString(new double[] { -9, 9, 0 }, false, 3);
         NeptusLog.pub().info(lonMTestStr + " == 9W9'0.000''  " + ("9W9'0.000''".equalsIgnoreCase(lonMTestStr)));
+
+        NeptusLog.pub().info("-------------------------------------------------------");
+        {
+            LocationType locDD = new LocationType(41.73827393783, -9.783637266382);
+            double latDeg = locDD.getLatitudeDegs();
+            double lonDeg = locDD.getLongitudeDegs();
+            double height = locDD.getHeight();
+
+            double[] disp10 = WGS84displace(latDeg, lonDeg, height, 10000, 10000, 0);
+            double[] disp11 = WGS84displace(latDeg, lonDeg, height, 10000, 10000, 0, true);
+            NeptusLog.pub().info("Displace 100m North and 100m East (using spherical Earth)  \t\t[" + disp10[0] + ", " + disp10[1] + ", " + disp10[2] + "]");
+            NeptusLog.pub().info("Displace 100m North and 100m East (using elliptical Earth) \t\t[" + disp11[0] + ", " + disp11[1] + ", " + disp11[2] + "]");
+            LocationType locDD10 = new LocationType(disp10[0], disp10[1]);
+            NeptusLog.pub().info("Distance between original and displaced (spherical) \t\t\t\t" + locDD10.getDistanceInMeters(loc));
+            LocationType locDD11 = new LocationType(disp11[0], disp11[1]);
+            NeptusLog.pub().info("Distance between original and displaced (elliptical) \t\t\t\t" + locDD11.getDistanceInMeters(loc));
+            NeptusLog.pub().info("Distance between displacements                       \t\t\t\t" + locDD10.getDistanceInMeters(locDD11));
+        }
     }
 }
