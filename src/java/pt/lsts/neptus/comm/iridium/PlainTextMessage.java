@@ -118,6 +118,7 @@ public class PlainTextMessage extends IridiumMessage {
         List<IMCMessage> msgs = new ArrayList<>();
         TextMessage imcTxtMsg = new TextMessage("iridium", text);
         imcTxtMsg.setSrc(source);
+        imcTxtMsg.setDst(destination);
         imcTxtMsg.setTimestampMillis(timestampMillis);
         msgs.add(imcTxtMsg);
         return msgs;
