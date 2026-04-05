@@ -341,98 +341,110 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             int numMsgs = inbox.getMessageCount();
 
             for (int i = numMsgs; i > 0; i--) {
-                Message m = inbox.getMessage(i);
-                Date transmiteDate = null;
-                String fromImei = "";
-                String seqNumber = "";
-                byte[] data = null;
-                if (!m.getReceivedDate().after(timeSince)) {
-                    break;
-                }
-
-                if (m.getContent() instanceof String) {
-                    // No attach data so empty msg
-                    String text = (String) m.getContent();
-                    String[] partsList = text.split("\n");
-                    for (String prt : partsList) {
-                        if (prt.trim().isEmpty())
-                            continue;
-                        prt = prt.trim();
-                        if (prt.startsWith("Transmit Time:")) {
-                            String trmTime = prt.split("e: ")[1].trim();
-                            transmiteDate = getTransmitDateToDate(trmTime);
-                        } else if (prt.startsWith("IMEI:")) {
-                            fromImei = prt.split(":")[1].trim();
-                        } else if (prt.startsWith("MOMSN:")) {
-                            seqNumber = prt.split(":")[1].trim();
-                        }
+                try {
+                    Message m = inbox.getMessage(i);
+                    Date transmiteDate = null;
+                    String fromImei = "";
+                    String seqNumber = "";
+                    byte[] data = null;
+                    if (!m.getReceivedDate().after(timeSince)) {
+                        break;
                     }
-                }
-                else if (m.getContent() instanceof MimeMultipart) {
-                    MimeMultipart mime = (MimeMultipart) m.getContent();
-                    for (int j = 0; j < mime.getCount(); j++) {
-                        BodyPart p = mime.getBodyPart(j);
-                        Matcher matcher = patternText.matcher(p.getContentType());
-                        if (matcher.matches()) {
-                            String text = (String) p.getContent();
-                            String[] partsList = text.split("\n");
-                            for (String prt : partsList) {
-                                if (prt.trim().isEmpty())
-                                    continue;
-                                prt = prt.trim();
-                                if (prt.startsWith("Transmit Time:")) {
-                                    String trmTime = prt.split("e: ")[1].trim();
-                                    transmiteDate = getTransmitDateToDate(trmTime);
-                                } else if (prt.startsWith("IMEI:")) {
-                                    fromImei = prt.split(":")[1].trim();
-                                } else if (prt.startsWith("MOMSN:")) {
-                                    seqNumber = prt.split(":")[1].trim();
-                                }
+
+                    if (m.getContent() instanceof String) {
+                        // No attach data so empty msg
+                        String text = (String) m.getContent();
+                        String[] partsList = text.split("\n");
+                        for (String prt : partsList) {
+                            if (prt.trim().isEmpty()) {
+                                continue;
                             }
-                            continue;
-                        }
-                        matcher = patternAttach.matcher(p.getContentType());
-                        if (matcher.matches()) {
-                            InputStream stream = (InputStream) p.getContent();
-                            data = IOUtils.toByteArray(stream);
-                            fromImei = matcher.group(1);
-                            seqNumber = matcher.group(2);
+                            prt = prt.trim();
+                            if (prt.startsWith("Transmit Time:")) {
+                                String trmTime = prt.split("e: ")[1].trim();
+                                transmiteDate = getTransmitDateToDate(trmTime);
+                            }
+                            else if (prt.startsWith("IMEI:")) {
+                                fromImei = prt.split(":")[1].trim();
+                            }
+                            else if (prt.startsWith("MOMSN:")) {
+                                seqNumber = prt.split(":")[1].trim();
+                            }
                         }
                     }
-                }
+                    else if (m.getContent() instanceof MimeMultipart) {
+                        MimeMultipart mime = (MimeMultipart) m.getContent();
+                        for (int j = 0; j < mime.getCount(); j++) {
+                            BodyPart p = mime.getBodyPart(j);
+                            Matcher matcher = patternText.matcher(p.getContentType());
+                            if (matcher.matches()) {
+                                String text = (String) p.getContent();
+                                String[] partsList = text.split("\n");
+                                for (String prt : partsList) {
+                                    if (prt.trim().isEmpty()) {
+                                        continue;
+                                    }
+                                    prt = prt.trim();
+                                    if (prt.startsWith("Transmit Time:")) {
+                                        String trmTime = prt.split("e: ")[1].trim();
+                                        transmiteDate = getTransmitDateToDate(trmTime);
+                                    }
+                                    else if (prt.startsWith("IMEI:")) {
+                                        fromImei = prt.split(":")[1].trim();
+                                    }
+                                    else if (prt.startsWith("MOMSN:")) {
+                                        seqNumber = prt.split(":")[1].trim();
+                                    }
+                                }
+                                continue;
+                            }
+                            matcher = patternAttach.matcher(p.getContentType());
+                            if (matcher.matches()) {
+                                InputStream stream = (InputStream) p.getContent();
+                                data = IOUtils.toByteArray(stream);
+                                fromImei = matcher.group(1);
+                                seqNumber = matcher.group(2);
+                            }
+                        }
+                    }
 
-                if (fromImei == null || fromImei.isEmpty())
-                    continue;
-                IridiumMessage msg = process(data, fromImei, seqNumber,
-                        transmiteDate != null ? transmiteDate
-                                : (m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate()));
-                if (msg != null)
-                    messages.add(msg);
+                    if (fromImei == null || fromImei.isEmpty()) {
+                        continue;
+                    }
+                    IridiumMessage msg = process(data, fromImei, seqNumber,
+                            transmiteDate != null ? transmiteDate
+                                    : (m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate()));
+                    if (msg != null) {
+                        messages.add(msg);
+                    }
+                } catch (Exception e) {
+                    NeptusLog.pub().warn("Error processing email message, skipping it", e);
+                }
             }
         }
         catch (AuthenticationFailedException ex) {
             askGmailPassword = true;
-            ex.printStackTrace();
+            NeptusLog.pub().warn("Authentication Failed", ex);
             return new ArrayList<>();
         }
         catch (NoSuchProviderException ex) {
-            ex.printStackTrace();
+            NeptusLog.pub().warn("No provider found", ex);
             return new ArrayList<>();
         }
         catch (MessagingException ex) {
-            ex.printStackTrace();
+            NeptusLog.pub().warn("Messaging failed", ex);
             return new ArrayList<>();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn("Error processing email messages", e);
             return new ArrayList<>();
-        } finally {
+        }
+        finally {
             try {
                 if (store != null)
                     store.close();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                NeptusLog.pub().warn("Error closing store", e);
             }
             store = null;
         }
