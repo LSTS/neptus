@@ -103,6 +103,7 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
     protected static String endpointDataGetMessageRecords = "/Data/GetMessageRecords";
     protected static String endpointDataGetMessageRecordsLongPoll = "/Data/GetMessageRecordsLongPoll";
     protected static String endpointDataGetLingoMo = "/Data/GetLingoMo";
+    protected static String endpointDataGetLingoMt = "/Data/GetLingoMt";
 
     protected Set<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
@@ -359,7 +360,7 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
 
                 if (msgSnippetBytes.length != msgSize) {
                     // We need to get more detail
-                    String detailResult = getMessageRecordFromServerAsJson(msgId);
+                    String detailResult = getMessageRecordFromServerAsJson(msgId, "MO".equalsIgnoreCase(msgDirection));
                     JsonValue arrDetailVal = Json.parse(detailResult);
                     if (!arrDetailVal.isObject()) {
                         NeptusLog.pub().warn("Error expecting a list detail of message {}} from Cloudloop", msgId);
@@ -403,13 +404,13 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
         return ret;
     }
 
-    private String getMessageRecordFromServerAsJson(String msgId) throws Exception {
+    private String getMessageRecordFromServerAsJson(String msgId, boolean moOrMt) throws Exception {
         NeptusLog.pub().info("Polling message {} detail", msgId);
 
         // Construct the URL with query parameters
         String requestUrl = String.format("%s%s?messageRecord=%s&token=%s",
                 serverUrl,
-                endpointDataGetMessageRecords,
+                moOrMt ? endpointDataGetLingoMo : endpointDataGetLingoMt,
                 msgId,
                 getCloudloopToken());
         HttpPost post = new HttpPost(requestUrl);
