@@ -166,8 +166,9 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
 
     private boolean askCredentials() throws IOException {
         if (askCloudloopToken || cloudloopToken == null) {
-            String tokenSecret = GuiUtils.askSecretCredentials(ConfigFetch.getSuperParentFrame(),
-                    "Enter Cloudloop token", "token", getCloudloopToken());
+            String tokenSecret = GuiUtils.askNonSecretCredentials(ConfigFetch.getSuperParentFrame(),
+                    "Enter Cloudloop token", "token", getCloudloopToken().trim().isEmpty()
+                            ? "00000000-0000-0000-0000-000000000000" : getCloudloopToken());
             if (tokenSecret == null)
                 return true;
             setCloudloopToken(tokenSecret);
