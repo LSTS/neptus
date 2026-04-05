@@ -381,6 +381,8 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
                 if (!"MO".equalsIgnoreCase(msgDirection)) {
                     // So it is possibly an MT sent by a C2 or other to the vehicle
                     irMsg.source = ImcId16.ANNOUNCE.intValue();
+                    if (irMsg.destination == ImcId16.NULL_ID.intValue())
+                        irMsg.destination = findSystemIdByThingId(msgThingId);;
                 } else if (irMsg.source == ImcId16.NULL_ID.intValue()) {
                     // Let us try to fill the source from imei
                     irMsg.source = findSystemIdByThingId(msgThingId);
