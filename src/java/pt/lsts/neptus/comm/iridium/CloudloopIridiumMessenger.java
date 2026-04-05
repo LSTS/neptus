@@ -282,16 +282,9 @@ public class CloudloopIridiumMessenger implements IridiumMessenger {
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
+        if (askCredentials())
+            return new ArrayList<>();;
 
-        if (askCloudloopToken || cloudloopToken == null) {
-            String credentials = GuiUtils.askSecretCredentials(ConfigFetch.getSuperParentFrame(),
-                    "Enter Cloudloop Token Credentials", "token", getCloudloopToken());
-            if (credentials == null)
-                return null;
-            setCloudloopToken(credentials);
-            PluginUtils.saveProperties(CONF_CLOUDLOOP_PROPS, this);
-            askCloudloopToken = false;
-        }
         NeptusLog.pub().info("Polling messages since {}", dateToString(timeSince));
 
         // Construct the URL with query parameters
