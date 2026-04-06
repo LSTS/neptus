@@ -239,6 +239,26 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
     }
 
+    /**
+     * Normalizes component names to be cross-platform compatible.
+     */
+    private String getUniversalName(Component comp) {
+        if (comp == null) return "";
+        
+        Component.Identifier id = comp.getIdentifier();
+        
+        if (id == Component.Identifier.Axis.X) return "x";
+        if (id == Component.Identifier.Axis.Y) return "y";
+        if (id == Component.Identifier.Axis.Z) return "z";
+        if (id == Component.Identifier.Axis.RX) return "rx";
+        if (id == Component.Identifier.Axis.RY) return "ry";
+        if (id == Component.Identifier.Axis.RZ) return "rz";
+        
+        if (id == Component.Identifier.Axis.POV) return "pov";
+        
+        return comp.getName().toLowerCase();
+    }
+
     public ControllerPanel(ConsoleLayout console) {
         super(console);
         this.console = console;
@@ -347,9 +367,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         + "<li>Click on the Edit button of the intended <br />RemoteAction on the Table.</li>\n"
                         + "<li>Once the RemoteAction line gets green <br />you are in edition mode of the Table.</li>\n"
                         + "<li>Select the intended button on the Joystick.</li>\n"
-                        + "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it in the respective column.</li>\n"
+                        + "<li>After the editing mode is disabled, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it in the respective column.</li>\n"
                         + "</ol>\n"
-                        + "<h2>Open the Controllers Panel Plugin to configure the panel before open in the Pilot - ROV 2 profile.</h2>"
+                        + "<h2>You must have your controller device connected before launching Neptus.</h2>"
                         + "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
                         + "<h2>Once in Input Hold Mode, the list of Remote Actions will only increment according to the new buttons selected.</h2>"
                         + "</html>"));
@@ -740,19 +760,24 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         btnReset.setEnabled(!hasAnyEditFlag());
 
         if (hasAnyEditFlag()) {
+            LinkedHashMap<String, String> universalNames = new LinkedHashMap<>();
+            for (String k : poll.keySet()) {
+                universalNames.put(k, getUniversalName(poll.get(k)));
+            }
+            
             for (String k : poll.keySet()) {
                 float currentData = poll.get(k).getPollData();
                 float previousData = oldPoll.getOrDefault(k, 0f);
 
                 boolean intentDetected = false;
 
-                if (k.equalsIgnoreCase("pov")) {
+                if (universalNames.get(k).equals("pov")) {
                     intentDetected = (currentData != 0.0f && previousData == 0.0f);
                 } else {
                     intentDetected = (Math.abs(currentData - previousData) > 0.5f);
                 }
                 if (intentDetected) {
-                    String buttonToStore = k;
+                    String buttonToStore = universalNames.get(k);
                     ArrayList<MapperComponent> allMapped = new ArrayList<>();
                     allMapped.addAll(mappedAxis);
                     allMapped.addAll(mappedButtons);
@@ -760,7 +785,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     for (MapperComponent mcomp : allMapped) {
                         if (mcomp.editFlag) {
                             String type = actions.get(mcomp.action);
-                            if (k.equalsIgnoreCase("pov")) {
+                            if (universalNames.get(k).equals("pov")) {
                             if ("Axis".equalsIgnoreCase(type)) {
                                 if (isHeading(mcomp)) buttonToStore = "povX";
                                 else if (isThrustAction(mcomp.action)) buttonToStore = "povY";
@@ -819,6 +844,18 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                 mcomp.value = 0f;
                                 mcomp.editFlag = false;
                                 mcomp.setDeadZone(poll.get(k).getDeadZone());
+                                
+                                String universalName = universalNames.get(k);
+                                if (universalName.equals("y") || universalName.equals("ry") || universalName.equals("pov")) {
+                                    if (buttonToStore.equalsIgnoreCase("povY")) {
+                                        mcomp.inverted = (currentData >= 0.7f && currentData <= 0.8f);
+                                    } else {
+                                        mcomp.inverted = (currentData < 0);
+                                    }
+                                } else {
+                                    mcomp.inverted = false;
+                                }
+                                
                                 saveMappings();
                             } else {
                                 // TODO: Optional warning
@@ -864,12 +901,18 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 }
             }
 
+            LinkedHashMap<String, String> universalNames = new LinkedHashMap<>();
             for (String k : poll.keySet()) {
+                universalNames.put(k, getUniversalName(poll.get(k)));
+            }
+
+            for (String k : poll.keySet()) {
+                String universalName = universalNames.get(k);
                 ArrayList<MapperComponent> compsForButton = new ArrayList<>();
                 for (MapperComponent c : allMapped) {
-                    if (k.equalsIgnoreCase("pov") && c.button.toLowerCase().startsWith("pov")) {
+                    if (universalName.equals("pov") && c.button.toLowerCase().startsWith("pov")) {
                         compsForButton.add(c);
-                    } else if (c.button.equals(k)) {
+                    } else if (c.button.equals(universalName)) {
                         compsForButton.add(c);
                     }
                 }
@@ -881,30 +924,49 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                         String type = actions.get(comp.action);
 
+                        if (comp.inverted) {
+                            raw *= -1f;
+                        }
+
                         if ("Axis".equalsIgnoreCase(type)) {
                             if (comp.button.startsWith("pov")) {
-                                float povRaw = poll.get("pov") != null ? poll.get("pov").getPollData() : 0f;
-                                float t_val = 0, h_val = 0;
+                                Component povComponent = null;
+                                for (String key : poll.keySet()) {
+                                    if (universalNames.get(key).equals("pov")) {
+                                        povComponent = poll.get(key);
+                                        break;
+                                    }
+                                }
+                                
+                                if (povComponent != null) {
+                                    float povRaw = povComponent.getPollData();
+                                    float t_val = 0, h_val = 0;
 
-                                if (povRaw > 0.05f && povRaw < 0.45f) t_val = 1f;
-                                else if (povRaw > 0.55f && povRaw < 0.95f) t_val = -1f;
+                                    if (povRaw > 0.05f && povRaw < 0.45f) t_val = 1f;
+                                    else if (povRaw > 0.55f && povRaw < 0.95f) t_val = -1f;
 
-                                if (povRaw > 0.30f && povRaw < 0.70f) h_val = 1f;
-                                else if (povRaw > 0.80f || (povRaw > 0 && povRaw < 0.20f)) h_val = -1f;
+                                    if (povRaw > 0.30f && povRaw < 0.70f) h_val = 1f;
+                                    else if (povRaw > 0.80f || (povRaw > 0 && povRaw < 0.20f)) h_val = -1f;
 
-                                if (comp.button.equalsIgnoreCase("povX")) raw = h_val;
-                                else if (comp.button.equalsIgnoreCase("povY")) raw = t_val;
-                                else raw = isThrustAction(comp.action) ? t_val : h_val;
+                                    if (comp.button.equalsIgnoreCase("povX")) raw = h_val;
+                                    else if (comp.button.equalsIgnoreCase("povY")) raw = t_val;
+                                    else raw = isThrustAction(comp.action) ? t_val : h_val;
+                                    
+                                    if (comp.inverted) {
+                                        raw *= -1f;
+                                    }
+                                }
                             } 
-                            
-                            if (comp.inverted) {
-                                raw *= -1f;
-                            }
                             
                             if (isThrustAction(comp.action)) {
                                 float forwardPart = 0;
                                 if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
-                                    forwardPart = (raw + 1f) / 2f;
+                                    Component physicalComponent = poll.get(k);
+                                    if (physicalComponent != null && physicalComponent.isAnalog()) {
+                                        forwardPart = (raw + 1f) / 2f;
+                                    } else {
+                                        forwardPart = raw;
+                                    }
                                 } else if (triggeredHalfThrust) {
                                     forwardPart = Math.max(0, raw);
                                 } else {
@@ -917,8 +979,13 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         }
                         else if ("Button".equalsIgnoreCase(type)) {
                             if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
-                                float normalized = (raw + 1f) / 2f;
-                                raw = normalized > 0.5f ? 1.0f : 0.0f;
+                                Component physicalComponent = poll.get(k);
+                                if (physicalComponent != null && physicalComponent.isAnalog()) {
+                                    float normalized = (raw + 1f) / 2f;
+                                    raw = normalized > 0.5f ? 1.0f : 0.0f;
+                                } else {
+                                    raw = (raw >= 1.0f) ? 1.0f : 0.0f;
+                                }
                             } else if (comp.button.startsWith("pov") && !comp.button.equalsIgnoreCase("pov")) {
                                 raw = checkPovDirection(comp.button, raw);
                             } else if (comp.button.equalsIgnoreCase("pov")) {

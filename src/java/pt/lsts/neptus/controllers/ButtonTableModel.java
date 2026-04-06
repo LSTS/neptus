@@ -110,7 +110,8 @@ class ButtonTableModel extends AbstractTableModel {
             case 1:
                 return comp.button;
             case 2:
-                return comp.value;
+                float value = comp.value;
+                return Math.abs(value) < 0.1f ? 0.0f : value;
             case 3:
                 return comp.getEditText();
             case 4:
