@@ -209,3 +209,9 @@ build
 out/
 
 gradle.local.properties
+
+Off*
+OFF*
+off*
+ignore*
+
