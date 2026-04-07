@@ -19,7 +19,7 @@ description = """
 This is the Neptus C2 Framework for controlling autonomous vehicles.
 https://www.lsts.pt/toolchain/neptus/
 """
-version = '2026.01.0'
+version = '2026.01.1-SNAPSHOT'
 
 ext {
     copyYears = "2004-${new Date().format('yyyy')}"
