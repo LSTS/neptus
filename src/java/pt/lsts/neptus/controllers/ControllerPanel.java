@@ -102,7 +102,6 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -133,6 +132,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private static final String ACTION_FILE_XML = "conf/controllers/actions.xml";
     private static final String CACHED_ACTIONS_FILE = ".cache/db/controller_cached_actions.properties";
     private volatile boolean mousePressed = false;
+    
+    // OS detection for Z/RZ trigger handling
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
     // Vehicle action received via RemoteActionRequest (i.e Heading=axis, Accelerate=Button)
     private LinkedHashMap<String, String> actions = new LinkedHashMap<String, String>();
@@ -178,6 +180,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            manager.forceEnvironmentReset();
             updateControllers();
             if (!controllerSelectors.isEmpty()) {
                 currentController = (String) controllerSelectors.get(0).getSelectedItem();
@@ -241,6 +244,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     /**
      * Normalizes component names to be cross-platform compatible.
+     * Axes use lowercase, buttons use uppercase to avoid conflicts.
      */
     private String getUniversalName(Component comp) {
         if (comp == null) return "";
@@ -256,7 +260,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         
         if (id == Component.Identifier.Axis.POV) return "pov";
         
-        return comp.getName().toLowerCase();
+        return comp.getName().toUpperCase();
     }
 
     public ControllerPanel(ConsoleLayout console) {
@@ -369,7 +373,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         + "<li>Select the intended button on the Joystick.</li>\n"
                         + "<li>After the editing mode is disabled, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it in the respective column.</li>\n"
                         + "</ol>\n"
-                        + "<h2>You must have your controller device connected before launching Neptus.</h2>"
                         + "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
                         + "<h2>Once in Input Hold Mode, the list of Remote Actions will only increment according to the new buttons selected.</h2>"
                         + "</html>"));
@@ -400,6 +403,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     public void buildDialog() {
+        if (actions == null || actions.isEmpty()) {
+            refreshInterface();
+            return;
+        }
+        
         removeAll();
         buildInstructions();
 
@@ -513,6 +521,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (actions == null || actions.isEmpty()) {
+                    return;
+                }
                 @SuppressWarnings("unchecked")
                 JComboBox<String> cbox = (JComboBox<String>) e.getSource();
                 currentController = (String) cbox.getSelectedItem();
@@ -704,13 +715,13 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             axisModel = null;
             buttonsModel = null;
 
-            updateControllers();
-
-            if (!controllerSelectors.isEmpty()) {
-                currentController = (String) controllerSelectors.get(0).getSelectedItem();
-            }
-
             if (actions != null && !actions.isEmpty()) {
+                updateControllers();
+
+                if (!controllerSelectors.isEmpty()) {
+                    currentController = (String) controllerSelectors.get(0).getSelectedItem();
+                }
+
                 buildDialog();
             } else {
                 refreshInterface();
@@ -772,7 +783,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 boolean intentDetected = false;
 
                 if (universalNames.get(k).equals("pov")) {
-                    intentDetected = (currentData != 0.0f && previousData == 0.0f);
+                    intentDetected = (currentData != 0.0f);
                 } else {
                     intentDetected = (Math.abs(currentData - previousData) > 0.5f);
                 }
@@ -785,7 +796,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     for (MapperComponent mcomp : allMapped) {
                         if (mcomp.editFlag) {
                             String type = actions.get(mcomp.action);
-                            if (universalNames.get(k).equals("pov")) {
+                            
+                            if (IS_WINDOWS && universalNames.get(k).equals("z") && currentData < -0.1f) {
+                                buttonToStore = "rz";
+                            } else if (universalNames.get(k).equals("pov")) {
                             if ("Axis".equalsIgnoreCase(type)) {
                                 if (isHeading(mcomp)) buttonToStore = "povX";
                                 else if (isThrustAction(mcomp.action)) buttonToStore = "povY";
@@ -834,7 +848,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                 else if (buttonToStore.startsWith("pov") && existing.button.equalsIgnoreCase("pov")) {
                                     conflict = true;
                                 }
-                                else if (buttonToStore.equalsIgnoreCase(existing.button)) {
+                                else if (buttonToStore.equals(existing.button)) {
                                     conflict = true;
                                 }
                             }
@@ -846,9 +860,16 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                 mcomp.setDeadZone(poll.get(k).getDeadZone());
                                 
                                 String universalName = universalNames.get(k);
-                                if (universalName.equals("y") || universalName.equals("ry") || universalName.equals("pov")) {
+                                
+                                if (mcomp.action.toLowerCase().contains("reversed")) {
+                                    if (universalName.equals("pov")) {
+                                        mcomp.inverted = (currentData >= 0.6f && currentData <= 0.9f); 
+                                    } else {
+                                        mcomp.inverted = (currentData < 0);
+                                    }
+                                } else if (universalName.equals("y") || universalName.equals("ry") || universalName.equals("pov")) {
                                     if (buttonToStore.equalsIgnoreCase("povY")) {
-                                        mcomp.inverted = (currentData >= 0.7f && currentData <= 0.8f);
+                                        mcomp.inverted = (currentData >= 0.6f && currentData <= 0.9f); 
                                     } else {
                                         mcomp.inverted = (currentData < 0);
                                     }
@@ -887,19 +908,54 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             if (triggeredHalfThrust) {
                 for (MapperComponent c : allMapped) {
                     if (c.action.toLowerCase().contains("reversed") && c.button != null && !c.button.isEmpty()) {
-                        float rawRev = poll.containsKey(c.button) ? poll.get(c.button).getPollData() : 0f;
-
-                        if (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz")) {
-                            revThrustValue = -((rawRev + 1f) / 2f); 
-                        } else if (c.button.startsWith("pov")) {
-                            revThrustValue = -checkPovDirection(c.button, rawRev);
+                        String physicalKey = null;
+                        String searchName;
+                        
+                        if (IS_WINDOWS && (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz"))) {
+                            searchName = "z";
                         } else {
-                            revThrustValue = -Math.max(0, rawRev);
+                            searchName = c.button.startsWith("pov") ? "pov" : c.button;
+                        }
+
+                        for (String key : poll.keySet()) {
+                            if (getUniversalName(poll.get(key)).equals(searchName)) {
+                                physicalKey = key;
+                                break;
+                            }
+                        }
+
+                        if (physicalKey != null) {
+                            float rawRev = poll.get(physicalKey).getPollData();
+
+                            if (c.button.startsWith("pov")) {
+                                float val = 0;
+                                if (c.inverted) {
+                                    val = (rawRev >= 0.6f && rawRev <= 0.9f) ? 1.0f : 0.0f;
+                                } else {
+                                    val = (rawRev >= 0.1f && rawRev <= 0.4f || (rawRev > 0 && rawRev < 0.1f)) ? 1.0f : 0.0f;
+                                }
+                                revThrustValue = -val;
+                            } else if (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz")) {
+                                float val = 0;
+                                if (IS_WINDOWS) {
+                                    if (c.button.equalsIgnoreCase("z")) val = Math.max(0, rawRev);
+                                    else val = Math.max(0, -rawRev);
+                                } else {
+                                    val = (rawRev + 1f) / 2f;
+                                }
+                                revThrustValue = -Math.abs(val);
+                            } else {
+                                if (c.inverted) {
+                                    revThrustValue = -Math.max(0, -rawRev);
+                                } else {
+                                    revThrustValue = -Math.max(0, rawRev);
+                                }
+                            }
                         }
                         break; 
                     }
                 }
-            }
+        }
 
             LinkedHashMap<String, String> universalNames = new LinkedHashMap<>();
             for (String k : poll.keySet()) {
@@ -912,8 +968,12 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 for (MapperComponent c : allMapped) {
                     if (universalName.equals("pov") && c.button.toLowerCase().startsWith("pov")) {
                         compsForButton.add(c);
-                    } else if (c.button.equals(universalName)) {
+                    } else if (IS_WINDOWS && (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz")) && universalName.equals("z")) {
                         compsForButton.add(c);
+                    } else {
+                        if (c.button.equals(universalName)) {
+                            compsForButton.add(c);
+                        }
                     }
                 }
 
@@ -924,7 +984,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                         String type = actions.get(comp.action);
 
-                        if (comp.inverted) {
+                        if (comp.inverted && !(IS_WINDOWS && (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")))) {
                             raw *= -1f;
                         }
 
@@ -959,20 +1019,24 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                             } 
                             
                             if (isThrustAction(comp.action)) {
-                                float forwardPart = 0;
-                                if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
-                                    Component physicalComponent = poll.get(k);
-                                    if (physicalComponent != null && physicalComponent.isAnalog()) {
-                                        forwardPart = (raw + 1f) / 2f;
+                                if (comp.action.toLowerCase().contains("reversed")) {
+                                    updated_value = 0f;
+                                } else {
+                                    float forwardPart = 0;
+                                    if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
+                                        if (IS_WINDOWS) {
+                                            if (comp.button.equalsIgnoreCase("z")) forwardPart = Math.max(0, raw);
+                                            else forwardPart = Math.max(0, -raw);
+                                        } else {
+                                            forwardPart = (raw + 1f) / 2f;
+                                        }
+                                    } else if (triggeredHalfThrust) {
+                                        forwardPart = Math.max(0, raw);
                                     } else {
                                         forwardPart = raw;
                                     }
-                                } else if (triggeredHalfThrust) {
-                                    forwardPart = Math.max(0, raw);
-                                } else {
-                                    forwardPart = raw;
+                                    updated_value = (forwardPart + revThrustValue) * comp.getRange();
                                 }
-                                updated_value = (forwardPart + revThrustValue) * comp.getRange();
                             } else {
                                 updated_value = raw * comp.getRange();
                             }
@@ -981,8 +1045,16 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                             if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
                                 Component physicalComponent = poll.get(k);
                                 if (physicalComponent != null && physicalComponent.isAnalog()) {
-                                    float normalized = (raw + 1f) / 2f;
-                                    raw = normalized > 0.5f ? 1.0f : 0.0f;
+                                    if (IS_WINDOWS) {
+                                        if (comp.button.equalsIgnoreCase("z")) {
+                                            raw = (raw > 0.5f) ? 1.0f : 0.0f;
+                                        } else {
+                                            raw = (raw < -0.5f) ? 1.0f : 0.0f;
+                                        }
+                                    } else {
+                                        float normalized = (raw + 1f) / 2f;
+                                        raw = normalized > 0.5f ? 1.0f : 0.0f;
+                                    }
                                 } else {
                                     raw = (raw >= 1.0f) ? 1.0f : 0.0f;
                                 }
@@ -1024,7 +1096,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         }
 
                         if (sending()) {
-                            if (!comp.action.toLowerCase().contains("reversed")) {
+                            if (isThrustAction(comp.action)) {
+                                if (Float.compare(Math.abs(updated_value), poll.get(k).getDeadZone()) != 0) {
+                                    msgActions.put(comp.action, updated_value + "");
+                                }
+                            } else {
                                 if (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0) {
                                     msgActions.put(comp.action, comp.value + "");
                                 }

@@ -92,6 +92,12 @@ public class ControllerManager {
 
     }
 
+    public void forceEnvironmentReset() {
+        initControllerEnvironment();
+        reseted = true;
+        pollError = false;
+    }
+
     public void fetchControllers() {
 		// Copy current controllers to oldMap
 		LinkedHashMap<String, Controller> oldMap = new LinkedHashMap<String, Controller>();
