@@ -62,12 +62,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 class ImcMsgManagerMessageProcessor {
+    private static String IRIDIUM_PUBLISHER_PREFIX = "iridium";
+    private static String ACOUSTIC_PUBLISHER_PREFIX = "acoustic";
+    private static String ACOUSTIC2_PUBLISHER_PREFIX = "acomms";
+    private static String SMS_PUBLISHER_PREFIX = "sms";
+    private static String GSM_PUBLISHER_PREFIX = "GSM";
+
     private final ImcMsgManager manager;
     private final IMCFragmentHandler fragmentHandler;
 
     public ImcMsgManagerMessageProcessor(ImcMsgManager manager) {
         this.manager = manager;
         fragmentHandler = new IMCFragmentHandler(manager.imcDefinition);
+    }
+
+    private ImcSystem.MEDIUM getMediumReported(String publisherName) {
+        if (publisherName == null || publisherName.isEmpty())
+            return ImcSystem.MEDIUM.WIFI;
+
+        if (publisherName.toLowerCase().startsWith(IRIDIUM_PUBLISHER_PREFIX)) {
+            return ImcSystem.MEDIUM.SATELLITE;
+        }
+        else if (publisherName.toLowerCase().startsWith(ACOUSTIC_PUBLISHER_PREFIX)
+                || publisherName.toLowerCase().startsWith(ACOUSTIC2_PUBLISHER_PREFIX)) {
+            return ImcSystem.MEDIUM.ACOUSTIC;
+        }
+        else if (publisherName.toLowerCase().startsWith(SMS_PUBLISHER_PREFIX)
+                || publisherName.toLowerCase().startsWith(GSM_PUBLISHER_PREFIX)) {
+            return ImcSystem.MEDIUM.SMS;
+        }
+
+        return ImcSystem.MEDIUM.WIFI; // Default
     }
 
     void processEntityInfo(MessageInfo info, EntityInfo msg) {
@@ -121,10 +146,13 @@ class ImcMsgManagerMessageProcessor {
             if (Double.isFinite(depth))
                 loc.setDepth(depth);
 
-            if (imcSys != null)
-                imcSys.setLocation(loc, recTimeMillis);
-            else
+            if (imcSys != null) {
+                ImcSystem.MEDIUM mediumReported = getMediumReported(msg.getSourceName());
+                imcSys.setLocation(loc, recTimeMillis, mediumReported);
+            }
+            else {
                 extSys.setLocation(loc, recTimeMillis);
+            }
         }
 
         if (Double.isFinite(rollRad) || Double.isFinite(pitchRad) || Double.isFinite(yawRad)) {
@@ -184,7 +212,6 @@ class ImcMsgManagerMessageProcessor {
     }
 
     void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToForward, ImcMsgManager imcMsgManager) {
-
         String sysId = msg.getSourceName();
 
         long dataTimeMillis = msg.getStime() * 1000;
@@ -214,7 +241,8 @@ class ImcMsgManagerMessageProcessor {
 
         LocationType loc = new LocationType(lat, lon);
         loc.setDepth(depth);
-        imcSys.setLocation(loc, dataTimeMillis);
+        ImcSystem.MEDIUM mediumReported = getMediumReported(msg.getSourceName());
+        imcSys.setLocation(loc, dataTimeMillis, mediumReported);
         imcSys.setAttitudeDegrees(heading, dataTimeMillis);
 
         imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
@@ -278,7 +306,7 @@ class ImcMsgManagerMessageProcessor {
         }
     }
 
-    void processAssetReport(MessageInfo info, AssetReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
+    void processAssetReport(MessageInfo info, AssetReport msg, ArrayList<IMCMessage> messagesCreatedToForward) {
 
         String reporterId = msg.getSourceName();
         String sysId = msg.getName();
@@ -314,7 +342,22 @@ class ImcMsgManagerMessageProcessor {
                 loc.setDepth(depth);
             }
             if (imcSys != null) {
-                imcSys.setLocation(loc, dataTimeMillis);
+                ImcSystem.MEDIUM locMedium = ImcSystem.MEDIUM.WIFI;
+                switch (mediumReported) {
+                    case ACOUSTIC:
+                        locMedium = ImcSystem.MEDIUM.ACOUSTIC;
+                        break;
+                    case SMS:
+                        locMedium = ImcSystem.MEDIUM.SMS;
+                        break;
+                    case SATELLITE:
+                        locMedium = ImcSystem.MEDIUM.SATELLITE;
+                        break;
+                    case WIFI:
+                    default:
+                        break;
+                }
+                imcSys.setLocation(loc, dataTimeMillis, locMedium);
             } else {
                 extSys.setLocation(loc, dataTimeMillis);
             }
@@ -379,10 +422,13 @@ class ImcMsgManagerMessageProcessor {
             if (Double.isFinite(altitude))
                 loc.setDepth(-altitude);
 
-            if (imcSys != null)
-                imcSys.setLocation(loc, recTimeMillis);
-            else
+            if (imcSys != null) {
+                ImcSystem.MEDIUM mediumReported = getMediumReported(msg.getSourceName());
+                imcSys.setLocation(loc, recTimeMillis, mediumReported);
+            }
+            else {
                 extSys.setLocation(loc, recTimeMillis);
+            }
         }
 
         if (Double.isFinite(headingRad)) {
