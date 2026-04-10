@@ -189,6 +189,9 @@
       <child class="pt.lsts.neptus.plugins.samplesviewer.SamplesViewerPlugin" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
+      <child class="pt.lsts.neptus.plugins.reportsource.AssetReportSourceIndicator" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>
