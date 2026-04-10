@@ -69,6 +69,23 @@ import pt.lsts.neptus.util.DateTimeUtil;
  */
 public class ImcSystem implements Comparable<ImcSystem> {
 
+    public enum MEDIUM {
+        WIFI(1L),
+        SATELLITE(2L),
+        ACOUSTIC(3L),
+        SMS(4L);
+
+        private final long value;
+
+        public long value() {
+            return this.value;
+        }
+
+        private MEDIUM(long value) {
+            this.value = value;
+        }
+    }
+
     private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
     public static final int TIMEOUT_TO_LOC_FUTURE_WARN_MINUTES = 5;
 
@@ -88,6 +105,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected PlanType activePlan = null;
 	protected final CoordinateSystem location = new CoordinateSystem();
 	protected long locationTimeMillis = -1;
+    protected MEDIUM locationMedium = MEDIUM.WIFI;
     protected long attitudeTimeMillis = -1;
 
     protected long lastLocationInFutureWarning = -1;
@@ -218,6 +236,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		this.location.setLocation(location);
 		this.location.convertToAbsoluteLatLonDepth();
 		setLocationTimeMillis(System.currentTimeMillis());
+        setLocationMedium(MEDIUM.WIFI);
 	}
 
 	/**
@@ -227,13 +246,18 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 * @param locationTimeMillis
 	 */
 	public boolean setLocation(LocationType location, long locationTimeMillis) {
-	    if (locationTimeMillis < getLocationTimeMillis())
-	        return false;
+        return setLocation(location, locationTimeMillis, MEDIUM.WIFI);
+	}
+
+    public boolean setLocation(LocationType location, long locationTimeMillis, MEDIUM medium) {
+        if (locationTimeMillis < getLocationTimeMillis())
+            return false;
         this.location.setLocation(location);
         this.location.convertToAbsoluteLatLonDepth();
-	    setLocationTimeMillis(locationTimeMillis);
-	    return true;
-	}
+        setLocationTimeMillis(locationTimeMillis);
+        setLocationMedium(medium);
+        return true;
+    }
 
     public void setAttitudeDegrees(double rollDegrees, double pitchDegrees, double yawDegrees) {
         location.setRoll(rollDegrees);
@@ -323,7 +347,15 @@ public class ImcSystem implements Comparable<ImcSystem> {
                             new Date(locationTimeMillis)).requireHumanAction(true));
         }
     }
-	
+
+    public MEDIUM getLocationMedium() {
+        return locationMedium;
+    }
+
+    public void setLocationMedium(MEDIUM locationMedium) {
+        this.locationMedium = locationMedium;
+    }
+
     /**
      * @return the attitudeTimeMillis
      */
