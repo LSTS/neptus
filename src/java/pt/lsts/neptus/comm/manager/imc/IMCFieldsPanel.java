@@ -334,9 +334,9 @@ public class IMCFieldsPanel {
             }
             else {
                 if (enumerated) {
-                    List<String> mList = new ArrayList<String>();
-                    mList.addAll(msg.getIMCMessageType().getFieldPossibleValues(field).values());
-                    JComboBox<String> enumComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
+                    LinkedHashMap<Long, String> enumValues = msg.getIMCMessageType().getFieldPossibleValues(field);
+                    List<String> mList = new ArrayList<String>(enumValues.values());
+                    JComboBox<String> enumComboBox = new JComboBox<String>(mList.toArray(new String[0]));
                     try {
                         String definedVal = String.valueOf(this.msg.getValue(field));
                         int index = Integer.parseInt(definedVal);
@@ -346,10 +346,10 @@ public class IMCFieldsPanel {
                         enumComboBox.setSelectedIndex(0);
                     }
                     enumComboBox.addActionListener(new ActionListener() {
-
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            IMCFieldsPanel.this.msg.setValue(field, enumComboBox.getSelectedIndex());
+                            Long value = (Long) enumValues.keySet().toArray()[enumComboBox.getSelectedIndex()];
+                            IMCFieldsPanel.this.msg.setValue(field, value);
                         }
                     });
 
