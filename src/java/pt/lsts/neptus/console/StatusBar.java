@@ -36,6 +36,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -48,6 +49,7 @@ import javax.swing.border.BevelBorder;
 import com.google.common.eventbus.Subscribe;
 
 import com.kitfox.svg.SVGDiagram;
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
@@ -79,6 +81,8 @@ public class StatusBar extends JPanel {
     private NotificationsDialog notificationsDialog;
     private int notificationCount = 0;
     private MainSystemSelectionCombo mainSystemSelectionCombo = null;
+
+    private JPanel userPanel;
 
     private boolean notifPopupEnableState;
     private static final String imagePathNotifPopupOn = "images/buttons/visibilityOn.svg";
@@ -129,6 +133,18 @@ public class StatusBar extends JPanel {
         plan = new JLabel(I18n.text("N/A"));
         plan.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
         this.add(plan);
+
+        // User Space Panel
+        this.add(Box.createHorizontalStrut(20));
+        userPanel = new JPanel(new MigLayout("ins 0, gap 5, aligny center, filly")) {
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(super.getMaximumSize().width, Integer.MAX_VALUE);
+            }
+        };
+        userPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        userPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        this.add(userPanel);
 
         this.add(Box.createHorizontalGlue());
 
@@ -262,6 +278,8 @@ public class StatusBar extends JPanel {
     public void clean() {
         this.stopClock();
         NeptusEvents.unregister(this, console);
+        // remove all components of userPanel
+        userPanel.removeAll();
     }
 
     /*
@@ -285,5 +303,37 @@ public class StatusBar extends JPanel {
         notificationCount++;
         notificationButton.setText(I18n.textf("%n Notifications", notificationCount));
         notificationButton.setFont(new Font("Arial", Font.BOLD, FONT_SIZE));
+    }
+
+    public boolean addStatusPanel(JComponent panel) {
+        return addStatusPanel(panel, "");
+    }
+
+    public boolean addStatusPanel(JComponent panel, String constrains) {
+        if (panel == null)
+            return false;
+
+        boolean alreadyIn = Arrays.asList(userPanel.getComponents()).contains(panel);
+        if (alreadyIn)
+            return true;
+
+        userPanel.add(panel, constrains);
+        userPanel.revalidate();
+        userPanel.repaint();
+        return true;
+    }
+
+    public boolean removeStatusPanel(JComponent panel) {
+        if (panel == null)
+            return false;
+
+        boolean alreadyIn = Arrays.asList(userPanel.getComponents()).contains(panel);
+        if (!alreadyIn)
+            return true;
+
+        userPanel.remove(panel);
+        userPanel.revalidate();
+        userPanel.repaint();
+        return true;
     }
 }
