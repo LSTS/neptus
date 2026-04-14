@@ -35,6 +35,7 @@ package pt.lsts.neptus.comm.manager.imc;
 import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
+import pt.lsts.imc.EulerAngles;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
@@ -362,16 +363,25 @@ class ImcMsgManagerMessageProcessor {
                 extSys.setLocation(loc, dataTimeMillis);
             }
         }
+
         double headingRads = Double.NaN;
-        if (Double.isFinite(cogRads) && Double.isFinite(speedMS) && Math.abs(speedMS) > 0.2) {
+        EulerAngles ea = (EulerAngles) otherMsgs.stream().filter(m -> m instanceof EulerAngles)
+                .findFirst().orElse(null);
+        if (ea != null) {
+            headingRads = ea.getPsi();
+        } else if (Double.isFinite(cogRads) && Double.isFinite(speedMS) && Math.abs(speedMS) > 0.2) {
             headingRads = AngleUtils.nomalizeAngleRads2Pi(cogRads * (speedMS < 0 ? -1 : 1));
+        }
+
+        if (Double.isFinite(headingRads)) {
             if (imcSys != null) {
                 imcSys.setAttitudeDegrees(headingRads, dataTimeMillis);
                 imcSys.storeData(
                         SystemUtils.HEADING_DEGS_KEY,
                         (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
                         dataTimeMillis, true);
-            } else {
+            }
+            else {
                 extSys.setAttitudeDegrees(headingRads, dataTimeMillis);
                 extSys.storeData(
                         SystemUtils.HEADING_DEGS_KEY,
@@ -379,7 +389,6 @@ class ImcMsgManagerMessageProcessor {
                         dataTimeMillis, true);
             }
         }
-
         if (imcSys != null) {
             imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
             imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
