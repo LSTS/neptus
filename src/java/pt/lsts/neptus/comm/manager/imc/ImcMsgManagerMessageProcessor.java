@@ -364,10 +364,14 @@ class ImcMsgManagerMessageProcessor {
             }
         }
 
+        double rollRads = Double.NaN;
+        double pitchRads = Double.NaN;
         double headingRads = Double.NaN;
         EulerAngles ea = (EulerAngles) otherMsgs.stream().filter(m -> m instanceof EulerAngles)
                 .findFirst().orElse(null);
         if (ea != null) {
+            rollRads = Double.isFinite(ea.getPhi()) ? ea.getPhi() : 0.0;
+            pitchRads = Double.isFinite(ea.getTheta()) ? ea.getTheta() : 0.0;
             headingRads = ea.getPsi();
         } else if (Double.isFinite(cogRads) && Double.isFinite(speedMS) && Math.abs(speedMS) > 0.2) {
             headingRads = AngleUtils.nomalizeAngleRads2Pi(cogRads * (speedMS < 0 ? -1 : 1));
@@ -375,14 +379,16 @@ class ImcMsgManagerMessageProcessor {
 
         if (Double.isFinite(headingRads)) {
             if (imcSys != null) {
-                imcSys.setAttitudeDegrees(headingRads, dataTimeMillis);
+                imcSys.setAttitudeDegrees(Math.toDegrees(rollRads), Math.toDegrees(pitchRads),
+                        Math.toDegrees(headingRads), dataTimeMillis);
                 imcSys.storeData(
                         SystemUtils.HEADING_DEGS_KEY,
                         (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
                         dataTimeMillis, true);
             }
             else {
-                extSys.setAttitudeDegrees(headingRads, dataTimeMillis);
+                extSys.setAttitudeDegrees(Math.toDegrees(rollRads), Math.toDegrees(pitchRads),
+                        Math.toDegrees(headingRads), dataTimeMillis);
                 extSys.storeData(
                         SystemUtils.HEADING_DEGS_KEY,
                         (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
