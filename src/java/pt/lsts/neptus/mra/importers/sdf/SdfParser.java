@@ -545,23 +545,23 @@ public class SdfParser {
         return ping;
     }
 
-    private void redirectIndex(Long timestamp, int subsystem) {
+    private boolean redirectIndex(Long timestamp, int subsystem) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
             if (subsystem == SUBSYS_LOW) {
                 if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow)  {
                     index = entry.getValue();
                     file = entry.getKey();
-                    return;
+                    return true;
                 }
-            } else 
-                if (subsystem == SUBSYS_HIGH) {
-                    if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
-                        index = entry.getValue();
-                        file = entry.getKey();
-                        return;
-                    }
+            } else if (subsystem == SUBSYS_HIGH) {
+                if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
+                    index = entry.getValue();
+                    file = entry.getKey();
+                    return true;
                 }
+            }
         }
+        return false;
     }
 
     private boolean existsTimestamp(long timestamp, SdfIndex searchIndex) {
@@ -573,10 +573,17 @@ public class SdfParser {
 
     public SdfData getPingAt(Long timestamp, int subsystem) {
 
+        if (index == null) {
+            return null;
+        }
+
         // point index to right index_ file according to timestamp
-        if (index != null && multipleFiles) {
+        if (multipleFiles) {
             if (!existsTimestamp(timestamp, index)) {
-                redirectIndex(timestamp, subsystem);
+                boolean reg = redirectIndex(timestamp, subsystem);
+                if (!reg) {
+                    return null;
+                }
             }
         }
         // end
