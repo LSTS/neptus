@@ -67,7 +67,8 @@ class ImcMsgManagerMessageProcessor {
     private static String ACOUSTIC_PUBLISHER_PREFIX = "acoustic";
     private static String ACOUSTIC2_PUBLISHER_PREFIX = "acomms";
     private static String SMS_PUBLISHER_PREFIX = "sms";
-    private static String GSM_PUBLISHER_PREFIX = "GSM";
+    private static String GSM_PUBLISHER_PREFIX = "gsm";
+    private static String MQTT_PUBLISHER_PREFIX = "mqtt";
 
     private final ImcMsgManager manager;
     private final IMCFragmentHandler fragmentHandler;
@@ -91,6 +92,10 @@ class ImcMsgManagerMessageProcessor {
         else if (publisherName.toLowerCase().startsWith(SMS_PUBLISHER_PREFIX)
                 || publisherName.toLowerCase().startsWith(GSM_PUBLISHER_PREFIX)) {
             return ImcSystem.MEDIUM.SMS;
+        }
+        else if (publisherName.toLowerCase().startsWith(MQTT_PUBLISHER_PREFIX)
+                || publisherName.toLowerCase().startsWith(MQTT_PUBLISHER_PREFIX)) {
+            return ImcSystem.MEDIUM.MQTT;
         }
 
         return ImcSystem.MEDIUM.WIFI; // Default
@@ -353,6 +358,9 @@ class ImcMsgManagerMessageProcessor {
                         break;
                     case SATELLITE:
                         locMedium = ImcSystem.MEDIUM.SATELLITE;
+                        break;
+                    case MQTT:
+                        locMedium = ImcSystem.MEDIUM.MQTT;
                         break;
                     case WIFI:
                     default:

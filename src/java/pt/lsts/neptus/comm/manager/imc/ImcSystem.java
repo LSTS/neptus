@@ -73,7 +73,8 @@ public class ImcSystem implements Comparable<ImcSystem> {
         WIFI(1L),
         SATELLITE(2L),
         ACOUSTIC(3L),
-        SMS(4L);
+        SMS(4L),
+        MQTT(5L);
 
         private final long value;
 
