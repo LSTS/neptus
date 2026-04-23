@@ -11,6 +11,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.5.3"
     id "io.github.androxyde.gradlensis" version "0.2.0"
     id "de.undercouch.download" version "5.6.0"
+    id 'com.google.protobuf' version '0.9.4'
 
     id "eclipse"
 }
@@ -384,6 +385,10 @@ project(':core') {
     dependencies {
         implementation name: 'libimc-5.91.0'
         implementation name: 'libimcsender-5.91.0'
+
+        // DCCL related
+        implementation name: 'dccl-java-1.0-SNAPSHOT'
+        implementation 'com.google.protobuf:protobuf-java:3.19.4'
 
         implementation name: 'aisparser-2.0.0'
         implementation name: 'jssc' //dependency of aisparser, and serial port reader
