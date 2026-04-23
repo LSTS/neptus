@@ -127,6 +127,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected long lastAnnounceStateReceived = -1;
 	
 	protected final PlanDBControl planDBControl = new PlanDBControl();
+    protected boolean dcclSpeaker = false;
 
 	private final Map<String, Object> dataStorage = (Map<String, Object>) Collections.synchronizedMap(new HashMap<String, Object>());
     private final Map<String, Long> dataStorageTime = (Map<String, Long>) Collections.synchronizedMap(new HashMap<String, Long>());
@@ -264,6 +265,18 @@ public class ImcSystem implements Comparable<ImcSystem> {
         location.setPitch(pitchDegrees);
         location.setYaw(yawDegrees);
         setAttitudeTimeMillis(System.currentTimeMillis());
+    }
+
+    public void   setAsDcclSpeaker() {
+        this.dcclSpeaker = true;
+    }
+
+    public void SetAsNonDcclSpeaker(){
+        this.dcclSpeaker = false;
+    }
+
+    public boolean getDcclSpeaker() {
+        return this.dcclSpeaker;
     }
 
     /**
