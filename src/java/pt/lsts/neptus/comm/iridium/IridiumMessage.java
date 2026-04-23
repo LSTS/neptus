@@ -37,12 +37,16 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-
+import pt.lsts.dccl.DcclTranslator;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+
 
 /**
  * @author zp
@@ -58,7 +62,7 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     public abstract int deserializeFields(IMCInputStream in) throws Exception;
     public abstract Collection<IMCMessage> asImc();
     private static LinkedHashMap<Integer, Class<? extends IridiumMessage> > iridiumTypes = new LinkedHashMap<>();
-    
+
     public IridiumMessage(int msgType) {
         this.message_type = msgType;        
     }
@@ -89,34 +93,55 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     }
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {
-        IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data), IMCDefinition.getInstance());
-        iis.setBigEndian(false);
-        iis.mark(10);
-        int avlBytes = iis.available();
-        int source = avlBytes >= 2 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
-        int dest = avlBytes >= 4 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
-        int mgid = avlBytes >= 6 ? iis.readUnsignedShort() : -1;
-        IridiumMessage m = null;
-        if (iridiumTypes.containsKey(mgid)) {
-            m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
-        } else {
+
+        try (IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data), IMCDefinition.getInstance())) {
+
+            iis.setBigEndian(false);
+            iis.mark(10);
+            int avlBytes = iis.available();
+            int source = avlBytes >= 2 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
+            int dest = avlBytes >= 4 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
+            int mgid = avlBytes >= 6 ? iis.readUnsignedShort() : -1;
+
+            IridiumMessage m = null;
+
+            if (iridiumTypes.containsKey(mgid)) {
+                m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
+                m.deserializeFields(iis);
+                return m;
+
+            }
+
+            try {
+                // Something to accept a byte[] and then returning a message of type ImcMessage
+                IMCMessage imcMessage = DcclTranslator.byteToImc(data);
+                // Check if IMCSystem is already a DCCL Speaker
+
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
+
+                // TODO: imcSystem may not exist yet if 1st message
+                if (imcSystem != null && !imcSystem.getDcclSpeaker()) {
+                    NeptusLog.pub().info("Set System " + imcSystem.getName() + " as a dccl speaker");
+                    imcSystem.setAsDcclSpeaker();
+                }
+
+                // Turn this message into an m
+                ImcFullIridiumMessage imcFullIridiumMessage = new ImcFullIridiumMessage();
+                imcFullIridiumMessage.setMsg(imcMessage);
+                return imcFullIridiumMessage;
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("Unable to decode message to DCLL");
+            }
+
             mgid = -1;
             iis.reset();
             m = PlainTextMessage.createTextMessageFrom(iis);
+
+            return m;
         }
-        
-        if (m != null) {
-            //m.setSource(mgid > -1 ? source : 0xFFFF);
-            //m.setDestination(mgid > -1 ? dest : 0xFFFF);
-            m.setMessageType(mgid);
-            if (mgid > -1)
-                m.deserializeFields(iis);
-        }
-        iis.close();
-        
-        return m;        
     }
-    
+
     /**
      * @return the source
      */
