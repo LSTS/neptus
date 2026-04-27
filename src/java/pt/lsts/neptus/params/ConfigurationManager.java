@@ -1204,6 +1204,8 @@ public class ConfigurationManager {
                 ArrayList<Long> tmpLLst = new ArrayList<Long>();
                 for (String tk : tokens) {
                     tk = tk.trim();
+                    if (tk.isEmpty())
+                        continue;
                     Long tokenObjVal = (Long) getValueTypedFromString(tk, type);
                     if (tokenObjVal != null) {
                         tmpLLst.add(tokenObjVal);
@@ -1215,6 +1217,8 @@ public class ConfigurationManager {
                 ArrayList<Double> tmpRLst = new ArrayList<Double>();
                 for (String tk : tokens) {
                     tk = tk.trim();
+                    if (tk.isEmpty())
+                        continue;
                     Double tokenObjVal = (Double) getValueTypedFromString(tk, type);
                     if (tokenObjVal != null) {
                         tmpRLst.add(tokenObjVal);
