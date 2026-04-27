@@ -43,6 +43,7 @@ import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * Every Comm. Manager should be a singleton. So it MUST be a method called getManager() which SOULD BE public and
@@ -154,11 +155,15 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
                 try {
                     long prevTime = System.currentTimeMillis();
                     while (true) {
-                        if ((System.currentTimeMillis() - prevTime) > 2000) {
-                            if (timeControl - getArrivalTimeMillisLastMsg() > 10000)
+                        if ((System.currentTimeMillis() - prevTime)
+                                > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000 * 0.2) { // 20% of timeout
+                            if (timeControl - getArrivalTimeMillisLastMsg()
+                                    > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000) {
                                 setActive(false, null, null);
+                            }
                             for (C cinf : commInfo.values()) {
-                                if (timeControl - cinf.getArrivalTimeMillisLastMsg() > 10000) {
+                                if (timeControl - cinf.getArrivalTimeMillisLastMsg()
+                                        > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000) {
                                     cinf.setActive(false, null, null);
                                     // System.err.println("---------------------------------------------");
                                 }

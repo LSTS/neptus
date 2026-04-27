@@ -126,6 +126,12 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "To send announce also by Unicast. Enable or disable")
     public static boolean imcUnicastAnnounceEnable = true;
 
+    @NeptusProperty(name = "IMC Comms Active Timeout",  units = "s", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "The time in seconds to consider a system as active since the last message received." +
+                    "This is used to show the system as active in the comms list and also to consider it active." +
+                    "To be considered active, a system must send 3 messages in 30% of this time.")
+    public static int imcCommsActiveTimeoutSeconds = 10;
+
     @NeptusProperty(name = "Reachability Test Timeout", units = "ms", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
             description = "Timeout to test reachability of IPs (in ms). " +
                     "IMPORTANT: Try keeping in the order of tens or 1 or 2 hundreds of ms." +
@@ -445,6 +451,10 @@ public class GeneralPreferences implements PropertiesProvider {
 
     public static String validateIridiumMessengerPollWindowHours(double value) {
         return new DoubleMinMaxValidator(0.17, 24).validate(value);
+    }
+
+    public static String validateImcCommsActiveTimeoutSeconds(int value) {
+        return new IntegerMinMaxValidator(10, 600).validate(value);
     }
 
     // -------------------------------------------------------------------------

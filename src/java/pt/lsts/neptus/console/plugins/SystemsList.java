@@ -151,6 +151,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -941,17 +942,17 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 long deltaMillis = System.currentTimeMillis() - (long) commS.getArrivalTimeMillisLastMsg();
                 if (deltaMillis >= DateTimeUtil.MINUTE * 20)
                     sd.setActiveToolTip(null);
-                else if (deltaMillis > 10000)
+                else if (deltaMillis > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000L) // 100% of timeout
                     sd.setActiveToolTip(I18n.textf("%deltaTime with no messages",
                             DateTimeUtil.milliSecondsToFormatedString(deltaMillis)));
                 else
                     sd.setActiveToolTip(null);
 
-                if (deltaMillis > 10000)
+                if (deltaMillis > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000L) // 100% of timeout
                     sd.setConnectionStrength(ConnectionStrengthEnum.LOW);
-                else if (deltaMillis > 7000)
+                else if (deltaMillis > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000 * 0.70) // 70% of timeout
                     sd.setConnectionStrength(ConnectionStrengthEnum.MEDIAN);
-                else if (deltaMillis > 4000)
+                else if (deltaMillis > GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000 * 0.40) // 40% of timeout
                     sd.setConnectionStrength(ConnectionStrengthEnum.HIGH);
                 else
                     sd.setConnectionStrength(ConnectionStrengthEnum.FULL);

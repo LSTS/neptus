@@ -195,8 +195,9 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                         }
                         vecSize = activityCounter.size();
                         if (vecSize == 3) {
-                            if (activityCounter.get(2) - activityCounter.get(0) <= 3000) {
-                                sys.setActive(true);
+                            if (activityCounter.get(2) - activityCounter.get(0)
+                                    <= GeneralPreferences.imcCommsActiveTimeoutSeconds * 1000L * 0.30) { // 30%
+                                 sys.setActive(true);
                                 if (info != null) {
                                     if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                                         sys.setActiveIridium(true);
