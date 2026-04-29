@@ -139,7 +139,8 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
             }
         });
 //        tidesItem.setEnabled(false);
-        
+        tidesItem.setText(I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName()));
+
         addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"), null,
                 new ActionListener() {
             @Override
@@ -212,7 +213,9 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
     // general preferences was updated
     public void preferencesUpdated() {
         storedMenuPath = I18n.text("Tools") + ">" + I18n.text("Tides") + ">"+I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName());
-        tidesItem.setText(I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName()));
+        if (tidesItem!= null) {
+            tidesItem.setText(I18n.textf("Using '%file'", GeneralPreferences.tidesFile.getName()));
+        }
 //        tidesItem.setEnabled(false);
     }
 }
