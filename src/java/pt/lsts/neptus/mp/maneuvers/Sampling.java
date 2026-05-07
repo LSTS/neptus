@@ -60,12 +60,8 @@ import pt.lsts.neptus.types.map.PlanElement;
 
 public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
-    public static final double MINIMUM_SAMPLING_RADIUS = 10;
-
     private static final String XML_ROOT = "Sampling";
-    private static final String ARG_RADIUS = "radius";
 
-    private double radius = MINIMUM_SAMPLING_RADIUS;
     private String samplingType = "";
     private String samplingArgs = "";
     private SpeedType speed = new SpeedType(1000, Units.RPM);
@@ -76,7 +72,6 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         Sampling clone = new Sampling();
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation().clone());
-        clone.setRadius(getRadius());
         clone.setSpeed(getSpeed());
         clone.setSamplingType(getSamplingType());
         clone.setSamplingArgs(getSamplingArgs());
@@ -96,10 +91,11 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         radTolerance.setText("0");
         basePoint.addAttribute("type", "pointType");
 
-        Element trajectory = root.addElement("trajectory");
-        Element trajRadius = trajectory.addElement("radius");
-        trajRadius.setText(String.valueOf(getRadius()));
-        trajRadius.addAttribute("type", "float");
+        
+        // Element trajectory = root.addElement("trajectory");
+        // Element trajRadius = trajectory.addElement("radius");
+        // trajRadius.setText(String.valueOf(getRadius()));
+        // trajRadius.addAttribute("type", "float");
 
         root.addElement("samplingType").setText(getSamplingType());
         root.addElement("samplingArgs").setText(getSamplingArgs());
@@ -121,30 +117,13 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
             Node node = doc.selectSingleNode(XML_ROOT + "/basePoint/point");
             ManeuverLocation loc = new ManeuverLocation();
-            if (node != null) {
-                loc.load(node.asXML());
-                setManeuverLocation(loc);
-            }
+            loc.load(node.asXML());
+            setManeuverLocation(loc);
 
             SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 
-            Node radiusNode = doc.selectSingleNode(XML_ROOT + "/trajectory/radius");
-            if (radiusNode != null && radiusNode.getText() != null) {
-                setRadius(Double.parseDouble(radiusNode.getText()));
-            }
-
-            Node argsNode = doc.selectSingleNode(XML_ROOT + "/samplingArgs");
-            if (argsNode != null) {
-                setSamplingArgs(argsNode.getText());
-                if (radiusNode == null) {
-                    updateRadiusFromSamplingArgs();
-                }
-            }
-
-            Node typeNode = doc.selectSingleNode(XML_ROOT + "/samplingType");
-            if (typeNode != null) {
-                setSamplingType(typeNode.getText());
-            }
+            setSamplingType(doc.selectSingleNode(XML_ROOT + "/samplingType").getText());
+            setSamplingArgs(doc.selectSingleNode(XML_ROOT + "/samplingArgs").getText());
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
@@ -178,19 +157,9 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> props = new Vector<>();
 
-        if (radius < MINIMUM_SAMPLING_RADIUS) {
-            radius = MINIMUM_SAMPLING_RADIUS;
-        }
-
         DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
         speed.setShortDescription(I18n.text("The vehicle's desired speed while approaching the sampling point"));
         props.add(speed);
-
-        DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
-        radius.setShortDescription(
-                I18n.textf("Radius of the sampling area. Lower values default to %radius meters.",
-                        MINIMUM_SAMPLING_RADIUS) + "<br/>(m)");
-        props.add(radius);
 
         DefaultProperty samplingType = PropertiesEditor.getPropertyInstance("Sampling Type", String.class,
                 this.samplingType, true);
@@ -199,7 +168,7 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
         DefaultProperty samplingArgs = PropertiesEditor.getPropertyInstance("Sampling Args", String.class,
                 this.samplingArgs, true);
-        samplingArgs.setShortDescription(I18n.text("Tuple list of sampling arguments (for example radius=15)."));
+        samplingArgs.setShortDescription(I18n.text("Tuple list of sampling arguments (for example Radius=10;Speed=0.3)."));
         props.add(samplingArgs);
 
         return props;
@@ -213,11 +182,6 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
             if (p.getName().equals("Speed")) {
                 setSpeed((SpeedType) p.getValue());
-                continue;
-            }
-
-            if (p.getName().equals("Radius")) {
-                setRadius((Double) p.getValue());
                 continue;
             }
 
@@ -236,20 +200,12 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
     public String getTooltipText() {
         return super.getTooltipText() + "<hr>"
                 + "<br>" + I18n.text("speed") + ": <b>" + speed + "</b>"
-                + "<br>" + I18n.text("radius") + ": <b>" + radius + " " + I18n.textc("m", "meters") + "</b>"
-                + "<br>" + I18n.text("sampling type") + ": <b>" + samplingType + "</b><br>";
+                + "<br>" + I18n.text("sampling type") + ": <b>" + samplingType + "</b>"
+                + "<br>" + I18n.text("sampling args") + ": <b>" + samplingArgs + "</b><br>";
     }
 
     public LocationType getLocation() {
         return location;
-    }
-
-    public double getRadius() {
-        return radius;
-    }
-
-    public void setRadius(double radius) {
-        this.radius = Math.max(MINIMUM_SAMPLING_RADIUS, radius);
     }
 
     @Override
@@ -258,7 +214,7 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         AffineTransform at = g2d.getTransform();
         g2d.drawLine(-4, -4, 4, 4);
         g2d.drawLine(-4, 4, 4, -4);
-        double radius = Math.max(MINIMUM_SAMPLING_RADIUS, this.getRadius()) * renderer.getZoom();
+        double radius = 5 * renderer.getZoom();
         g2d.setColor(new Color(255, 255, 255, 100));
         g2d.fill(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
         g2d.setColor(Color.blue.darker());
@@ -293,7 +249,7 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         message.setLat(loc.getLatitudeRads());
         message.setLon(loc.getLongitudeRads());
         message.setZ(getManeuverLocation().getZ());
-        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
+        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
 
         speed.setSpeedToMessage(message);
 
@@ -352,23 +308,5 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
     public void setSamplingArgs(String samplingArgs) {
         this.samplingArgs = samplingArgs == null ? "" : samplingArgs;
-        updateRadiusFromSamplingArgs();
-    }
-
-    private void updateRadiusFromSamplingArgs() {
-        if (samplingArgs == null || samplingArgs.trim().isEmpty()) {
-            return;
-        }
-
-        try {
-            if (!IMCMessage.decodeTupleList(samplingArgs).containsKey(ARG_RADIUS)) {
-                return;
-            }
-            double parsedRadius = Double.parseDouble(IMCMessage.decodeTupleList(samplingArgs).get(ARG_RADIUS));
-            this.radius = Math.max(MINIMUM_SAMPLING_RADIUS, parsedRadius);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().warn(I18n.text("Invalid sampling radius in arguments."));
-        }
     }
 }
