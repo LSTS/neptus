@@ -64,6 +64,7 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
     private String samplingType = "";
     private String samplingArgs = "";
+    private Double radius = null;
     private SpeedType speed = new SpeedType(1000, Units.RPM);
     private ManeuverLocation location = new ManeuverLocation();
 
@@ -214,7 +215,10 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         AffineTransform at = g2d.getTransform();
         g2d.drawLine(-4, -4, 4, 4);
         g2d.drawLine(-4, 4, 4, -4);
-        double radius = 5 * renderer.getZoom();
+        
+        if (!hasRadius())
+            return;
+        double radius = getRadius() * renderer.getZoom();
         g2d.setColor(new Color(255, 255, 255, 100));
         g2d.fill(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
         g2d.setColor(Color.blue.darker());
@@ -308,5 +312,32 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
     public void setSamplingArgs(String samplingArgs) {
         this.samplingArgs = samplingArgs == null ? "" : samplingArgs;
+        this.radius = parseRadius(this.samplingArgs);
+    }
+
+    public Double getRadius() {
+        return radius;
+    }
+
+    public boolean hasRadius() {
+        return radius != null;
+    }
+
+    private Double parseRadius(String samplingArgs) {
+        for (String arg : samplingArgs.split(";")) {
+            String[] keyValue = arg.split("=", 2);
+            if (keyValue.length != 2 || !"Radius".equals(keyValue[0].trim())) {
+                continue;
+            }
+
+            try {
+                return Double.valueOf(keyValue[1].trim());
+            }
+            catch (NumberFormatException e) {
+                return null;
+            }
+        }
+
+        return null;
     }
 }
