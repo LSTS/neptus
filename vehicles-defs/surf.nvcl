@@ -106,6 +106,29 @@
       </StationKeeping>
     </maneuver>
     <maneuver>
+      <Sampling kind="automatic">
+        <basePoint type="pointType">
+          <point>
+            <id>SamplingLoc</id>
+            <name>SamplingLoc</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <depth>0</depth>
+            </coordinate>
+          </point>
+          <radiusTolerance>8</radiusTolerance>
+        </basePoint>
+        <speed type="float" unit="m/s" tolerance="5">1.0</speed>
+        <samplingType>RedX</samplingType>
+        <samplingArgs>Radius=10;Speed=0.3</samplingArgs>
+        <annotation>
+          <documentation>Sampling</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Sampling</implementation-class>
+        </annotation>
+      </Sampling>
+    </maneuver>
+    <maneuver>
       <Rows kind="automatic">
         <basePoint type="pointType">
           <point>
