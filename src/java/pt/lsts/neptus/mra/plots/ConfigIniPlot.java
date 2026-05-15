@@ -103,7 +103,7 @@ public class ConfigIniPlot extends SimpleMRAVisualization {
                 name.toLowerCase().endsWith(".ini")
         );
 
-        if (iniFiles != null) {
+        if (iniFiles != null && iniFiles.length > 0) {
             iniFile = iniFiles[0];
             return true;
         }
