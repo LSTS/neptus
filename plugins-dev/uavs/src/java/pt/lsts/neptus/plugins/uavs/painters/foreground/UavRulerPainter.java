@@ -48,7 +48,8 @@ import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
  * </ul>
  * 
  * @author canastaman
- * @version 2.0
+ * @author keila (Changes in March 2021 @home)
+ * @version 3.0
  * @category UavPainter  
  * 
  */
@@ -64,10 +65,10 @@ public class UavRulerPainter implements IUavPainter{
     
     //predetermined number of marks per ruler section
     public static final int MARKS_PER_SECTION = 10;
-    
+
     //predetermined value to be added to the maximum altitude calculated for drawing purposes
-    public static final int MAX_ALTITUDE_BUFFER = 100;
-    
+    public int  MAX_ALTITUDE_BUFFER = 100;
+
     //altitude corresponding to the highest UAV
     private int vehicleMaxAtl;
     
@@ -96,15 +97,22 @@ public class UavRulerPainter implements IUavPainter{
     @Override
     public void paint(Graphics2D g, int width, int height, Object args) {
 
-        receivedArgs = (LinkedHashMap<String, Object>) args;    
-        
+        receivedArgs = (LinkedHashMap<String, Object>) args;
+        int vehiclesMaxAtl = -1;
+
+        //Max z value for selected vehicle - in TACO Profile it will use the max alt from all vehicles
         if(receivedArgs.get(name+".MaxAlt") != null){
-            vehicleMaxAtl = (int) receivedArgs.get(name+".MaxAlt");
-            vehicleMaxAtl = (int) Math.floor(vehicleMaxAtl / 100) * 100 + MAX_ALTITUDE_BUFFER;
+            vehiclesMaxAtl = (int) receivedArgs.get(name+".MaxAlt");
         }
-        
+
+        if(receivedArgs.get(name+ ".AltBuff") != null){
+            MAX_ALTITUDE_BUFFER = (int) receivedArgs.get(name+ ".AltBuff") < 1 ? UUV_ALT_BUFFER : UAV_ALT_BUFFER;
+        }
+
+        vehicleMaxAtl = (int) Math.floor(vehiclesMaxAtl / 100) * 100 + MAX_ALTITUDE_BUFFER;
+
         //standard initiation based on the premised that every draw cycle we check if the ruler scale is accurate, from scratch
-        scale = 100;
+        scale = MAX_ALTITUDE_BUFFER <= UUV_ALT_BUFFER ? UUV_SCALE : UAV_SCALE;
         rulerSections = height / ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION);
         maxDrawAlt = scale * rulerSections;
                 
@@ -114,12 +122,12 @@ public class UavRulerPainter implements IUavPainter{
         }
         
         int markCounter = 0;
-        int markGrade = 1;
-                       
+        float markGrade = 1.0f;
+
         //anti-aliasing
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        while(height>0){         
+        while(height>0){
             
             height -= MARK_MIN_THICKNESS;
             drawMark(g,height,width,markCounter,MARK_MIN_THICKNESS);            

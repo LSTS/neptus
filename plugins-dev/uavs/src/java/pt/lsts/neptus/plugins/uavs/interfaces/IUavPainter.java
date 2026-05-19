@@ -36,9 +36,18 @@ import java.awt.Graphics2D;
 
 /**
  * @author canastaman
- *
+ * @author keila (Changes in March 2021 @home)*
  */
 public interface IUavPainter {
+
+
+    //Constant to be used in painters implementation scales
+    public static final int UUV_ALT_BUFFER = 0;
+    public static final int UAV_ALT_BUFFER = 100;
+    public static final float UUV_GRADE_START = 0.0f;
+    public static final float UAV_GRADE_START = 1.0f;
+    int UUV_SCALE = 10;
+    int UAV_SCALE = 100;
 
     public void paint(Graphics2D g, int width, int height, Object args);  
 }

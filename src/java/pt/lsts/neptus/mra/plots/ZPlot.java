@@ -74,7 +74,11 @@ public class ZPlot extends MRATimeSeriesPlot {
         if (firstState != null && "Autopilot".equals(firstState.getEntityName())) {
             for (EstimatedState state : source.getIterator(EstimatedState.class, (long) (timestep * 1000))) {
                 double alt = state.getHeight() - state.getZ();
+                double depth = state.getDouble("depth");
                 addValue(state.getTimestampMillis(), state.getSourceName() + "." + I18n.text("Altitude"), alt);
+                // ardusub systems are suppose to report depth values
+                if (depth != -1 && !Double.isNaN(depth))
+                    addValue(state.getTimestampMillis(), state.getSourceName() + "." + I18n.text("Depth"), depth);
             }
             
             for (GpsFix fix : source.getIterator(GpsFix.class, (long) (timestep * 1000))) {

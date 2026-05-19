@@ -32,31 +32,54 @@
  */
 package pt.lsts.neptus.controllers;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.RowSorter;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -70,20 +93,21 @@ import com.google.common.eventbus.Subscribe;
 
 import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
+import pt.lsts.imc.RemoteActionsRequest.OP;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * Controller Panel This panel is responsible for providing a away to teleoperate the vehicle, as well as edit the
@@ -91,74 +115,164 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
  * controller mapping
  * 
  * @author jqcorreia
+ * @author keila (May 2020)
  * 
  */
-@Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
+@Popup(pos = POSITION.TOP_RIGHT, width = 450, accelerator = 'J')
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
+
+    enum ActionType {
+        Axis,
+        Button
+    }
+
     private static final long serialVersionUID = 1L;
 
     private static final String ACTION_FILE_XML = "conf/controllers/actions.xml";
-    private boolean sending = false;
+    private static final String CACHED_ACTIONS_FILE = ".cache/db/controller_cached_actions.properties";
+    private volatile boolean mousePressed = false;
+    
+    // OS detection for Z/RZ trigger handling
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
     // Vehicle action received via RemoteActionRequest (i.e Heading=axis, Accelerate=Button)
     private LinkedHashMap<String, String> actions = new LinkedHashMap<String, String>();
     // Mapped actions based on XML actions.xml for the current vehicle and selected controller
-    private ArrayList<MapperComponent> mappedActions = new ArrayList<MapperComponent>();
+    private ArrayList<MapperComponent> mappedButtons = new ArrayList<MapperComponent>();
     // A list of actions to be added to a RemoteActions message
-    private LinkedHashMap<String, String> msgActions  = new LinkedHashMap<String, String>();
+    private ArrayList<MapperComponent> mappedAxis = new ArrayList<MapperComponent>();
+    // Mapped actions based on XML actions.xml for the current vehicle and selected controller
+    private LinkedHashMap<String, String> msgActions = new LinkedHashMap<String, String>();
     // The current controller poll
     private LinkedHashMap<String, Component> poll;
+    // Flag to control RemoteActions requests
+    private boolean requestedActions = false;
 
     private ArrayList<JComboBox<String>> controllerSelectors = new ArrayList<JComboBox<String>>();
-    
+
     @SuppressWarnings("serial")
-    private JTable table = new JTable() {
+    private JTable axisTable = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
             if(column != 3)
-                return renderer;
+                return axisRenderer;
             else
                 return super.getCellRenderer(row, column);
         };
     };
-    
-    private AbstractTableModel model;
-    private TableRenderer renderer = new TableRenderer();
-    
+
+    @SuppressWarnings("serial")
+    private JTable buttonsTable = new JTable() {
+        public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
+            return btnRenderer;
+        };
+    };
+
+    private AbstractTableModel axisModel;
+    private AbstractTableModel buttonsModel;
+    private AxisTableRenderer axisRenderer = new AxisTableRenderer(ActionType.Axis);
+    private ButtonTableRenderer btnRenderer = new ButtonTableRenderer(ActionType.Button);
+
     private ControllerManager manager;
-    
-    private JButton btnRefresh = new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
+
+    private JButton btnReset = new JButton(new AbstractAction(I18n.text("Reset Controllers")) {
         private static final long serialVersionUID = 1L;
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            manager.forceEnvironmentReset();
             updateControllers();
+            if (!controllerSelectors.isEmpty()) {
+                currentController = (String) controllerSelectors.get(0).getSelectedItem();
+            }
         }
     });
-    
-    private int timeIncrement = 0;
+
+    private JToggleButton btnInHold = new JToggleButton("Input Hold");
+
     private int periodicDelay = 100;
 
     private String currentController;
     private Document doc;
     private ConsoleLayout console;
 
-    private boolean editing = false;
-
     private LinkedHashMap<String, Float> oldPoll = new LinkedHashMap<String, Float>();
+
+    private boolean hasAnyEditFlag() {
+        for (MapperComponent comp : mappedAxis) {
+            if (comp.editFlag) return true;
+        }
+        for (MapperComponent comp : mappedButtons) {
+            if (comp.editFlag) return true;
+        }
+        return false;
+    }
+
+    private void clearAllEditFlags() {
+        for (MapperComponent comp : mappedAxis) {
+            comp.editFlag = false;
+        }
+        for (MapperComponent comp : mappedButtons) {
+            comp.editFlag = false;
+        }
+        
+        if (axisTable != null) axisTable.repaint();
+        if (buttonsTable != null) buttonsTable.repaint();
+    }
+    
+    private void clearAllEditFlagsForce() {
+        for (MapperComponent comp : mappedAxis) {
+            comp.editFlag = false;
+        }
+        for (MapperComponent comp : mappedButtons) {
+            comp.editFlag = false;
+        }
+        
+        if (axisTable != null) axisTable.repaint();
+        if (buttonsTable != null) buttonsTable.repaint();
+    }
+
+    private void updateModel() {
+        if (axisModel != null && buttonsModel != null) {
+            ((AxisTableModel) axisModel).setList(mappedAxis);
+            ((ButtonTableModel) buttonsModel).setList(mappedButtons);
+
+            axisModel.fireTableDataChanged();
+            buttonsModel.fireTableDataChanged();
+        }
+    }
+
+    /**
+     * Normalizes component names to be cross-platform compatible.
+     * Axes use lowercase, buttons use uppercase to avoid conflicts.
+     */
+    private String getUniversalName(Component comp) {
+        if (comp == null) return "";
+        
+        Component.Identifier id = comp.getIdentifier();
+        
+        if (id == Component.Identifier.Axis.X) return "x";
+        if (id == Component.Identifier.Axis.Y) return "y";
+        if (id == Component.Identifier.Axis.Z) return "z";
+        if (id == Component.Identifier.Axis.RX) return "rx";
+        if (id == Component.Identifier.Axis.RY) return "ry";
+        if (id == Component.Identifier.Axis.RZ) return "rz";
+        
+        if (id == Component.Identifier.Axis.POV) return "pov";
+        
+        return comp.getName().toUpperCase();
+    }
 
     public ControllerPanel(ConsoleLayout console) {
         super(console);
         this.console = console;
         this.removeAll();
-     
-        // Register listeners
+
         console.addMainVehicleListener(this);
         PeriodicUpdatesService.register(this);
         getConsole().getImcMsgManager().addListener(this);
     }
 
-    
     @Override
     public void initSubPanel() {
         SAXReader reader = new SAXReader();
@@ -179,66 +293,226 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         manager = console.getControllerManager();
 
-//        // Create a JComboBox with a list of controllers from the manager
-//        comboBox = new JComboBox<String>(manager.getControllerList().keySet().toArray(new String[0]));
-//        comboBox.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                @SuppressWarnings("unchecked")
-//                JComboBox<String> cb = (JComboBox<String>) e.getSource();
-//                currentController = (String) cb.getSelectedItem();
-//                mappedActions = getMappedActions(console.getMainSystem(), currentController);
-//                buildDialog();
-//            }
-//        });
+        controllerSelectors.add(generateControllerSelector());
 
-        controllerSelectors .add(generateControllerSelector());
-        controllerSelectors .add(generateControllerSelector());
-        
         // Initialize current controller
         currentController = (String) controllerSelectors.get(0).getSelectedItem();
 
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowActivated(WindowEvent e) {
-                sending = true;
-            }
+        setLayout(new MigLayout("", "[center]", ""));
+        btnInHold.addItemListener(new ItemListener() {
 
             @Override
-            public void windowClosing(WindowEvent e) {
-                sending = false;
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    NeptusLog.pub().warn(I18n.text("Entering Input Hold Mode on Teleoperation."));
+                }
+                else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    msgActions.clear(); // clean on hold remote actions
+                }
             }
         });
-        
+
         // Start the interface
+        if (console.getMainSystem() != null && actions.isEmpty())
+            add(new JLabel(I18n.text("Waiting for vehicle action list")));
+        else
+            add(new JLabel(I18n.text("No main vehicle selected in the console")));
+
+        if (actions != null) {
+            buildDialog();
+        }
         refreshInterface();
+    }
+
+    @Override
+    public void popupShown() {
+        super.popupShown();
+        if (actions != null) {
+            int numActions = actions.size();
+            int height = 330;
+            if (numActions > 8) {
+                height += 20 * (numActions - 8);
+            }
+            if (dialog != null) {
+                dialog.setSize(450, height);
+            }
+        }
+    }
+
+    /**
+     * 
+     */
+    private void buildInstructions() {
+        JMenuBar menu = new JMenuBar();
+        JMenu help = new JMenu("Help");
+        JMenuItem instructions = new JMenuItem("Instructions");
+        instructions.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ControllerPanel.this),
+                        ModalityType.DOCUMENT_MODAL);
+                JPanel content = new JPanel(new BorderLayout());
+                JTextPane txt = new JTextPane();
+                txt.setContentType("text/html");
+                // txt.setText(I18n.text("<html>To assign a button from the Joystick to the Main System Available
+                // RemoteActions:\n"
+                // + " 1. Click on the Edit button of the intended RemoteAction on the Table.\n"
+                // + " 2. Once the RemoteAction line gets green you are in edition mode of the Table.\n"
+                // + " 3. Select the intended button on the Joystick.\n"
+                // + " 4. After the editing mode is disable, verify if the axis is in the correct direction, otherwise
+                // inverted on the in the respective column.\n\n"
+                // + "After configuring all the RemoteActions of the Main System, youcan enable Teleoperation mode and
+                // start controlling with the joystick.</html>"));
+                txt.setText(I18n.text("<html>"
+                        + "<h1 style=\"text-align: center;\"><strong>Instructions</strong></h1>\n"
+                        + "<h2>To assign a button from the Joystick<br /> to the Main System Available RemoteActions:</h2>\n"
+                        + "<ol>\n"
+                        + "<li>Click on the Edit button of the intended <br />RemoteAction on the Table.</li>\n"
+                        + "<li>Once the RemoteAction line gets green <br />you are in edition mode of the Table.</li>\n"
+                        + "<li>Select the intended button on the Joystick.</li>\n"
+                        + "<li>After the editing mode is disabled, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it in the respective column.</li>\n"
+                        + "</ol>\n"
+                        + "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
+                        + "<h2>Once in Input Hold Mode, the list of Remote Actions will only increment according to the new buttons selected.</h2>"
+                        + "</html>"));
+                txt.setEditable(false);
+                content.add(txt, BorderLayout.CENTER);
+                dg.setContentPane(content);
+                dg.setSize(500, 500);
+                dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                dg.getRootPane().registerKeyboardAction(ev -> {
+                    dg.dispose();
+                }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+                GuiUtils.centerParent(dg, (Window) dg.getParent());
+                dg.setVisible(true);
+
+            }
+        });
+        help.add(instructions);
+        menu.add(help);
+
+        add(menu, "dock north");
     }
 
     @Override
     public void cleanSubPanel() {
         // Unregister listeners
-        console.removeMainVehicleListener(this);
         PeriodicUpdatesService.unregister(this);
         getConsole().getImcMsgManager().removeListener(this);
     }
-    
+
     public void buildDialog() {
-        removeAll();
-        setSize(300, 200);
-        setLayout(new MigLayout());
-        model = new TableModel(mappedActions);
-        table.setModel(model);
-        table.addMouseListener(new JTableButtonMouseListener(table));
-        
-        add(new JScrollPane(table), "wrap");
-        
-        for(JComboBox<String> selector : controllerSelectors) { 
-            add(selector, "w 200::, wrap");
+        if (actions == null || actions.isEmpty()) {
+            refreshInterface();
+            return;
         }
         
-        add(btnRefresh);
-        
-        dialog.pack();
+        removeAll();
+        buildInstructions();
+
+        axisModel = new AxisTableModel(mappedAxis, this);
+        buttonsModel = new ButtonTableModel(mappedButtons);
+
+        RowSorter<?> axisSorter = axisTable.getRowSorter();
+        RowSorter<?> buttonSorter = buttonsTable.getRowSorter();
+
+        axisTable.setRowSorter(null);
+        buttonsTable.setRowSorter(null);
+
+        axisTable.setModel(axisModel);
+        axisTable.getTableHeader().setReorderingAllowed(false);
+        axisTable.setRowSelectionAllowed(false);
+        axisTable.getColumnModel().getColumn(3).setCellEditor(new BooleanCellEditor());
+        axisTable.getColumnModel().getColumn(4).setCellEditor(new ActionButtonEditor());
+        axisTable.getColumnModel().getColumn(5).setCellEditor(new ActionButtonEditor());
+        axisTable.setDefaultRenderer(Boolean.class, new BooleanRenderer());
+        axisTable.revalidate();
+
+        axisTable.getColumnModel().getColumn(1).setMinWidth(90);
+        axisTable.getColumnModel().getColumn(0).setMinWidth(100);
+
+        buttonsTable.setModel(buttonsModel);
+        buttonsTable.getTableHeader().setReorderingAllowed(false);
+        buttonsTable.setRowSelectionAllowed(false);
+        buttonsTable.setDefaultRenderer(Object.class, new ButtonTableRenderer(ActionType.Button));
+        buttonsTable.getColumnModel().getColumn(3).setCellEditor(new ActionButtonEditor());
+        buttonsTable.getColumnModel().getColumn(4).setCellEditor(new ActionButtonEditor());
+        buttonsTable.revalidate();
+
+        axisModel.fireTableDataChanged();
+        buttonsModel.fireTableDataChanged();
+
+        JScrollPane axisContainer = new JScrollPane(axisTable);
+        String args = "height ::" + (20 + (axisTable.getRowHeight() * (axisModel.getRowCount() + 1))) + ",wrap";
+        add(axisContainer, args);
+        axisContainer.revalidate();
+
+        JScrollPane btnContainer = new JScrollPane(buttonsTable);
+        args = "height ::" + (20 + (buttonsTable.getRowHeight() * (buttonsModel.getRowCount() + 1))) + ",wrap";
+        add(btnContainer, args);
+        btnContainer.revalidate();
+
+        JPanel footerLeft = new JPanel(new MigLayout());
+        JPanel footerRight = new JPanel(new MigLayout());
+        JPanel footer = new JPanel(new MigLayout("", "[center]", ""));
+
+        for (JComboBox<String> selector : controllerSelectors) {
+            footerLeft.add(selector, "w 200::, wrap");
+        }
+
+        footerRight.add(btnInHold, "w 150::, wrap");
+        footerRight.add(btnReset, "w 150::, wrap");
+
+        footer.add(footerLeft, "push");
+        footer.add(footerRight, "push");
+
+        add(footer, "dock south");
+
+        int numActions = actions.size();
+        int height = 330;
+        if (numActions > 8) {
+            height += 20 * (numActions - 8);
+        }
+        if (dialog != null && dialog.isVisible()) {
+            dialog.setSize(450, height);
+        }
+
+        revalidate();
+        repaint();
+
+        if (getParent() != null) {
+            getParent().revalidate();
+            getParent().repaint();
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            revalidate();
+            repaint();
+            if (getParent() != null) {
+                getParent().revalidate();
+                getParent().repaint();
+            }
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                if (axisSorter != null) {
+                    axisTable.setRowSorter((RowSorter<? extends TableModel>) axisSorter);
+                } else {
+                    axisTable.setAutoCreateRowSorter(true);
+                }
+
+                if (buttonSorter != null) {
+                    buttonsTable.setRowSorter((RowSorter<? extends TableModel>) buttonSorter);
+                } else {
+                    buttonsTable.setAutoCreateRowSorter(true);
+                }
+            } catch (Exception e) {
+                axisTable.setAutoCreateRowSorter(true);
+                buttonsTable.setAutoCreateRowSorter(true);
+            }
+        });
     }
 
     public JComboBox<String> generateControllerSelector() {
@@ -247,81 +521,212 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (actions == null || actions.isEmpty()) {
+                    return;
+                }
                 @SuppressWarnings("unchecked")
-                JComboBox<String> cb = (JComboBox<String>) e.getSource();
-                currentController = (String) cb.getSelectedItem();
-                mappedActions = getMappedActions(console.getMainSystem(), currentController);
+                JComboBox<String> cbox = (JComboBox<String>) e.getSource();
+                currentController = (String) cbox.getSelectedItem();
+                mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
+                mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
+                updateModel();
                 buildDialog();
             }
         });
         return comboBox;
     }
-    
-    public ArrayList<MapperComponent> getMappedActions(String systemName, String controllerName) {
+
+    public ArrayList<MapperComponent> getMappedActions(String systemName, String controllerName,
+            ActionType actionType) {
         ArrayList<MapperComponent> result = new ArrayList<MapperComponent>();
 
-        for (String action : actions.keySet()) {
+        if (actions == null) {
+            return result;
+        }
+
+        boolean isDecimal = !actions.get("Ranges").equals("Range127");
+        float range = (float) (isDecimal ? 1.0 : 127.0);
+        for (Entry<String, String> entry : actions.entrySet()) {
+            String action = entry.getKey();
+            String aType = entry.getValue();
             MapperComponent comp = getMapperComponentByName(systemName, controllerName, action);
-            if (comp == null)
-                result.add(new MapperComponent(action, "", 0.0f, false));               
-            else
-                result.add(comp);
+            if (aType.equalsIgnoreCase(actionType.name())) { // verify if action is Axis or Button
+                if (comp == null) {
+                    comp = findExistingComponent(action, actionType);
+                    if (comp == null) {
+                        if (actionType.equals(ActionType.Axis)) {
+                            comp = new MapperComponent(action, "", 0.0f, false, range, 0.0f);
+                        }
+                        else if (actionType.equals(ActionType.Button)) {
+                            comp = new MapperComponent(action, "", 0.0f, false, 0.0f, 0.0f);
+                        }
+                    }
+                }
+                if (comp != null) {
+                    result.add(comp);
+                }
+            }
         }
         return result;
     }
 
+    private MapperComponent findExistingComponent(String action, ActionType actionType) {
+        if (actionType.equals(ActionType.Axis)) {
+            for (MapperComponent comp : mappedAxis) {
+                if (comp.action.equals(action)) {
+                    return comp;
+                }
+            }
+        } else if (actionType.equals(ActionType.Button)) {
+            for (MapperComponent comp : mappedButtons) {
+                if (comp.action.equals(action)) {
+                    return comp;
+                }
+            }
+        }
+        return null;
+    }
+
     public MapperComponent getMapperComponentByName(String systemName, String controllerName, String actionName) {
-        List<?> list = doc.selectNodes("/systems/system[@name='" + systemName + "']/controller[@name='"
-                + controllerName + "']/*");
+        List<?> list = doc.selectNodes(
+                "/systems/system[@name='" + systemName + "']/controller[@name='" + controllerName + "']/*");
+
+        boolean isDecimal = true; // Default to decimal
+        if (actions != null && actions.containsKey("Ranges")) {
+            isDecimal = !actions.get("Ranges").equals("Range127");
+        }
+        float range = (float) (isDecimal ? 1.0 : 127.0);
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element el = (Element) iter.next();
-            if (el.attributeValue("action").equalsIgnoreCase(actionName))
-                return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f, Boolean.parseBoolean(el.attributeValue("inverted")));
+            if (el.attributeValue("action").equalsIgnoreCase(actionName)) {
+                try {
+                    if (el.attribute("range") == null) {
+                        return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
+                                Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f, 0.0f);
+                    }
+                    else {
+                        return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"),
+                                0.0f,
+                                Boolean.parseBoolean(el.attributeValue("inverted")),range, 0.0f);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(I18n.text("Error parsing controllers configuration file."), e);
+                }
+            }
         }
         return null;
     }
 
     public void requestRemoteActions() {
         if (console.getMainSystem() != null) {
-            IMCMessage msg = RemoteActionsRequest.create("op", 1);
-            ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
+            RemoteActionsRequest raq = new RemoteActionsRequest();
+            raq.setOp(OP.QUERY);
+            // IMCDefinition.getInstance().getResolver().resolve(console.getMainSystem());
         }
     }
 
-    public void updateControllers() {
+    private void updateControllers() {
+        if (!connected()) {
+            return;
+        }
+
         manager.fetchControllers();
         String list[] = manager.getControllerList().keySet().toArray(new String[0]);
         for (JComboBox<String> cb : controllerSelectors) {
             cb.removeAllItems();
-            
             for (String s : list) {
                 cb.addItem(s);
             }
         }
+        for (JComboBox<String> cb : controllerSelectors) {
+            cb.setSelectedItem(currentController);
+        }
     }
-    
+
     /**
      * Clear the layout and ask the system for remote actions
      */
     public void refreshInterface() {
-        actions = null;
-        
-        removeAll();
-        
-        if(console.getMainSystem() != null)
-            add(new JLabel(I18n.text("Waiting for vehicle action list")));
-        else
-            add(new JLabel(I18n.text("No main vehicle selected in the console")));
-        
-        invalidate();
-        revalidate();
+        clearAllEditFlagsForce();
 
-        requestRemoteActions();
+        if (!connected()) {
+            removeAll();
+            buildInstructions();
+            add(new JLabel(I18n.text("Vehicle disconnected")));
+            actions = null;
+            requestedActions = false;
+            revalidate();
+            repaint();
+            return;
+        }
+
+        if (actions != null && !actions.isEmpty()) {
+            return;
+        }
+
+        removeAll();
+        buildInstructions();
+        add(new JLabel(I18n.text("Waiting for vehicle action list")));
+
+        if (!requestedActions) {
+            requestRemoteActions();
+            requestedActions = true;
+        }
+
+        revalidate();
+        repaint();
     }
-    
+
+    private boolean sending() {
+        return console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.TELEOPERATION);
+    }
+
+    private boolean connected() {
+        if(console.getMainSystem() != null)
+            return !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED);
+        return false;
+    }
+
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
-        refreshInterface();
+
+        SwingUtilities.invokeLater(() -> {
+
+            if (console.getMainSystem() == null) {
+                return;
+            }
+
+            actions = null;
+            requestedActions = false;
+
+            LinkedHashMap<String, String> cached = loadCachedActions(console.getMainSystem());
+            if (!cached.isEmpty()) {
+                actions = new LinkedHashMap<>(cached);
+            }
+
+            clearAllEditFlagsForce();
+
+            msgActions.clear();
+
+            mappedAxis.clear();
+            mappedButtons.clear();
+
+            axisModel = null;
+            buttonsModel = null;
+
+            if (actions != null && !actions.isEmpty()) {
+                updateControllers();
+
+                if (!controllerSelectors.isEmpty()) {
+                    currentController = (String) controllerSelectors.get(0).getSelectedItem();
+                }
+
+                buildDialog();
+            } else {
+                refreshInterface();
+            }
+        });
     }
 
     @Override
@@ -331,125 +736,494 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     @Override
     public boolean update() {
-        
-        if(manager == null || currentController == null) {
+        if (manager == null || currentController == null) {
             return true;
         }
-        
-        sending = dialog.isVisible();
-        
-        poll = manager.pollController(currentController);
-        
-        // Also if polling fails return true
-        if(poll == null) {
-            return true;
-        }
-        
-        btnRefresh.setEnabled(!editing);
-//        comboBox.setEnabled(!editing);
-        
-        if (editing) {
-            if (oldPoll.size() == poll.size()) {
-                for (String k : poll.keySet()) {
-                    if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
-                            && Math.abs(poll.get(k).getPollData()) == 1.0) {
-                        for (MapperComponent mcomp : mappedActions) {
-                            if (mcomp.editFlag) {
-                                mcomp.component = k;
-                                mcomp.inverted = poll.get(k).getPollData() < 0;
-                                model.fireTableDataChanged();
 
-                                // Finish editing and save mappings
-                                editing = false;
+        if (!connected()) {
+            return true;
+        }
+
+        /*if(!isVisible() || !isShowing() || !isEnabled())
+            return true;*/
+        // Use the periodic update to keep asking for RemoteActions list
+        if (connected() && actions == null) {
+            requestRemoteActions();
+            requestedActions = true;
+        }
+
+        if (!isShowing()) {
+            return true;
+        }
+
+        try {
+            poll = manager.pollController(currentController);
+        } catch (Exception e) {
+            manager.pollError(currentController);
+            e.printStackTrace();
+            return true;
+        }
+
+        if (poll == null) {
+            return true;
+        }
+
+        btnReset.setEnabled(!hasAnyEditFlag());
+
+        if (hasAnyEditFlag()) {
+            LinkedHashMap<String, String> universalNames = new LinkedHashMap<>();
+            for (String k : poll.keySet()) {
+                universalNames.put(k, getUniversalName(poll.get(k)));
+            }
+            
+            for (String k : poll.keySet()) {
+                float currentData = poll.get(k).getPollData();
+                float previousData = oldPoll.getOrDefault(k, 0f);
+
+                boolean intentDetected = false;
+
+                if (universalNames.get(k).equals("pov")) {
+                    intentDetected = (currentData != 0.0f);
+                } else {
+                    intentDetected = (Math.abs(currentData - previousData) > 0.5f);
+                }
+                if (intentDetected) {
+                    String buttonToStore = universalNames.get(k);
+                    ArrayList<MapperComponent> allMapped = new ArrayList<>();
+                    allMapped.addAll(mappedAxis);
+                    allMapped.addAll(mappedButtons);
+
+                    for (MapperComponent mcomp : allMapped) {
+                        if (mcomp.editFlag) {
+                            String type = actions.get(mcomp.action);
+                            
+                            if (IS_WINDOWS && universalNames.get(k).equals("z") && currentData < -0.1f) {
+                                buttonToStore = "rz";
+                            } else if (universalNames.get(k).equals("pov")) {
+                            if ("Axis".equalsIgnoreCase(type)) {
+                                if (isHeading(mcomp)) buttonToStore = "povX";
+                                else if (isThrustAction(mcomp.action)) buttonToStore = "povY";
+                                else buttonToStore = "pov"; // fallback
+                            } else {
+                                if (currentData >= 0.2f && currentData <= 0.3f) buttonToStore = "povUp";
+                                else if (currentData >= 0.7f && currentData <= 0.8f) buttonToStore = "povDown";
+                                else if (currentData >= 0.4f && currentData <= 0.6f) buttonToStore = "povRight";
+                                else if (currentData >= 0.9f && currentData <= 1.1f) buttonToStore = "povLeft";
+                            }
+                        }
+
+                            boolean conflict = false;
+                            for (MapperComponent existing : allMapped) {
+                                if (existing.editFlag) continue;
+
+                                if (buttonToStore.equalsIgnoreCase("povX")) {
+                                    if (existing.button.equalsIgnoreCase("povLeft") ||
+                                        existing.button.equalsIgnoreCase("povRight") ||
+                                        existing.button.equalsIgnoreCase("povX")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("povY")) {
+                                    if (existing.button.equalsIgnoreCase("povUp") ||
+                                        existing.button.equalsIgnoreCase("povDown") ||
+                                        existing.button.equalsIgnoreCase("povY")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("povLeft") || 
+                                         buttonToStore.equalsIgnoreCase("povRight")) {
+                                    if (existing.button.equalsIgnoreCase("povX")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("povUp") || 
+                                         buttonToStore.equalsIgnoreCase("povDown")) {
+                                    if (existing.button.equalsIgnoreCase("povY")) {
+                                        conflict = true;
+                                    }
+                                }
+                                else if (buttonToStore.equalsIgnoreCase("pov") && existing.button.startsWith("pov")) {
+                                    conflict = true;
+                                }
+                                else if (buttonToStore.startsWith("pov") && existing.button.equalsIgnoreCase("pov")) {
+                                    conflict = true;
+                                }
+                                else if (buttonToStore.equals(existing.button)) {
+                                    conflict = true;
+                                }
+                            }
+
+                            if (!conflict) {
+                                mcomp.button = buttonToStore;
+                                mcomp.value = 0f;
                                 mcomp.editFlag = false;
-                                saveMappings(); // Save every time we edit a single action
+                                mcomp.setDeadZone(poll.get(k).getDeadZone());
+                                
+                                String universalName = universalNames.get(k);
+                                
+                                if (mcomp.action.toLowerCase().contains("reversed")) {
+                                    if (universalName.equals("pov")) {
+                                        mcomp.inverted = (currentData >= 0.6f && currentData <= 0.9f); 
+                                    } else {
+                                        mcomp.inverted = (currentData < 0);
+                                    }
+                                } else if (universalName.equals("y") || universalName.equals("ry") || universalName.equals("pov")) {
+                                    if (buttonToStore.equalsIgnoreCase("povY")) {
+                                        mcomp.inverted = (currentData >= 0.6f && currentData <= 0.9f); 
+                                    } else {
+                                        mcomp.inverted = (currentData < 0);
+                                    }
+                                } else {
+                                    mcomp.inverted = false;
+                                }
+                                
+                                saveMappings();
+                            } else {
+                                // TODO: Optional warning
+                                mcomp.editFlag = false; 
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            if (currentController == null || actions == null || console.getMainSystem() == null) {
+                return true;
+            }
+
+            if (!btnInHold.isSelected()) {
+                msgActions.clear();
+            }
+
+            boolean valuesChanged = false;
+
+            ArrayList<MapperComponent> allMapped = new ArrayList<>();
+            allMapped.addAll(mappedAxis);
+            allMapped.addAll(mappedButtons);
+
+            boolean triggeredHalfThrust = hasReversedThrustMapped(allMapped);
+            float revThrustValue = 0f;
+
+            if (triggeredHalfThrust) {
+                for (MapperComponent c : allMapped) {
+                    if (c.action.toLowerCase().contains("reversed") && c.button != null && !c.button.isEmpty()) {
+                        String physicalKey = null;
+                        String searchName;
+                        
+                        if (IS_WINDOWS && (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz"))) {
+                            searchName = "z";
+                        } else {
+                            searchName = c.button.startsWith("pov") ? "pov" : c.button;
+                        }
+
+                        for (String key : poll.keySet()) {
+                            if (getUniversalName(poll.get(key)).equals(searchName)) {
+                                physicalKey = key;
                                 break;
+                            }
+                        }
+
+                        if (physicalKey != null) {
+                            float rawRev = poll.get(physicalKey).getPollData();
+
+                            if (c.button.startsWith("pov")) {
+                                float val = 0;
+                                if (c.inverted) {
+                                    val = (rawRev >= 0.6f && rawRev <= 0.9f) ? 1.0f : 0.0f;
+                                } else {
+                                    val = (rawRev >= 0.1f && rawRev <= 0.4f || (rawRev > 0 && rawRev < 0.1f)) ? 1.0f : 0.0f;
+                                }
+                                revThrustValue = -val;
+                            } else if (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz")) {
+                                float val = 0;
+                                if (IS_WINDOWS) {
+                                    if (c.button.equalsIgnoreCase("z")) val = Math.max(0, rawRev);
+                                    else val = Math.max(0, -rawRev);
+                                } else {
+                                    val = (rawRev + 1f) / 2f;
+                                }
+                                revThrustValue = -Math.abs(val);
+                            } else {
+                                if (c.inverted) {
+                                    revThrustValue = -Math.max(0, -rawRev);
+                                } else {
+                                    revThrustValue = -Math.max(0, rawRev);
+                                }
+                            }
+                        }
+                        break; 
+                    }
+                }
+        }
+
+            LinkedHashMap<String, String> universalNames = new LinkedHashMap<>();
+            for (String k : poll.keySet()) {
+                universalNames.put(k, getUniversalName(poll.get(k)));
+            }
+
+            for (String k : poll.keySet()) {
+                String universalName = universalNames.get(k);
+                ArrayList<MapperComponent> compsForButton = new ArrayList<>();
+                for (MapperComponent c : allMapped) {
+                    if (universalName.equals("pov") && c.button.toLowerCase().startsWith("pov")) {
+                        compsForButton.add(c);
+                    } else if (IS_WINDOWS && (c.button.equalsIgnoreCase("z") || c.button.equalsIgnoreCase("rz")) && universalName.equals("z")) {
+                        compsForButton.add(c);
+                    } else {
+                        if (c.button.equals(universalName)) {
+                            compsForButton.add(c);
+                        }
+                    }
+                }
+
+                for (MapperComponent comp : compsForButton) {
+                    if (poll.get(k) != null) {
+                        float raw = poll.get(k).getPollData();
+                        float updated_value = 0f;
+
+                        String type = actions.get(comp.action);
+
+                        if (comp.inverted && !(IS_WINDOWS && (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")))) {
+                            raw *= -1f;
+                        }
+
+                        if ("Axis".equalsIgnoreCase(type)) {
+                            if (comp.button.startsWith("pov")) {
+                                Component povComponent = null;
+                                for (String key : poll.keySet()) {
+                                    if (universalNames.get(key).equals("pov")) {
+                                        povComponent = poll.get(key);
+                                        break;
+                                    }
+                                }
+                                
+                                if (povComponent != null) {
+                                    float povRaw = povComponent.getPollData();
+                                    float t_val = 0, h_val = 0;
+
+                                    if (povRaw > 0.05f && povRaw < 0.45f) t_val = 1f;
+                                    else if (povRaw > 0.55f && povRaw < 0.95f) t_val = -1f;
+
+                                    if (povRaw > 0.30f && povRaw < 0.70f) h_val = 1f;
+                                    else if (povRaw > 0.80f || (povRaw > 0 && povRaw < 0.20f)) h_val = -1f;
+
+                                    if (comp.button.equalsIgnoreCase("povX")) raw = h_val;
+                                    else if (comp.button.equalsIgnoreCase("povY")) raw = t_val;
+                                    else raw = isThrustAction(comp.action) ? t_val : h_val;
+                                    
+                                    if (comp.inverted) {
+                                        raw *= -1f;
+                                    }
+                                }
+                            } 
+                            
+                            if (isThrustAction(comp.action)) {
+                                if (comp.action.toLowerCase().contains("reversed")) {
+                                    updated_value = 0f;
+                                } else {
+                                    float forwardPart = 0;
+                                    if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
+                                        if (IS_WINDOWS) {
+                                            if (comp.button.equalsIgnoreCase("z")) forwardPart = Math.max(0, raw);
+                                            else forwardPart = Math.max(0, -raw);
+                                        } else {
+                                            forwardPart = (raw + 1f) / 2f;
+                                        }
+                                    } else if (triggeredHalfThrust) {
+                                        forwardPart = Math.max(0, raw);
+                                    } else {
+                                        forwardPart = raw;
+                                    }
+                                    updated_value = (forwardPart + revThrustValue) * comp.getRange();
+                                }
+                            } else {
+                                updated_value = raw * comp.getRange();
+                            }
+                        }
+                        else if ("Button".equalsIgnoreCase(type)) {
+                            if (comp.button.equalsIgnoreCase("z") || comp.button.equalsIgnoreCase("rz")) {
+                                Component physicalComponent = poll.get(k);
+                                if (physicalComponent != null && physicalComponent.isAnalog()) {
+                                    if (IS_WINDOWS) {
+                                        if (comp.button.equalsIgnoreCase("z")) {
+                                            raw = (raw > 0.5f) ? 1.0f : 0.0f;
+                                        } else {
+                                            raw = (raw < -0.5f) ? 1.0f : 0.0f;
+                                        }
+                                    } else {
+                                        float normalized = (raw + 1f) / 2f;
+                                        raw = normalized > 0.5f ? 1.0f : 0.0f;
+                                    }
+                                } else {
+                                    raw = (raw >= 1.0f) ? 1.0f : 0.0f;
+                                }
+                            } else if (comp.button.startsWith("pov") && !comp.button.equalsIgnoreCase("pov")) {
+                                raw = checkPovDirection(comp.button, raw);
+                            } else if (comp.button.equalsIgnoreCase("pov")) {
+                                if (raw >= 0.9f && raw <= 1.1f) {
+                                    raw = 1.0F;
+                                } else if (raw >= 0.4f && raw <= 0.7f) {
+                                    raw = 1.0F;
+                                } else if (raw >= 0.2f && raw <= 0.49f) {
+                                    raw = 1.0F;
+                                } else if (raw >= 0.7f && raw <= 0.89f) {
+                                    raw = 1.0F;
+                                } else {
+                                    raw = 0.0F;
+                                }
+                            }
+
+                            updated_value = raw;
+                        }
+
+                        if (Math.abs(updated_value) < 0.0001f) {
+                            updated_value = 0f;
+                        }
+
+                        if (btnInHold.isSelected()) {
+                            if (Float.compare(Math.abs(updated_value), Math.abs(comp.value)) >= 0) {
+                                if (comp.value != updated_value) {
+                                    comp.value = updated_value;
+                                    valuesChanged = true;
+                                }
+                            }
+                        } else {
+                            if (comp.value != updated_value) {
+                                comp.value = updated_value;
+                                valuesChanged = true;
+                            }
+                        }
+
+                        if (sending()) {
+                            if (isThrustAction(comp.action)) {
+                                if (Float.compare(Math.abs(updated_value), poll.get(k).getDeadZone()) != 0) {
+                                    msgActions.put(comp.action, updated_value + "");
+                                }
+                            } else {
+                                if (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0) {
+                                    msgActions.put(comp.action, comp.value + "");
+                                }
                             }
                         }
                     }
                 }
             }
-            
-            // Deep copy poll to oldPoll
-            oldPoll.clear();
-            for (String k : poll.keySet())
-                oldPoll.put(k, poll.get(k).getPollData());
-            
-        }
-        else {
-            // Use the periodic update to keep asking for RemoteActions list
-            if (timeIncrement >= 2000 && actions == null) {
-                requestRemoteActions();
-                timeIncrement = 0;
-            }
-            timeIncrement += periodicDelay;
 
-            if (currentController == null || actions == null || console.getMainSystem() == null) {
-                return true;
-            }
-            msgActions.clear();
-
-            for (String k : poll.keySet()) {
-                // Find the suitable MapperComponent to get data from
-                // Don't need to create an extra method for this one
-                MapperComponent comp = null;
-                for (MapperComponent c : mappedActions) {
-                    if (c.component.equals(k)) {
-                        comp = c;
-                        break;
-                    }
-                }
-
-                if (comp != null) {
-                    comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? 127 : 1) * (comp.inverted ? -1 : 1);
-                    ((AbstractTableModel)table.getModel()).fireTableDataChanged();
-                    // Only if we are already sending that we build the msgActions LinkedHashMap
-                    if (sending) {
-                        msgActions.put(comp.action, comp.value + "");
-                    }
-                }
-            }
-            if (sending) {
-                // Finally send the message
-                RemoteActions msg = new RemoteActions();
-                msg.setActions(msgActions);
-                ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
+            if (valuesChanged && !mousePressed) {
+                SwingUtilities.invokeLater(() -> {
+                    if (axisTable != null) axisTable.repaint();
+                    if (buttonsTable != null) buttonsTable.repaint();
+                });
             }
         }
+
+        if (sending()) {
+            sendRemoteActions();
+        }
+
+        if (!connected() && (actions != null || axisModel != null || buttonsModel != null)) {
+            if (axisModel != null) {
+                ((AxisTableModel) axisModel).setList(new ArrayList<>());
+            }
+            if (buttonsModel != null) {
+                ((ButtonTableModel) buttonsModel).setList(new ArrayList<>());
+            }
+            actions = null;
+            axisModel = null;
+            buttonsModel = null;
+            refreshInterface();
+        }
+
         return true;
     }
 
-    private void saveMappings() {
+    private boolean isThrustAction(String action) {
+        return action.toLowerCase().contains("thrust") ||
+                action.toLowerCase().contains("surge") ||
+                action.toLowerCase().contains("forward") ||
+                action.toLowerCase().contains("throtle");
+    }
+
+    private boolean isHeading(MapperComponent comp) {
+        return comp.action.toLowerCase().contains("heading") ||
+                comp.action.toLowerCase().contains("yaw") ||
+                comp.action.toLowerCase().contains("rotate") ||
+                comp.action.toLowerCase().contains("turning");
+    }
+
+    private boolean hasReversedThrustMapped(ArrayList<MapperComponent> components) {
+        for (MapperComponent c : components) {
+            if (c.action.toLowerCase().contains("reversed") && c.button != null && !c.button.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private float checkPovDirection(String buttonName, float povValue) {
+        if (buttonName.equalsIgnoreCase("povUp") && (povValue >= 0.2f && povValue <= 0.3f)) return 1.0f;
+        if (buttonName.equalsIgnoreCase("povDown") && (povValue >= 0.7f && povValue <= 0.8f)) return 1.0f;
+        if (buttonName.equalsIgnoreCase("povRight") && (povValue >= 0.4f && povValue <= 0.6f)) return 1.0f;
+        if (buttonName.equalsIgnoreCase("povLeft") && (povValue >= 0.9f && povValue <= 1.1f)) return 1.0f;
+        return 0.0f;
+    }
+
+    /**
+     *
+     */
+    private void sendRemoteActions() {
+        RemoteActions msg = new RemoteActions();
+        msg.setActions(msgActions);
+        getConsole().getImcMsgManager().sendMessageToSystem(msg, console.getMainSystem());
+    }
+    
+    public void prepareForEdit() {
+        if (poll != null) {
+            oldPoll.clear();
+            for (String k : poll.keySet()) {
+                oldPoll.put(k, poll.get(k).getPollData());
+            }
+        }
+    }
+
+    protected void saveMappings() {
         try {
             Element systems = (Element) doc.selectSingleNode("/systems");
-            if(systems == null) {
+            if (systems == null) {
                 systems = doc.addElement("systems");
             }
 
             Element system = (Element) systems.selectSingleNode("system[@name='" + console.getMainSystem() + "']");
-            if(system == null) {
-                NeptusLog.pub().info("Adding new system to controller mapping");
+            if (system == null) {
                 system = systems.addElement("system").addAttribute("name", console.getMainSystem());
             }
-            
+
             Element controller = (Element) system.selectSingleNode("controller[@name='" + currentController + "']");
-            if(controller == null) {
-                NeptusLog.pub().info("Adding new controller to controller mapping");
+            if (controller == null) {
                 controller = system.addElement("controller").addAttribute("name", currentController);
             }
 
             List<?> l = controller.selectNodes("entry");
-            for(int i = 0; i < l.size(); i++) {
-                controller.remove((Element)l.get(i));
+            for (int i = 0; i < l.size(); i++) {
+                controller.remove((Element) l.get(i));
             }
-            
-            for(MapperComponent mcomp : mappedActions) {
+
+            for (MapperComponent mcomp : mappedAxis) {
                 Element e = controller.addElement("entry");
-                e.addAttribute("component", mcomp.component);
+                e.addAttribute("component", mcomp.button);
+                e.addAttribute("action", mcomp.action);
+                e.addAttribute("inverted", String.valueOf(mcomp.inverted));
+                e.addAttribute("range", String.valueOf(mcomp.getRange()));
+            }
+
+            for (MapperComponent mcomp : mappedButtons) {
+                Element e = controller.addElement("entry");
+                e.addAttribute("component", mcomp.button);
                 e.addAttribute("action", mcomp.action);
                 e.addAttribute("inverted", String.valueOf(mcomp.inverted));
             }
-            
+
             File fx = new File(ACTION_FILE_XML);
             fx.getParentFile().mkdirs();
             FileOutputStream fos = new FileOutputStream(ACTION_FILE_XML);
@@ -457,23 +1231,162 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             XMLWriter writer = new XMLWriter(fos, format);
             writer.write(doc);
             writer.flush();
+            writer.close();
         }
         catch (Exception e) {
+            NeptusLog.pub().error(I18n.text("Error Saving Controllers Actions in: " + ACTION_FILE_XML), e);
             e.printStackTrace();
         }
     }
-    
+
+    private LinkedHashMap<String, String> loadCachedActions(String vehicle) {
+        LinkedHashMap<String, String> result = new LinkedHashMap<>();
+        Properties props = new Properties();
+        File file = new File(CACHED_ACTIONS_FILE);
+        if (!file.exists()) {
+            return result;
+        }
+        try (FileInputStream fis = new FileInputStream(file)) {
+            props.load(fis);
+        } catch (Exception e) {
+            NeptusLog.pub().warn("Error loading cached actions", e);
+            return result;
+        }
+        String vehicleData = props.getProperty(vehicle);
+        if (vehicleData != null) {
+            String[] pairs = vehicleData.split(";");
+            for (String pair : pairs) {
+                String[] parts = pair.split("=", 2);
+                if (parts.length == 2) {
+                    result.put(parts[0], parts[1]);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void saveCachedActions(String vehicle, LinkedHashMap<String, String> actions) {
+        Properties props = new Properties();
+        File file = new File(CACHED_ACTIONS_FILE);
+        if (file.exists()) {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                props.load(fis);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Entry<String, String> entry : actions.entrySet()) {
+            if (sb.length() > 0) sb.append(";");
+            sb.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        props.setProperty(vehicle, sb.toString());
+        // Save
+        file.getParentFile().mkdirs();
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            props.store(fos, "Cached actions for vehicles");
+        } catch (Exception e) {
+            NeptusLog.pub().error("Error saving cached actions", e);
+        }
+    }
+
     @Subscribe
-    public void consume(RemoteActionsRequest message) {
-        if(actions == null) {
-            actions = new LinkedHashMap<String, String>();
+    public void on(RemoteActionsRequest message) {
+        try {
+            if (hasAnyEditFlag()) {
+                return;
+            }
+
+            if (!message.getOp().equals(OP.REPORT)) {
+                return;
+            }
+
+            if (actions == null) {
+                actions = new LinkedHashMap<String, String>();
+            }
+
+            String messageSource = message.getSourceName();
+            String currentMainSystem = console.getMainSystem();
+
+            if (messageSource == null || !messageSource.equals(currentMainSystem)) {
+                return;
+            }
+
+            for (Entry<String, String> entry : message.getActions().entrySet()) {
+                String k = entry.getKey();
+                actions.put(k, message.getActions().get(k));
+                if (isThrustAction(k)) {
+                    actions.put("Reversed " + k, "Axis");
+                }
+            }
+
+            saveCachedActions(messageSource, actions);
+
+            if (actions.size() > 0) {
+                if (isShowing()) {
+                    SwingUtilities.invokeLater(() -> {
+
+                        if (hasAnyEditFlag()) {
+                            return;
+                        }
+
+                        String selectedController;
+                        if (!controllerSelectors.isEmpty()) {
+                            selectedController = (String) controllerSelectors.get(0).getSelectedItem();
+                        }
+                        else {
+                            selectedController = null;
+                        }
+
+                        mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
+                        mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
+
+                        if (!isShowing()) {
+                            return;
+                        }
+
+                        removeAll();
+                        buildDialog();
+
+                        revalidate();
+                        repaint();
+                        if (getParent() != null) {
+                            getParent().revalidate();
+                            getParent().repaint();
+                        }
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                manager.fetchControllers();
+                                return null;
+                            }
+                            @Override
+                            protected void done() {
+                                try {
+                                    String list[] = manager.getControllerList().keySet().toArray(new String[0]);
+                                    for (JComboBox<String> cb : controllerSelectors) {
+                                        cb.removeAllItems();
+                                        for (String s : list) {
+                                            cb.addItem(s);
+                                        }
+                                    }
+                                    if (selectedController != null) {
+                                        for (JComboBox<String> cb : controllerSelectors) {
+                                            cb.setSelectedItem(selectedController);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        };
+                        worker.execute();
+                    });
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        for(String k: message.getActions().keySet()) {
-            actions.put(k, message.getActions().get(k));
-        }
-        
-        mappedActions = getMappedActions(console.getMainSystem(), currentController);
-        buildDialog();
     }
 
     /**
@@ -481,199 +1394,275 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
      */
     class MapperComponent {
         String action;
-        String component;
+        String button;
         float value;
         boolean inverted;
-        JButton edit;
-        JButton clear;
-        
+        float range;
+        float deadZone;
+
         boolean editFlag = false;
-        
-        MapperComponent(final String action, String component, float value, boolean inverted) {
+
+        MapperComponent(final String action, String component, float value, boolean inverted, float r, float zero) {
             this.action = action;
-            this.component = component;
+            this.button = component;
             this.value = value;
             this.inverted = inverted;
-            this.edit = new JButton(I18n.text("Edit"));
-            this.clear = new JButton(I18n.text("Clear"));
+            this.range = r;
+            this.deadZone = zero;
+        }
+
+        public String getEditText() {
+            return editFlag ? "Cancel" : "Edit";
+        }
+
+        public void toggleEdit() {
+            if (editFlag) {
+                editFlag = false;
+            } else {
+                clearAllEditFlags();
+                editFlag = true;
+            }
+        }
+
+        public void doClear() {
+            this.button = "";
+            this.inverted = false;
+            this.value = (float) 0.0;
+            this.editFlag = false;
+            saveMappings();
+            clearAllEditFlags();
+        }
+
+        public float getRange() {
+            return this.range;
+        }
+
+        public void setRange(float  r) {
+            this.range = r;
+        }
+
+        /**
+         * @return the deadZone
+         */
+        public float getDeadZone() {
+            return deadZone;
+        }
+
+        /**
+         * @param deadZone the deadZone to set
+         */
+        public void setDeadZone(float deadZone) {
+            this.deadZone = deadZone;
+        }
+    }
+
+    @SuppressWarnings("serial")
+    class BooleanRenderer extends JCheckBox implements TableCellRenderer {
+
+        public BooleanRenderer() {
+            super();
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setOpaque(true);
+        }
+
+        @Override
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setSelected((Boolean) value);
+            setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
             
-            edit.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    super.mouseClicked(e);
-                    if(!editing) {
-                        editing = true;
-                        editFlag = true;
+            if (column == 2) {
+                int modelRow = table.convertRowIndexToModel(row);
+                if (table == axisTable && modelRow >= 0 && modelRow < ((AxisTableModel)axisModel).getList().size()) {
+                    MapperComponent comp = ((AxisTableModel) axisModel).getList().get(modelRow);
+                    if (comp.action.toLowerCase().contains("reversed")) {
+                        setEnabled(false);
+                        return this;
                     }
-                } 
-            });
-            clear.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    super.mouseClicked(e);
-                    MapperComponent.this.component = "";
-                    MapperComponent.this.inverted = false;
-                } 
-            });
-
-        }
-    }
-    
-    @SuppressWarnings("serial")
-    private class TableModel extends AbstractTableModel {
-        public ArrayList<MapperComponent> list;
-        
-        @Override
-        public String getColumnName(int column) {
-            switch (column) {
-                case 0:
-                    return I18n.text("Action");
-                case 1:
-                    return I18n.text("Component");
-                case 2:
-                    return I18n.text("Value");
-                case 3:
-                    return I18n.text("Inverted");
-                default:
-                    return "";
+                }
             }
-        }
-        
-        public TableModel(ArrayList<MapperComponent> list) {
-            this.list = list;
-        }
-        
-        public ArrayList<MapperComponent> getList() {
-            return list;
-        }
-        @Override
-        public int getRowCount() {
-            return list.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return 6;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            MapperComponent comp = list.get(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                    return comp.action;
-                case 1:
-                    return comp.component;
-                case 2:
-                    return comp.value;
-                case 3:
-                    return comp.inverted;
-                case 4:
-                    return comp.edit;
-                case 5:
-                    return comp.clear;
-            }
-            return null;
-        }
-        
-        public boolean isCellEditable(int row, int col) {
-            return col == 3 || col == 1 || col == 4 || col == 5; // Hard-coded for now
-        }
-
-        public void setValueAt(Object value, int row, int col) {
-            if(col == 3) {
-                list.get(row).inverted = (Boolean)value;
-                fireTableCellUpdated(row, col);
-            }
-        }
-        
-        public Class<?> getColumnClass(int c) {
-            Object cl = getValueAt(0, c);
-            if (cl == null)
-                return Object.class;
-            else
-                return cl.getClass();
-        }
-    }
-    
-    @SuppressWarnings("serial")
-    private class TableRenderer extends DefaultTableCellRenderer {
-        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                boolean hasFocus, final int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            MapperComponent comp = (MapperComponent) ((TableModel)model).getList().get(row);
-            if(comp.editFlag) {
-                setBackground(Color.green);
-            }
-            else {
-                setBackground(Color.white);
-            }
-            if(column == 4) {
-                JButton b = (JButton)model.getValueAt(row, column);
-                b.setEnabled(!editing); // Disable if we are editing
-                return (JButton)model.getValueAt(row, column);
-            }
-            if(column == 5) {
-                return (JButton)model.getValueAt(row, column);
-            }
+            
+            setEnabled(true);
             return this;
         }
     }
-    
-    class JTableButtonMouseListener implements MouseListener {
-        private JTable __table;
 
-        private void __forwardEventToButton(MouseEvent e) {
-           
-          TableColumnModel columnModel = __table.getColumnModel();
-          int column = columnModel.getColumnIndexAtX(e.getX());
-          int row    = e.getY() / __table.getRowHeight();
-          Object value;
-          JButton button;
-          MouseEvent buttonEvent;
+    @SuppressWarnings("serial")
+    class BooleanCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-          if(row >= __table.getRowCount() || row < 0 ||
-             column >= __table.getColumnCount() || column < 0)
-            return;
+        private JCheckBox check = new JCheckBox();
 
-          value = __table.getValueAt(row, column);
-
-          if(!(value instanceof JButton))
-            return;
-
-          button = (JButton)value;
-
-          buttonEvent =
-            (MouseEvent)SwingUtilities.convertMouseEvent(__table, e, button);
-          button.dispatchEvent(buttonEvent);
-          // This is necessary so that when a button is pressed and released
-          // it gets rendered properly.  Otherwise, the button may still appear
-          // pressed down when it has been released.
-          __table.repaint();
+        public BooleanCellEditor() {
+            check.setHorizontalAlignment(SwingConstants.CENTER);
+            check.setOpaque(true);
+            check.addActionListener(e -> fireEditingStopped());
         }
 
-        public JTableButtonMouseListener(JTable table) {
-          __table = table;
+        @Override
+        public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int col) {
+            check.setSelected((Boolean) value);
+            
+            int modelRow = table.convertRowIndexToModel(row);
+            if (table == axisTable && modelRow >= 0 && modelRow < ((AxisTableModel)axisModel).getList().size()) {
+                MapperComponent comp = ((AxisTableModel) axisModel).getList().get(modelRow);
+                if (comp.action.toLowerCase().contains("reversed")) {
+                    check.setEnabled(false);
+                } else {
+                    check.setEnabled(true);
+                }
+            } else {
+                check.setEnabled(true);
+            }
+            
+            return check;
         }
 
-        public void mouseClicked(MouseEvent e) {
-          __forwardEventToButton(e);
+        @Override
+        public Object getCellEditorValue() {
+            return check.isSelected();
+        }
+    }
+
+    class ActionButtonEditor extends AbstractCellEditor implements TableCellEditor {
+
+        private JButton button = new JButton();
+        private MapperComponent current;
+        private int column;
+        private JTable editingTable;
+
+        public ActionButtonEditor() {
+            button.addActionListener(e -> {
+
+                if (editingTable == axisTable) {
+
+                    if (column == 4) {
+                        current.toggleEdit();
+                        if (current.editFlag) {
+                            ControllerPanel.this.prepareForEdit();
+                        }
+                    }
+                    else if (column == 5) {
+                        current.doClear();
+                    }
+
+                } else if (editingTable == buttonsTable) {
+
+                    if (column == 3) {
+                        current.toggleEdit();
+                        if (current.editFlag) {
+                            ControllerPanel.this.prepareForEdit();
+                        }
+                    }
+                    else if (column == 4) {
+                        current.doClear();
+                    }
+                }
+
+                fireEditingStopped();
+                if (axisTable != null) {
+                    axisTable.revalidate();
+                    axisTable.repaint();
+                }
+                if (buttonsTable != null) buttonsTable.repaint();
+            });
         }
 
-        public void mouseEntered(MouseEvent e) {
-          __forwardEventToButton(e);
+        @Override
+        public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int col) {
+
+            editingTable = table;
+            column = col;
+            int modelRow = table.convertRowIndexToModel(row);
+
+            if (table == axisTable) {
+                current = ((AxisTableModel) axisModel).getList().get(modelRow);
+            } else {
+                current = ((ButtonTableModel) buttonsModel).getList().get(modelRow);
+            }
+
+            button.setText(value.toString());
+            return button;
         }
 
-        public void mouseExited(MouseEvent e) {
-          __forwardEventToButton(e);
+        @Override
+        public Object getCellEditorValue() {
+            return button.getText();
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public class ButtonTableRenderer extends DefaultTableCellRenderer {
+
+        public ButtonTableRenderer(ActionType type) {
+            super();
         }
 
-        public void mousePressed(MouseEvent e) {
-          __forwardEventToButton(e);
+        @Override
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                                                                boolean isSelected, boolean hasFocus, final int row, int column) {
+
+            JLabel label = (JLabel) super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            try {
+                int modelRow = table.convertRowIndexToModel(row);
+                if (modelRow >= 0 && modelRow < ((ButtonTableModel)buttonsModel).getList().size()) {
+                    MapperComponent comp = ((ButtonTableModel) buttonsModel).getList().get(modelRow);
+
+                    label.setOpaque(true);
+                    if (comp.editFlag && column != 3) {
+                        label.setBackground(Color.green);
+                    } else if (column == 3 || column == 4) {
+                        label.setBackground(UIManager.getColor("Button.background"));
+                        label.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        label.setBackground(Color.white);
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    }
+                }
+            } catch (Exception e) {
+                label.setBackground(Color.WHITE);
+                label.setText("");
+            }
+
+            return label;
+        }
+    }
+    @SuppressWarnings("serial")
+    public class AxisTableRenderer extends DefaultTableCellRenderer {
+
+        public AxisTableRenderer(ActionType type) {
+            super();
         }
 
-        public void mouseReleased(MouseEvent e) {
-          __forwardEventToButton(e);
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                                                                boolean isSelected, boolean hasFocus, final int row, int column) {
+
+            JLabel label = (JLabel) super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            try {
+                int modelRow = table.convertRowIndexToModel(row);
+                if (modelRow >= 0 && modelRow < ((AxisTableModel)axisModel).getList().size()) {
+                    MapperComponent comp = ((AxisTableModel) axisModel).getList().get(modelRow);
+
+                    label.setOpaque(true);
+                    if (comp.editFlag && column != 4) {
+                        label.setBackground(Color.green);
+                    } else if (column == 4 || column == 5) {
+                        label.setBackground(UIManager.getColor("Button.background"));
+                        label.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        label.setBackground(Color.white);
+                    }
+                }
+            } catch (Exception e) {
+                label.setBackground(Color.WHITE);
+                label.setText("");
+            }
+
+            return label;
         }
-      }
+    }
 }

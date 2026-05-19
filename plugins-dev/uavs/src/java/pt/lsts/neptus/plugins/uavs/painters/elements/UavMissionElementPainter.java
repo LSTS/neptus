@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.plugins.uavs.UavVehicleIcon;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * Vehicle painter designed for use in conjunctions with Neptus' UavAltitudePanel. Its primary function is the side-ways representation of
@@ -51,7 +52,8 @@ import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
  * </ul>
  * 
  * @author canastaman
- * @version 3.0
+ * @author keila (Changes in March 2021 @home)
+ * @version 4.0
  * @category UavPainter  
  * 
  */
@@ -64,12 +66,12 @@ public class UavMissionElementPainter implements IUavPainter{
     
     //predetermined spacing between each ruler marks
     public static final int MARK_MIN_SPACING = 6;
-    
+
     //predetermined number of marks per ruler section
     public static final int MARKS_PER_SECTION = 10;
-    
+
     //predetermined value to be added to the maximum altitude calculated for drawing purposes
-    public static final int MAX_ALTITUDE_BUFFER = 100;
+    public static int MAX_ALTITUDE_BUFFER = 100;
     
     //altitude corresponding to the highest UAV
     private int vehicleMaxAtl;
@@ -108,25 +110,33 @@ public class UavMissionElementPainter implements IUavPainter{
     public void paint(Graphics2D g, int width, int height, Object args) {
         
         receivedArgs = (LinkedHashMap<String, Object>) args;
-        
+        int vehiclesMaxAtl = 0;
+
+        //Max z value for selected vehicle - in TACO Profile it will use the max alt from all vehicles
         if(receivedArgs.get(name+".MaxAlt") != null){
-            vehicleMaxAtl = (int) receivedArgs.get(name+".MaxAlt");
-            vehicleMaxAtl = (int) Math.floor(vehicleMaxAtl / 100) * 100 + MAX_ALTITUDE_BUFFER;
+            vehiclesMaxAtl = (int) receivedArgs.get(name+".MaxAlt");
         }
-        
+
+        if(receivedArgs.get(name+ ".AltBuff") != null){
+            MAX_ALTITUDE_BUFFER = (int) receivedArgs.get(name+ ".AltBuff") < 1 ? UUV_ALT_BUFFER : UAV_ALT_BUFFER;
+        }
+
+        vehicleMaxAtl = (int) Math.floor(vehiclesMaxAtl / 100) * 100 + MAX_ALTITUDE_BUFFER;
+
         //standard initiation based on the premised that every draw cycle we check if the ruler scale is accurate, from scratch
-        scale = 100;
+        scale = MAX_ALTITUDE_BUFFER <= UUV_ALT_BUFFER ? UUV_SCALE : UAV_SCALE;
         rulerSections = height / ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION);
         maxDrawAlt = scale * rulerSections;
-                
+
         while(maxDrawAlt < vehicleMaxAtl){
             scale = scale << 1;
             maxDrawAlt = scale * rulerSections;
         }
-        
+
         if(receivedArgs.get(name+".VehicleList") != null){
             vehicleAltitudes = (LinkedHashMap<String, Integer>) receivedArgs.get(name+".VehicleList");
         }
+
         
         // Normalizes the graphics transformation and sets the origin at the center of the panel
         determineDrawingOriginPoint(g, height,width);  
@@ -143,8 +153,7 @@ public class UavMissionElementPainter implements IUavPainter{
             // setting up text font size
             g.setFont(g.getFont().deriveFont((float) 10));
 
-            int altitude = vehicleAltitudes.get(vehicle) * ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION) / scale;
-
+            int altitude = (vehicleAltitudes.get(vehicle) <= 0 ? -1*vehicleAltitudes.get(vehicle) : vehicleAltitudes.get(vehicle)) * ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION) / scale;
             // translate the drawing position to the correct altitude value
             g.translate(0, altitude - (height / 2));
 
@@ -171,7 +180,7 @@ public class UavMissionElementPainter implements IUavPainter{
     
     private void drawVehicleLabel(Graphics2D g, String vehicle) {
         g.drawString(vehicle, vehicleIconTable.get(vehicle).getWidth()/2, -2);
-        g.drawString(vehicleAltitudes.get(vehicle) + " m", vehicleIconTable.get(vehicle).getWidth()/2, 12);
+        g.drawString(Math.abs(vehicleAltitudes.get(vehicle)) + " m", vehicleIconTable.get(vehicle).getWidth()/2, 12);
     }
     
     private void drawVehicleIcon(Graphics2D g, String vehicle) {
