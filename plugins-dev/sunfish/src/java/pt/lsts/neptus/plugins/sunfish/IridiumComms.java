@@ -483,7 +483,7 @@ public class IridiumComms extends SimpleRendererInteraction {
         JPopupMenu popup = new JPopupMenu();
 
         if (IridiumManager.getManager().isActive()) {
-            popup.add(I18n.text("Deactivate Polling")).addActionListener(new ActionListener() {
+            popup.add(I18n.text("Deactivate Iridium")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     IridiumManager.getManager().stop();
@@ -491,7 +491,7 @@ public class IridiumComms extends SimpleRendererInteraction {
             });
         }
         else {
-            popup.add(I18n.text("Activate Polling")).addActionListener(new ActionListener() {
+            popup.add(I18n.text("Activate Iridium")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     IridiumManager.getManager().start();
