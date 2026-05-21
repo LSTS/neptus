@@ -146,9 +146,9 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "Comma separated transports list. Valid values are (WiFi, Acoustic, GSM, Satellite). (The order implies preference of use.)")
     public static String imcChannelsToUse = "WiFi, Acoustic, Satellite";
 
-    @NeptusProperty(name = "IMC Channel - Max Acoustic Distance (m)", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
-            description = "The maximum distance in meters to use the acoustic channel.")
-    public static int imcChannelMaxAcousticDistanceMeters = 2_000;
+    // @NeptusProperty(name = "IMC Channel - Max Acoustic Distance (m)", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+    //         description = "The maximum distance in meters to use the acoustic channel.")
+    // public static int imcChannelMaxAcousticDistanceMeters = 2_000;
 
     // -------------------------------------------------------------------------
 
@@ -173,8 +173,8 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Heartbeat Time Period (ms)", category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static int heartbeatTimePeriodMillis = 1000;
 
-    @NeptusProperty(name = "Heartbeat Timeout (ms)", category = "IMC Communications", userLevel = LEVEL.ADVANCED)
-    public static int heartbeatTimeoutMillis = 2000;
+    // @NeptusProperty(name = "Heartbeat Timeout (ms)", category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    // public static int heartbeatTimeoutMillis = 2000;
 
 
     @NeptusProperty(name = "Number Of Shown Trails Points", category = "Map", userLevel = LEVEL.REGULAR)
@@ -201,13 +201,13 @@ public class GeneralPreferences implements PropertiesProvider {
                     + "good value is 100ms (10Hz) or 50ms (20hz).")
     public static int rendererUpdatePeriodeForVehicleStateMillis = 50;
 
-    @NeptusProperty(name = "Console Edit Border Color", category = "Console", userLevel = LEVEL.ADVANCED)
-    public static Color consoleEditBorderColor = new Color(150, 0, 0);
+    // @NeptusProperty(name = "Console Edit Border Color", category = "Console", userLevel = LEVEL.ADVANCED)
+    // public static Color consoleEditBorderColor = new Color(150, 0, 0);
 
     // -------------------------------------------------------------------------
 
-    @NeptusProperty(name = "SSH Connection Timeout (ms)", category = "SSH", userLevel = LEVEL.ADVANCED)
-    public static int sshConnectionTimeoutMillis = 3000;
+    // @NeptusProperty(name = "SSH Connection Timeout (ms)", category = "SSH", userLevel = LEVEL.ADVANCED)
+    // public static int sshConnectionTimeoutMillis = 3000;
 
     // -------------------------------------------------------------------------
 
