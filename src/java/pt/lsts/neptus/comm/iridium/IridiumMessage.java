@@ -102,7 +102,34 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         } else {
             mgid = -1;
             iis.reset();
-            m = PlainTextMessage.createTextMessageFrom(iis);
+            avlBytes = iis.available();
+            // look for RB+3-bytes send type
+            if (avlBytes >= 5) {
+                byte[] ba = new byte[5];
+                int read = iis.read(ba);
+                if (read == 5) {
+                    String rbString = new String(ba);
+                    if (rbString.startsWith("RB")) {
+                        source = avlBytes >= 5+2 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
+                        dest = avlBytes >= 5+4 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
+                        mgid = avlBytes >= 5+6 ? iis.readUnsignedShort() : -1;
+                    }
+                    if (iridiumTypes.containsKey(mgid)) {
+                        m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
+                    }
+                    else {
+                        mgid = -1;
+                        iis.reset();
+                        read = iis.read(ba);
+                        iis.mark(10);
+                    }
+                }
+            }
+
+            if (mgid == -1 || m == null) {
+                iis.reset();
+                m = PlainTextMessage.createTextMessageFrom(iis);
+            }
         }
         
         if (m != null) {
