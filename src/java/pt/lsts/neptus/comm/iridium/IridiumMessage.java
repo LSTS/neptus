@@ -115,8 +115,9 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
             try {
                 // Something to accept a byte[] and then returning a message of type ImcMessage
                 IMCMessage imcMessage = DcclTranslator.byteToImc(data);
-                // Check if IMCSystem is already a DCCL Speaker
+                NeptusLog.pub().info("Decoded using DCCL: " + imcMessage.asJSON());
 
+                // Check if IMCSystem is already a DCCL Speaker
                 ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
 
                 // TODO: imcSystem may not exist yet if 1st message

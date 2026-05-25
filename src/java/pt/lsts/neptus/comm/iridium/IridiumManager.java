@@ -53,13 +53,18 @@ import org.apache.commons.codec.binary.Hex;
 import pt.lsts.dccl.DcclTranslator;
 import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.Goto;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.Maneuver;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
@@ -76,6 +81,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.speech.SpeechUtil;
+import pt.lsts.dccl.util.DCCLFragmentHandler;
 
 /**
  * This class will handle Iridium communications
@@ -453,10 +459,24 @@ public class IridiumManager {
             m.timestampMillis = msg.getTimestampMillis();
             m.msg = msg;
             return Arrays.asList(m);
-        }
-        else {
-            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
-                    ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
+        } else {
+            MessagePart[] parts = null;
+
+            // Check if it can be sent as dccl message
+            if (GeneralPreferences.useDcclEncoding) {
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcSystemId);
+                // Only send if system speaks dccl
+                if (imcSystem != null) {
+                    if (imcSystem.getDcclSpeaker()) {
+                        parts = DCCLFragmentHandler.getInstance().fragment(msg, ImcIridiumMessage.MaxPayloadSize);
+                    }
+                }
+            }
+
+            if (parts == null) {
+                parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
+                        ImcIridiumMessage.MaxPayloadSize + IMCDefinition.getInstance().headerLength());
+            }
 
             if (parts.length > 0) {
                 ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), imcSystemId, Arrays.asList(parts));
@@ -517,12 +537,31 @@ public class IridiumManager {
         if (GeneralPreferences.useDcclEncoding) {
             for (IMCMessage imcMsg : msg.asImc()) {
                 ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMsg.getDst());
+
+                if (imcMsg instanceof PlanControl) {
+                    PlanControl planControl = (PlanControl) imcMsg;
+
+                    if (planControl.getArg() instanceof PlanSpecification) {
+
+                        PlanSpecification planSpec = (PlanSpecification) planControl.getArg();
+
+                        for (PlanManeuver planManeuver : planSpec.getManeuvers()) {
+                            Maneuver maneuver = planManeuver.getData();
+
+                            if (maneuver instanceof Goto) {
+                                NeptusLog.pub().info("Lat: " + ((Goto) maneuver).getLat());
+                            }
+                        }
+                    }
+                }
+
                 // Only send if system speaks dccl
                 if (imcSystem != null) {
                     if (imcSystem.getDcclSpeaker()) {
                         byte[] rawDcclBytes = DcclTranslator.imcToByte(imcMsg);
                         if (rawDcclBytes != null) {
                             sendRaw(imcSystem.getName(), "", rawDcclBytes);
+                            NeptusLog.pub().info("Sending DCCL message " + imcMsg.asJSON());
                             return;
                         }
                     }
