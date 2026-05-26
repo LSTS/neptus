@@ -315,7 +315,9 @@ public class CommsAdmin {
                     }
                     break;
                 case IRIDIUM:
-                    //sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    if (GeneralPreferences.useDcclEncoding) {
+                        sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    }
                     sendViaIridium(destinationName, message, waiter);
                     NeptusLog.pub().debug("=====>>>>>>>>>>> Sent via Iridium: " + message.getAbbrev() + " to " + destinationName + " | WiFi active? " + system.isActiveWifi());
                     return result;
