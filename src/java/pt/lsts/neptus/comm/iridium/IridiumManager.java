@@ -68,6 +68,7 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -469,6 +470,12 @@ public class IridiumManager {
                 if (imcSystem != null) {
                     if (imcSystem.getDcclSpeaker()) {
                         parts = DCCLFragmentHandler.getInstance().fragment(msg, ImcIridiumMessage.MaxPayloadSize);
+                        {
+                            // Added some debug info about the fragmentation in DCCL
+                            byte[] rawDcclBytes = DcclTranslator.imcToByte(msg);
+                            int imcSerSize = 12 + IMCUtils.computePayloadSerializeSize(msg); // plus 12 bytes IridiumMessage header
+                            NeptusLog.pub().info("Fragmenting DCCL message (size {} from {} in IMC) :: {}", rawDcclBytes.length, imcSerSize, msg.asJSON());
+                        }
                     }
                 }
             }
@@ -559,9 +566,10 @@ public class IridiumManager {
                 if (imcSystem != null) {
                     if (imcSystem.getDcclSpeaker()) {
                         byte[] rawDcclBytes = DcclTranslator.imcToByte(imcMsg);
+                        int imcSerSize = 12 + IMCUtils.computePayloadSerializeSize(imcMsg); // plus 12 bytes IridiumMessage header
                         if (rawDcclBytes != null) {
                             sendRaw(imcSystem.getName(), "", rawDcclBytes);
-                            NeptusLog.pub().info("Sending DCCL message " + imcMsg.asJSON());
+                            NeptusLog.pub().info("Sending DCCL message (size {} from {} in IMC) :: {}", rawDcclBytes.length, imcSerSize, imcMsg.asJSON());
                             return;
                         }
                     }
