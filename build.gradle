@@ -19,7 +19,7 @@ description = """
 This is the Neptus C2 Framework for controlling autonomous vehicles.
 https://www.lsts.pt/toolchain/neptus/
 """
-version = '2024.01.0-SNAPSHOT'
+version = '2024.01.0-WAVERIDER'
 
 ext {
     copyYears = "2004-${new Date().format('yyyy')}"
@@ -382,8 +382,8 @@ project(':core') {
     }
 
     dependencies {
-        implementation name: 'libimc-5.90.8'
-        implementation name: 'libimcsender-5.90.8'
+        implementation name: 'libimc-5.91.0-UNIFY'
+        implementation name: 'libimcsender-5.91.0-UNIFY'
 
         implementation name: 'aisparser-2.0.0'
         implementation name: 'jssc' //dependency of aisparser, and serial port reader
