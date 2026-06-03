@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2026.01.0 (system/caravel,e5ad351d0)" modules="system/caravel,b47fd57" system="caravel" i18n="en_US">
+<config format="1" version="2026.01.0 (system/caravel,6b1674dcb)" modules="system/caravel,ed935fb" system="caravel" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -475,7 +475,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0</default>
+      <default>1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0</default>
       <units/>
       <desc>Rotation matrix which is dependent of the mounting position</desc>
       <size>9</size>
@@ -1257,6 +1257,15 @@
       <default>2</default>
       <units/>
       <desc>-1 turn off the led, 0 turn on the led, &gt; 0 blink the led at the period defined</desc>
+    </param>
+    <param name="Log Thruster Current Controller">
+      <name-i18n>Log Thruster Current Controller</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Log the thurster current controller.</desc>
     </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
@@ -2330,7 +2339,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1820</default>
+      <default>1788</default>
       <units/>
       <desc>Set Maximum value of pwm.</desc>
       <max>2000</max>
@@ -2340,7 +2349,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1205</default>
+      <default>1200</default>
       <units/>
       <desc>Set Minimum value of pwm.</desc>
       <min>1</min>
@@ -2449,6 +2458,36 @@
       <default>Iridium Modem</default>
       <units/>
       <desc>Task Entity Label for Iridium Driver</desc>
+    </param>
+    <param name="Thruster Current Limit">
+      <name-i18n>Thruster Current Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>A</units>
+      <desc>Thruster Current Limit in Amperes. Set to 0 to disable.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Thruster Current Limit Tolerance">
+      <name-i18n>Thruster Current Limit Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>%</units>
+      <desc>Thruster Current Limit Tolerance.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Thruster Current PID Gains">
+      <name-i18n>Thruster Current PID Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0, 0.0, 0.0</default>
+      <units/>
+      <desc>Thruster Current PID controller gains.</desc>
+      <size>3</size>
     </param>
     <param name="Thruster Power Data - Entity Label">
       <name-i18n>Thruster Power Data - Entity Label</name-i18n>
@@ -6822,6 +6861,16 @@
       <units/>
       <desc>Execution priority</desc>
     </param>
+    <param name="Force Speed Reference">
+      <name-i18n>Force Speed Reference</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>m/s</units>
+      <desc>Reference speed to be used when overriding the speed reference. If set to 0, the speed reference will not be overridden by this value. Takes precedence over Thrust Assistance During Turns.</desc>
+      <min>0.0</min>
+    </param>
     <param name="Guidance Strategy">
       <name-i18n>Guidance Strategy</name-i18n>
       <type>integer</type>
@@ -7116,7 +7165,7 @@
     <param name="Thrust Assistance During Turns">
       <name-i18n>Thrust Assistance During Turns</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>0.0</default>
       <units>%</units>
@@ -8459,36 +8508,40 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1700</default>
+      <default>1672</default>
       <units>r/min</units>
       <desc>Maximum value admissible for desired RPMs</desc>
+    </param>
+    <param name="Maximum Thrust Limit" editable="false">
+      <name-i18n>Maximum Thrust Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.72</default>
+      <units/>
+      <desc>Maximum thrust limit</desc>
+      <min>-1.0</min>
+      <max>1.0</max>
     </param>
     <param name="Minimum RPM Limit">
       <name-i18n>Minimum RPM Limit</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>200</default>
+      <default>362</default>
       <units>r/min</units>
       <desc>Minimum value admissible for desired RPMs</desc>
     </param>
-    <param name="Negative Thrust Limit">
-      <name-i18n>Negative Thrust Limit</name-i18n>
+    <param name="Minimum Thrust Limit">
+      <name-i18n>Minimum Thrust Limit</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>0.0</default>
       <units/>
       <desc>Minimum thrust limit</desc>
-    </param>
-    <param name="Positive Thrust Limit">
-      <name-i18n>Positive Thrust Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units/>
-      <desc>Maximum thrust limit</desc>
+      <min>-1.0</min>
+      <max>1.0</max>
     </param>
     <param name="RPMs Feedforward Gain">
       <name-i18n>RPMs Feedforward Gain</name-i18n>
@@ -8514,7 +8567,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3600</default>
+      <default>2050</default>
       <units>r/min</units>
       <desc>End of scale value for RPM's at 100% of thurst</desc>
       <min>0</min>
