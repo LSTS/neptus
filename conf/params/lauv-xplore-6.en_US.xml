@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2026.01.0 (system/lauv300,1b5060881)" modules="system/lauv300,81f159c" system="lauv-xplore-6" i18n="en_US">
+<config format="1" version="2026.01.0 (system/lauv300,6ce055fd7)" modules="system/lauv300,3fe708a" system="lauv-xplore-6" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -2637,7 +2637,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0</default>
+      <default>5.0</default>
       <units>s</units>
       <desc>Time after which diving controller kicks in to help submerge</desc>
     </param>
@@ -2656,8 +2656,67 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>100</default>
-      <units/>
+      <units>%</units>
       <desc>Maximum speed increase in percentage</desc>
+    </param>
+    <param name="Pitch Supervisor - Depth Rate">
+      <name-i18n>Pitch Supervisor - Depth Rate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>m/s</units>
+      <desc>Depth rate threshold for depth tracking in pitch supervision, in m/s. This value is ignored if pitch supervision is not enabled. Changes to this parameter will only be applied on the next attempt to submerge.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Pitch Supervisor - Depth Tracking">
+      <name-i18n>Pitch Supervisor - Depth Tracking</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use depth tracking for pitch supervision. If enabled, the supervisor will adjust the forced pitch based on the current depth, aiming to reach the depth threshold. This value is ignored if pitch supervision is not enabled. Changes to this parameter will only be applied on the next attempt to submerge.</desc>
+    </param>
+    <param name="Pitch Supervisor - Entity Label" editable="false">
+      <name-i18n>Pitch Supervisor - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Diving Pitch Supervisor</default>
+      <units/>
+      <desc>Entity label for the pitch supervisor. This supervisor is responsible for forcing the vehicle's pitch to help submerge. If not set, no pitch supervision will be done, during submergence aid.</desc>
+    </param>
+    <param name="Pitch Supervisor - Maximum Pitch">
+      <name-i18n>Pitch Supervisor - Maximum Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-15.0</default>
+      <units>°</units>
+      <desc>Maximum forced pitch when trying to submerge, in degrees. If Maximum Forced Pitch is greater or equal to Starting Forced Pitch,this value is not considered. This value is ignored if pitch supervision is not enabled. Changes to this parameter will only be applied on the next attempt to submerge.</desc>
+      <max>0.0</max>
+    </param>
+    <param name="Pitch Supervisor - Ramp Step">
+      <name-i18n>Pitch Supervisor - Ramp Step</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.8</default>
+      <units/>
+      <desc>Ramp step for forced pitch when trying to submerge, in degrees. this value is not considered. A value of 0.0 means a progressive ramp, while a value of 1.0 means an immediate application of the maximum forced pitch. Depth tracking takes precedence over ramping. This value is ignored if pitch supervision is not enabled. Changes to this parameter will only be applied on the next attempt to submerge.</desc>
+      <min>0.0</min>
+      <max>1.0</max>
+    </param>
+    <param name="Pitch Supervisor - Starting Pitch">
+      <name-i18n>Pitch Supervisor - Starting Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-5.0</default>
+      <units>°</units>
+      <desc>Starting forced pitch when trying to submerge, in degrees. If Maximum Forced Pitch is greater or equal to Starting Forced Pitch,this value is not considered. This value is ignored if pitch supervision is not enabled. Changes to this parameter will only be applied on the next attempt to submerge.</desc>
+      <max>0.0</max>
     </param>
     <param name="Speed Step">
       <name-i18n>Speed Step</name-i18n>
@@ -2665,8 +2724,10 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0.1</default>
-      <units>%</units>
+      <units/>
       <desc>Speed step when helping to submerge</desc>
+      <min>0.0</min>
+      <max>1.0</max>
     </param>
     <param name="Speed Tolerance">
       <name-i18n>Speed Tolerance</name-i18n>
@@ -2682,7 +2743,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>10.0</default>
       <units>s</units>
       <desc>Time step between each increase in speed by diving controller</desc>
     </param>
@@ -6789,7 +6850,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Operator is able to control device</desc>
     </param>
@@ -9302,7 +9363,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ftp://10.188.10.210:30021/</default>
+      <default>ftp://10.0.10.210:30021/, ftp://10.188.10.210:30021/</default>
       <units/>
       <desc>Additional external services</desc>
     </param>
