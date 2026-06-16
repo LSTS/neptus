@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.codec.binary.Hex;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
@@ -121,7 +122,7 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
                         mgid = -1;
                         iis.reset();
                         read = iis.read(ba);
-                        iis.mark(10);
+                        // iis.mark(10);
                     }
                 }
             }
@@ -129,6 +130,8 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
             if (mgid == -1 || m == null) {
                 iis.reset();
                 m = PlainTextMessage.createTextMessageFrom(iis);
+            } else {
+                iis.mark(10);
             }
         }
         
@@ -197,5 +200,28 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     @Override
     public int compareTo(IridiumMessage o) {
         return (int)(timestampMillis - o.timestampMillis);
+    }
+
+    public static void main(String[] args) throws Exception {
+        String msgTxt = "(T) (lauv-xplore-5) 15:47:41 / 38 31.661100, -28 37.417050 / f:56 v:258 c:100 / s: S";
+        IridiumMessage msg = IridiumMessage.deserialize(msgTxt.getBytes());
+        System.out.println(msg);
+
+        //"524200202704080408da070202f86b106af86b106a03bd244203520bc1ffff000000000d0053fe0000"
+        byte[] bytes = Hex.decodeHex("524200202704080408da070202f86b106af86b106a03bd244203520bc1ffff000000000d0053fe0000");
+        IridiumMessage msg2 = IridiumMessage.deserialize(bytes);
+        System.out.println(msg2);
+
+        byte[] bytes3 = Hex.decodeHex("04080408da0707015d62106a00003842");
+        IridiumMessage msg3 = IridiumMessage.deserialize(bytes3);
+        System.out.println(msg3);
+
+        String msgTxt4 = "(caravel) Boot: 2026-05-22 14:02:24 - caravel-aux";
+        IridiumMessage msg4 = IridiumMessage.deserialize(msgTxt4.getBytes());
+        System.out.println(msg4);
+
+        String msgTxt5 = "Secondary Euler Angles provider not working!";
+        IridiumMessage msg5 = IridiumMessage.deserialize(msgTxt5.getBytes());
+        System.out.println(msg5);
     }
 }
