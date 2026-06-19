@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2026.01.0 (system/caravel,6b1674dcb)" modules="system/caravel,ed935fb" system="caravel" i18n="en_US">
+<config format="1" version="2026.01.0 (system/caravel,e17ed7f4e)" modules="system/caravel,2254866" system="caravel" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -249,7 +249,7 @@
       <name-i18n>Periodicity of Data Sampling</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>global</scope>
       <default>1800</default>
       <units>s</units>
       <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
@@ -298,7 +298,7 @@
       <name-i18n>Sample Time Duration</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>global</scope>
       <default>60</default>
       <units>s</units>
       <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
@@ -1204,15 +1204,6 @@
       <units/>
       <desc>Execution priority</desc>
     </param>
-    <param name="Force Water Mode at Boot">
-      <name-i18n>Force Water Mode at Boot</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Force Water Mode at Boot.</desc>
-    </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
       <type>string</type>
@@ -1257,15 +1248,6 @@
       <default>2</default>
       <units/>
       <desc>-1 turn off the led, 0 turn on the led, &gt; 0 blink the led at the period defined</desc>
-    </param>
-    <param name="Log Thruster Current Controller">
-      <name-i18n>Log Thruster Current Controller</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Log the thurster current controller.</desc>
     </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
@@ -2325,7 +2307,7 @@
       <units/>
       <desc>Set CPC to use NAV and Iridium at Boot.</desc>
     </param>
-    <param name="Set PWM1 Center">
+    <param name="Set PWM1 Center" editable="false">
       <name-i18n>Set PWM1 Center</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2334,7 +2316,7 @@
       <units/>
       <desc>Set Center value of pwm.</desc>
     </param>
-    <param name="Set PWM1 Maximum">
+    <param name="Set PWM1 Maximum" editable="false">
       <name-i18n>Set PWM1 Maximum</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2344,7 +2326,7 @@
       <desc>Set Maximum value of pwm.</desc>
       <max>2000</max>
     </param>
-    <param name="Set PWM1 Minimum">
+    <param name="Set PWM1 Minimum" editable="false">
       <name-i18n>Set PWM1 Minimum</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2354,7 +2336,7 @@
       <desc>Set Minimum value of pwm.</desc>
       <min>1</min>
     </param>
-    <param name="Set PWM1 Mode">
+    <param name="Set PWM1 Mode" editable="false">
       <name-i18n>Set PWM1 Mode</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -2363,7 +2345,7 @@
       <units/>
       <desc>PWM Modes: Servo, Motor, Off.</desc>
     </param>
-    <param name="Set PWM2 Center">
+    <param name="Set PWM2 Center" editable="false">
       <name-i18n>Set PWM2 Center</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2372,7 +2354,7 @@
       <units/>
       <desc>Set Center value of pwm.</desc>
     </param>
-    <param name="Set PWM2 Maximum">
+    <param name="Set PWM2 Maximum" editable="false">
       <name-i18n>Set PWM2 Maximum</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2382,7 +2364,7 @@
       <desc>Set Maximum value of pwm.</desc>
       <max>2000</max>
     </param>
-    <param name="Set PWM2 Minimum">
+    <param name="Set PWM2 Minimum" editable="false">
       <name-i18n>Set PWM2 Minimum</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2392,7 +2374,7 @@
       <desc>Set Minimum value of pwm.</desc>
       <min>1</min>
     </param>
-    <param name="Set PWM2 Mode">
+    <param name="Set PWM2 Mode" editable="false">
       <name-i18n>Set PWM2 Mode</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -2401,7 +2383,7 @@
       <units/>
       <desc>PWM Modes: Servo, Motor, Off.</desc>
     </param>
-    <param name="Set PWM3 Center">
+    <param name="Set PWM3 Center" editable="false">
       <name-i18n>Set PWM3 Center</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2410,7 +2392,7 @@
       <units/>
       <desc>Set Center value of pwm.</desc>
     </param>
-    <param name="Set PWM3 Maximum">
+    <param name="Set PWM3 Maximum" editable="false">
       <name-i18n>Set PWM3 Maximum</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2420,7 +2402,7 @@
       <desc>Set Maximum value of pwm.</desc>
       <max>2000</max>
     </param>
-    <param name="Set PWM3 Minimum">
+    <param name="Set PWM3 Minimum" editable="false">
       <name-i18n>Set PWM3 Minimum</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -2430,7 +2412,7 @@
       <desc>Set Minimum value of pwm.</desc>
       <min>1</min>
     </param>
-    <param name="Set PWM3 Mode">
+    <param name="Set PWM3 Mode" editable="false">
       <name-i18n>Set PWM3 Mode</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -2458,36 +2440,6 @@
       <default>Iridium Modem</default>
       <units/>
       <desc>Task Entity Label for Iridium Driver</desc>
-    </param>
-    <param name="Thruster Current Limit">
-      <name-i18n>Thruster Current Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>A</units>
-      <desc>Thruster Current Limit in Amperes. Set to 0 to disable.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Thruster Current Limit Tolerance">
-      <name-i18n>Thruster Current Limit Tolerance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>%</units>
-      <desc>Thruster Current Limit Tolerance.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Thruster Current PID Gains">
-      <name-i18n>Thruster Current PID Gains</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0, 0.0, 0.0</default>
-      <units/>
-      <desc>Thruster Current PID controller gains.</desc>
-      <size>3</size>
     </param>
     <param name="Thruster Power Data - Entity Label">
       <name-i18n>Thruster Power Data - Entity Label</name-i18n>
@@ -2682,15 +2634,6 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Dispatch Medium">
-      <name-i18n>Dispatch Medium</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Dispatch VehicleMedium message.</desc>
-    </param>
     <param name="Entity Label" editable="false">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
@@ -2735,24 +2678,6 @@
       <default>false</default>
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Medium Periodicity">
-      <name-i18n>Medium Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units/>
-      <desc>Medium dispatch periodicity.</desc>
-    </param>
-    <param name="Medium Threshold">
-      <name-i18n>Medium Threshold</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.2</default>
-      <units/>
-      <desc>Medium conductivity threshold.</desc>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -5315,6 +5240,219 @@
       <desc>List of messages to log. If empty, all messages will be logged.</desc>
     </param>
   </section>
+  <section name="Medium" name-i18n="Medium">
+    <param name="Activation Time" editable="false">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected activation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>idle</scope>
+      <default>true</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Air Speed Threshold">
+      <name-i18n>Air Speed Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>12.0</default>
+      <units>m/s</units>
+      <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Altitude Threshold">
+      <name-i18n>Altitude Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>m</units>
+      <desc>Minimum altitude necessary to consider a vehicle (Copter) in air</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Conductivity Threshold">
+      <name-i18n>Conductivity Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units/>
+      <desc>Conductivity threshold value</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Deactivation Time" editable="false">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected deactivation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Debug level for human-readable messages</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Entity Label" editable="false">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Medium</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Entity Label - Medium Sensor">
+      <name-i18n>Entity Label - Medium Sensor</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Entity label of 'EntityState' Medium Sensor messages</desc>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Execution Priority" editable="false">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="GPS Timeout">
+      <name-i18n>GPS Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>s</units>
+      <desc>No valid GPS fixes timeout</desc>
+      <min>2.0</min>
+    </param>
+    <param name="Ground Speed Threshold">
+      <name-i18n>Ground Speed Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m/s</units>
+      <desc>Minimum ground speed necessary to consider a vehicle has landed</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Initialization Time">
+      <name-i18n>Initialization Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20.0</default>
+      <units>s</units>
+      <desc>Time to wait at beginning before assessing vehicle medium</desc>
+      <min>5.0</min>
+      <max>60.0</max>
+    </param>
+    <param name="Loopback Internal Messages" editable="false">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Salinity Threshold">
+      <name-i18n>Salinity Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>No valid salinity threshold value</desc>
+      <min>0.0</min>
+      <max>5.0</max>
+    </param>
+    <param name="Sound Speed Threshold">
+      <name-i18n>Sound Speed Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000.0</default>
+      <units/>
+      <desc>No valid sound speed threshold value</desc>
+      <min>0.0</min>
+      <max>2000.0</max>
+    </param>
+    <param name="Vehicle Medium">
+      <name-i18n>Vehicle Medium</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Auto</default>
+      <units/>
+      <desc>Set vehicle medium.</desc>
+      <values>Auto, Air, Ground, Water, Underwater</values>
+      <values-i18n>Auto, Air, Ground, Water, Underwater</values-i18n>
+    </param>
+    <param name="Vehicle Sub-Type">
+      <name-i18n>Vehicle Sub-Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Sub-Type of vehicle, if applicable</desc>
+      <values>None, FixedWing, Copter</values>
+      <values-i18n>None, FixedWing, Copter</values-i18n>
+    </param>
+    <param name="Vehicle Type">
+      <name-i18n>Vehicle Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ASV</default>
+      <units/>
+      <desc>Type of vehicle</desc>
+      <values>UUV, ASV, UAV</values>
+      <values-i18n>UUV, ASV, UAV</values-i18n>
+    </param>
+    <param name="Wet Data Timeout">
+      <name-i18n>Wet Data Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>s</units>
+      <desc>No valid wet sensor data timeout</desc>
+      <min>1.5</min>
+    </param>
+  </section>
   <section name="Message Fragments" name-i18n="Message Fragments">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -6752,7 +6890,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Enable course control</desc>
     </param>
@@ -7847,14 +7985,49 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Thrust Scale">
-      <name-i18n>Thrust Scale</name-i18n>
+    <param name="Rudder Id">
+      <name-i18n>Rudder Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Identifier of the rudder to be controlled.</desc>
+      <min>0</min>
+      <max>255</max>
+    </param>
+    <param name="Rudder Scale">
+      <name-i18n>Rudder Scale</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-45.0</default>
+      <units>°</units>
+      <desc>Maximum rudder deflection angle.</desc>
+      <min>-180.0</min>
+      <max>180.0</max>
+    </param>
+    <param name="Thruster Id">
+      <name-i18n>Thruster Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Identifier of the thruster to be controlled.</desc>
+      <min>0</min>
+      <max>255</max>
+    </param>
+    <param name="Thruster Scale">
+      <name-i18n>Thruster Scale</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>1.0</default>
       <units/>
-      <desc/>
+      <desc>Scaling factor for the thruster actuation.</desc>
+      <min>-1.0</min>
+      <max>1.0</max>
     </param>
   </section>
   <section name="Report Supervisor" name-i18n="Report Supervisor">
@@ -8512,10 +8685,10 @@
       <units>r/min</units>
       <desc>Maximum value admissible for desired RPMs</desc>
     </param>
-    <param name="Maximum Thrust Limit" editable="false">
+    <param name="Maximum Thrust Limit">
       <name-i18n>Maximum Thrust Limit</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>0.72</default>
       <units/>
@@ -8808,236 +8981,6 @@
       <desc>Send updates over satellite.</desc>
     </param>
   </section>
-  <section name="Swarm Participant" name-i18n="Swarm Participant">
-    <param name="Acknowledgement Timeout">
-      <name-i18n>Acknowledgement Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc>Acknowledgement timeout</desc>
-    </param>
-    <param name="Acoustic Communications -- TDMA Time Per Slot">
-      <name-i18n>Acoustic Communications -- TDMA Time Per Slot</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>15.0</default>
-      <units>s</units>
-      <desc>Period while acoustic channel is reserved for each participant</desc>
-    </param>
-    <param name="Activation Time" editable="false">
-      <name-i18n>Activation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc>Expected activation time in seconds.</desc>
-      <min>0</min>
-    </param>
-    <param name="Address Section">
-      <name-i18n>Address Section</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Swarm Addresses</default>
-      <units/>
-      <desc>Name of the configuration section with participant addresses</desc>
-    </param>
-    <param name="Adjust Speed Based On Distance">
-      <name-i18n>Adjust Speed Based On Distance</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>If this flag is true leader will adjust plan speed based on the longest distance a participant transects.</desc>
-    </param>
-    <param name="Deactivation Time" editable="false">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc>Expected deactivation time in seconds.</desc>
-      <min>0</min>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc>Debug level for human-readable messages</desc>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Entity Label" editable="false">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Swarm Participant</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority" editable="false">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Fallback Maneuver Type">
-      <name-i18n>Fallback Maneuver Type</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Auto</default>
-      <units/>
-      <desc>Fallback maneuver type. If the leader is lost, the vehicle will execute this maneuver. In Auto mode, the vehicle will try to execute the original plan.</desc>
-      <values>Auto, Goto, Stationkeeping</values>
-      <values-i18n>Auto, Goto, Stationkeeping</values-i18n>
-    </param>
-    <param name="Fallback Position">
-      <name-i18n>Fallback Position</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>41.18547, -8.70556</default>
-      <units>°</units>
-      <desc>Position for fallback maneuver.</desc>
-      <size>2</size>
-    </param>
-    <param name="Ignore Acknowledgement">
-      <name-i18n>Ignore Acknowledgement</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Leader ignores acknowledgement in synchonization phase</desc>
-    </param>
-    <param name="Leader">
-      <name-i18n>Leader</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>True if this vehicle is the formation leader</desc>
-    </param>
-    <param name="Leader Reference Timeout">
-      <name-i18n>Leader Reference Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20.0</default>
-      <units>s</units>
-      <desc>Leader reference timeout</desc>
-      <min>5.0</min>
-    </param>
-    <param name="Loopback Internal Messages" editable="false">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Minimum Speed To Maintain Submerged">
-      <name-i18n>Minimum Speed To Maintain Submerged</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>m/s</units>
-      <desc>Minimum speed to maintain vehicle submerged</desc>
-      <max>1.0</max>
-    </param>
-    <param name="Position Dissemination Periodicity">
-      <name-i18n>Position Dissemination Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc>Periodicity of position dissemination.</desc>
-      <min>1.0</min>
-    </param>
-    <param name="Send Ready Interval">
-      <name-i18n>Send Ready Interval</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>s</units>
-      <desc>Send code READY interval</desc>
-    </param>
-    <param name="Speed Maximum Delta">
-      <name-i18n>Speed Maximum Delta</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.5</default>
-      <units>m/s</units>
-      <desc>Maximum delta for speed adjustment</desc>
-      <min>0.1</min>
-      <max>1.0</max>
-    </param>
-    <param name="Start Setup Timeout">
-      <name-i18n>Start Setup Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>40.0</default>
-      <units>s</units>
-      <desc>Start setup timeout</desc>
-    </param>
-    <param name="Sync Setup Timeout">
-      <name-i18n>Sync Setup Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>40.0</default>
-      <units>s</units>
-      <desc>Sync setup timeout</desc>
-    </param>
-    <param name="Use Wifi Only">
-      <name-i18n>Use Wifi Only</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Disable acoustic data exchange and use Wi-Fi for all swarm communications</desc>
-    </param>
-    <param name="Wifi Communications -- Multicast Address">
-      <name-i18n>Wifi Communications -- Multicast Address</name-i18n>
-      <type>ipv4-address</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>225.0.2.1</default>
-      <units/>
-      <desc>UDP multicast address for wifi communications</desc>
-    </param>
-    <param name="Wifi Communications -- Port">
-      <name-i18n>Wifi Communications -- Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>8022</default>
-      <units/>
-      <desc>UDP port for wifi communications</desc>
-    </param>
-  </section>
   <section name="Teleoperation Maneuver" name-i18n="Teleoperation Maneuver">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -9280,6 +9223,186 @@
       <default>/sys/class/thermal/thermal_zone0/temp</default>
       <units/>
       <desc>Path to the sysfs file</desc>
+    </param>
+  </section>
+  <section name="Thruster Controller" name-i18n="Thruster Controller">
+    <param name="Activation Time" editable="false">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected activation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Close Loop Control - Enable" editable="false">
+      <name-i18n>Close Loop Control - Enable</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Control the thruster with closed loop.</desc>
+    </param>
+    <param name="Close Loop Control - Log" editable="false">
+      <name-i18n>Close Loop Control - Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable logging for the closed loop controller.</desc>
+    </param>
+    <param name="Close Loop Control - Max Update Delta" editable="false">
+      <name-i18n>Close Loop Control - Max Update Delta</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>s</units>
+      <desc>Maximum allowed update delta for the closed loop controller. If 0, the controller will work on open loop.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Close Loop Control - PID Gains" editable="false">
+      <name-i18n>Close Loop Control - PID Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0, 0, 0</default>
+      <units/>
+      <desc>PID gains for the closed loop control.</desc>
+      <size>3</size>
+    </param>
+    <param name="Current - Source Entity Label" editable="false">
+      <name-i18n>Current - Source Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>THRUST_D</default>
+      <units/>
+      <desc>Entity label of the source of the current consumption of the thruster.</desc>
+    </param>
+    <param name="Current Control - Limit">
+      <name-i18n>Current Control - Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Thruster current limit for current control. If the value is set to zero, the current control will be disabled.</desc>
+      <min>0</min>
+    </param>
+    <param name="Current Control - Log">
+      <name-i18n>Current Control - Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable logging for the current controller.</desc>
+    </param>
+    <param name="Current Control - Max Update Delta">
+      <name-i18n>Current Control - Max Update Delta</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Maximum allowed update delta for the current controller. If 0, the controller will work on open loop.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Current Control - PID Gains">
+      <name-i18n>Current Control - PID Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0, 1.0, 0.0</default>
+      <units/>
+      <desc>PID gains for the current control loop.</desc>
+      <size>3</size>
+    </param>
+    <param name="Deactivation Time" editable="false">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected deactivation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Debug level for human-readable messages</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Entity Label" editable="false">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Thruster Controller</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority" editable="false">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Loopback Internal Messages" editable="false">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="PWM Channel" editable="false">
+      <name-i18n>PWM Channel</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>PWM channel for the thruster.</desc>
+      <min>0</min>
+      <max>255</max>
+      <size>1</size>
+    </param>
+    <param name="PWM Setting" editable="false">
+      <name-i18n>PWM Setting</name-i18n>
+      <type>list:integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20000, 1200, 1520, 1788</default>
+      <units>us</units>
+      <desc>PWM signal setting for the thruster. The PWM signal settings are defined as follows:  - 1. PWM singal period, in microseconds.  - 2. Minimum PWM signal duty cycle, in microseconds, at reverse direction.  - 3. PWM signal duty cycle, in microseconds, at neutral position.  - 4. Maximum PWM signal duty cycle, in microseconds, at forward direction.</desc>
+      <size>4</size>
+    </param>
+    <param name="Thruster Id" editable="false">
+      <name-i18n>Thruster Id</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Id of the thruster to control.</desc>
+      <min>0</min>
+      <max>255</max>
+      <size>1</size>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
