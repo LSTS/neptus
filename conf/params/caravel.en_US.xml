@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2026.01.0 (system/caravel,e17ed7f4e)" modules="system/caravel,2254866" system="caravel" i18n="en_US">
+<config format="1" version="2026.01.0 (system/caravel,1dbc370bf)" modules="system/caravel,7c159c4" system="caravel" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -2960,7 +2960,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Enable encoding of IMC messages with DCCL protocol</desc>
     </param>
@@ -5235,7 +5235,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, RelativeHumidity, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed, MessagePartControl, Power</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, RelativeHumidity, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed, MessagePartControl, Power, SetPWM, PWM</default>
       <units/>
       <desc>List of messages to log. If empty, all messages will be logged.</desc>
     </param>
@@ -5520,169 +5520,6 @@
       <default>1800</default>
       <units/>
       <desc>Maximum amount of seconds to wait for missing fragments in incoming messages</desc>
-    </param>
-  </section>
-  <section name="Monitor Thruster" name-i18n="Monitor Thruster">
-    <param name="Activation Time" editable="false">
-      <name-i18n>Activation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc>Expected activation time in seconds.</desc>
-      <min>0</min>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Auto Restart">
-      <name-i18n>Auto Restart</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Try to restart thruster automatically.</desc>
-    </param>
-    <param name="Current Threshold in Amperes">
-      <name-i18n>Current Threshold in Amperes</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>A</units>
-      <desc>Current value threshold to trigger a warning (in Amperes).</desc>
-      <min>0.1</min>
-    </param>
-    <param name="Deactivation Time" editable="false">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc>Expected deactivation time in seconds.</desc>
-      <min>0</min>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc>Debug level for human-readable messages</desc>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Entity Label" editable="false">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Monitor Thruster</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority" editable="false">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Expected Actuation">
-      <name-i18n>Expected Actuation</name-i18n>
-      <type>integer</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>15</default>
-      <units>s</units>
-      <desc>Maximum time to wait for high current levels on the thruster.</desc>
-      <min>15</min>
-      <max>59</max>
-    </param>
-    <param name="Loopback Internal Messages" editable="false">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Monitor only when submerged">
-      <name-i18n>Monitor only when submerged</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Only monitor thruster when submerged.</desc>
-    </param>
-    <param name="Periodic Check During Error">
-      <name-i18n>Periodic Check During Error</name-i18n>
-      <type>integer</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>30</default>
-      <units>min</units>
-      <desc>Timeout to do a periodic check when the thruster is in error.</desc>
-      <min>2</min>
-    </param>
-    <param name="Restart Thruster">
-      <name-i18n>Restart Thruster</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Try to restart thruster.</desc>
-    </param>
-    <param name="Send Satellite Updates">
-      <name-i18n>Send Satellite Updates</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Send updates over satellite.</desc>
-    </param>
-    <param name="Thruster Current Channel Label">
-      <name-i18n>Thruster Current Channel Label</name-i18n>
-      <type>string</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>THRUST_D</default>
-      <units/>
-      <desc>Label of the thruster current channel to monitor.</desc>
-    </param>
-    <param name="Thruster ID">
-      <name-i18n>Thruster ID</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>ID of the thruster to monitor.</desc>
-    </param>
-    <param name="Thruster Power Channel Label">
-      <name-i18n>Thruster Power Channel Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>THRUSTER_C</default>
-      <units/>
-      <desc>Label of the thruster power channel.</desc>
     </param>
   </section>
   <section name="Multiplexer Maneuver" name-i18n="Multiplexer Maneuver">
@@ -7047,7 +6884,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable ILOS.</desc>
     </param>
@@ -9302,6 +9139,16 @@
       <units/>
       <desc>Enable logging for the current controller.</desc>
     </param>
+    <param name="Current Control - Max Integral Accumulator Error">
+      <name-i18n>Current Control - Max Integral Accumulator Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>75.0</default>
+      <units/>
+      <desc>Maximum allowed integral accumulator error for the current controller. If 0, the integral accumulator will be disabled.</desc>
+      <min>0.0</min>
+    </param>
     <param name="Current Control - Max Update Delta">
       <name-i18n>Current Control - Max Update Delta</name-i18n>
       <type>real</type>
@@ -9743,7 +9590,7 @@
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
-    <param name="BMS unique ID">
+    <param name="BMS unique ID" editable="false">
       <name-i18n>BMS unique ID</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -9792,7 +9639,7 @@
       <units/>
       <desc>Execution priority</desc>
     </param>
-    <param name="IPV4 Address">
+    <param name="IPV4 Address" editable="false">
       <name-i18n>IPV4 Address</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -9801,15 +9648,15 @@
       <units/>
       <desc>IPV4 address of the Victron Cerbo device.</desc>
     </param>
-    <param name="Iridium alert cooldown in minutes">
-      <name-i18n>Iridium alert cooldown in minutes</name-i18n>
+    <param name="Iridium Alert Period">
+      <name-i18n>Iridium Alert Period</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
-      <units/>
-      <desc>Cooldown period in minutes between Iridium alerts to prevent spamming.</desc>
-      <min>1</min>
+      <units>min</units>
+      <desc>Cooldown period in minutes between Iridium alerts. Set to 0 to disable Iridium alerts.</desc>
+      <min>0</min>
     </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
@@ -9820,29 +9667,8 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Minimum battery Voltage to alert">
-      <name-i18n>Minimum battery Voltage to alert</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>11.0</default>
-      <units/>
-      <desc>Minimum battery voltage to trigger an alert.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Minimum battery percentage to alert">
-      <name-i18n>Minimum battery percentage to alert</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units/>
-      <desc>Minimum battery percentage to trigger an alert.</desc>
-      <min>0</min>
-      <max>100</max>
-    </param>
-    <param name="Number of consecutive to restart coms">
-      <name-i18n>Number of consecutive to restart coms</name-i18n>
+    <param name="Maximum Read Failures">
+      <name-i18n>Maximum Read Failures</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -9851,15 +9677,36 @@
       <desc>Number of consecutive read failures before restarting communications.</desc>
       <min>1</min>
     </param>
-    <param name="Period of data readings on milliseconds">
-      <name-i18n>Period of data readings on milliseconds</name-i18n>
+    <param name="Minimum Battery Percentage">
+      <name-i18n>Minimum Battery Percentage</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
-      <units/>
-      <desc>Period of data readings in milliseconds.</desc>
-      <min>1000</min>
+      <default>20</default>
+      <units>%</units>
+      <desc>Minimum battery percentage to trigger an alert.</desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="Minimum Battery Voltage">
+      <name-i18n>Minimum Battery Voltage</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>11.0</default>
+      <units>V</units>
+      <desc>Minimum battery voltage to trigger an alert.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling">
+      <name-i18n>Periodicity of Data Sampling</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>s</units>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Not supported&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Not supported&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
+      <min>0.0</min>
     </param>
     <param name="Post Power On Delay">
       <name-i18n>Post Power On Delay</name-i18n>
@@ -9900,7 +9747,17 @@
       <desc>Delay before powering on the device</desc>
       <min>0.0</min>
     </param>
-    <param name="Solar Panel unique ID">
+    <param name="Sample Time Duration">
+      <name-i18n>Sample Time Duration</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Not supported&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Not supported&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Solar Panel unique ID" editable="false">
       <name-i18n>Solar Panel unique ID</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -9910,7 +9767,7 @@
       <desc>Unique Modbus Unit ID for the Solar Panel (MPPT).</desc>
       <min>1</min>
     </param>
-    <param name="TCP Port">
+    <param name="TCP Port" editable="false">
       <name-i18n>TCP Port</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
