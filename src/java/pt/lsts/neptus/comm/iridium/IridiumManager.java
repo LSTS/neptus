@@ -50,6 +50,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
 
+import org.apache.commons.imaging.formats.jpeg.segments.ComSegment;
 import pt.lsts.dccl.DcclTranslator;
 import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.FuelLevel;
@@ -69,6 +70,7 @@ import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.admin.CommsAdmin;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -464,7 +466,7 @@ public class IridiumManager {
             MessagePart[] parts = null;
 
             // Check if it can be sent as dccl message
-            if (GeneralPreferences.useDcclEncoding) {
+            if (CommsAdmin.useDcclEncoding()) {
                 ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcSystemId);
                 // Only send if system speaks dccl
                 if (imcSystem != null) {
@@ -541,7 +543,7 @@ public class IridiumManager {
     public void send(IridiumMessage msg) throws Exception {
         NeptusLog.pub().info("Sending iridium message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
 
-        if (GeneralPreferences.useDcclEncoding) {
+        if (CommsAdmin.useDcclEncoding()) {
             for (IMCMessage imcMsg : msg.asImc()) {
                 ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMsg.getDst());
 

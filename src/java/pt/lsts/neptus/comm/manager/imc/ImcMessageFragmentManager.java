@@ -48,6 +48,7 @@ import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.admin.CommsAdmin;
+import pt.lsts.neptus.comm.iridium.IridiumMessage;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
@@ -272,6 +273,7 @@ public class ImcMessageFragmentManager {
         try {
             if (receivedFragmentsTypeNoteHolder.get(idPair).contains("imc.")) {
                 assembledMsg = imcFragmentHandler.reassemble(allMessageParts);
+                IridiumMessage.processEntityParameterForDCCL(assembledMsg);
             }
             else if (receivedFragmentsTypeNoteHolder.get(idPair).contains("dccl.")) {
                 assembledMsg = DCCLFragmentHandler.reassemble(allMessageParts);
