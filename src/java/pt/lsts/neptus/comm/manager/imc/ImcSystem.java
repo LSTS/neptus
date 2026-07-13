@@ -267,11 +267,11 @@ public class ImcSystem implements Comparable<ImcSystem> {
         setAttitudeTimeMillis(System.currentTimeMillis());
     }
 
-    public void   setAsDcclSpeaker() {
+    public void setAsDcclSpeaker() {
         this.dcclSpeaker = true;
-    }
 
-    public void SetAsNonDcclSpeaker(){
+    }
+    public void setAsNonDcclSpeaker(){
         this.dcclSpeaker = false;
     }
 
