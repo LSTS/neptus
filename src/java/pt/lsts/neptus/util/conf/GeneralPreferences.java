@@ -287,6 +287,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If true, the system will automatically resend missing received fragments. If false, it will need operator intervention.")
     public static boolean isAutomaticallyResendMissingReceivedFragments = false;
 
+    @NeptusProperty(name = "Send Periodic Requests If Iridium Active", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "If true, the system will send periodic requests to the iridium gateway if it is active. This accounts for Entity List, Plan DB State, etc.")
+    public static boolean isSendPeriodicRequestsIfIridiumActive = false;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,

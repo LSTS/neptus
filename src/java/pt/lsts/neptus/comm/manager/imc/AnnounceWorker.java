@@ -62,6 +62,7 @@ import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.SystemUtils;
+import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -432,8 +433,10 @@ public class AnnounceWorker {
 			@Override
 			public void run() {
 				for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
-					sendEntityListRequestMsg(sys);
-					sendPlanDBMsgs(sys);
+					if (testIfIsToSendIfIridiumOn(sys)) {
+                        sendEntityListRequestMsg(sys);
+                        sendPlanDBMsgs(sys);
+                    }
 					sendBeaconsRequestMsgs(sys);
 					sendAcousticSystemsQueryMsg(sys);
                     sendRemoteActionsRequestMsg(sys);
@@ -441,8 +444,15 @@ public class AnnounceWorker {
 			}
 		};
 	}
-	
-	/**
+
+    private boolean testIfIsToSendIfIridiumOn(ImcSystem sys) {
+        if (GeneralPreferences.isSendPeriodicRequestsIfIridiumActive)
+            return true;
+
+        return !(IridiumManager.getManager().isRunning() && IridiumManager.getManager().isAvailable());
+    }
+
+    /**
      * @return the ttaskHeartbeat
      */
     public TimerTask getTtaskHeartbeat() {

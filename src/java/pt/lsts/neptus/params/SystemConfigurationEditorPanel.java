@@ -81,6 +81,7 @@ import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.admin.CommsAdmin;
+import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -852,6 +853,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }        
             for (String sec : secNames) {
                 // TODO See if we want to ask back from Iridium, sending through Wifi
+                if (!GeneralPreferences.isSendPeriodicRequestsIfIridiumActive &&
+                        IridiumManager.getManager().isRunning() && IridiumManager.getManager().isAvailable()) {
+                    break; // Don't send also by Wi-Fi
+                }
+
                 if (!queryValues(sec, scopeToUse.getText(), visibility.getText(), true,
                         CommsAdmin.CommChannelType.WIFI.name)) {
                     break;
@@ -881,7 +887,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             boolean ret = true;
             for (String sec : secNames) {
                 // TODO See if we want to ask back from Iridium
-                ret = queryValues(sec, scopeToUse.getText(), visibility.getText(), true);
+                if (!GeneralPreferences.isSendPeriodicRequestsIfIridiumActive &&
+                        IridiumManager.getManager().isRunning() && IridiumManager.getManager().isAvailable()) {
+                    break; // Don't send also by Wi-Fi
+                }
+
+                ret = queryValues(sec, scopeToUse.getText(), visibility.getText(), true,
+                        CommsAdmin.CommChannelType.WIFI.name);
                 if (!ret)
                     break;
             }
