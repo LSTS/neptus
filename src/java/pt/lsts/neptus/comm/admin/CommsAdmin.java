@@ -51,7 +51,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import sun.java2d.loops.DrawGlyphListAA;
 
 import java.awt.Component;
 import java.time.LocalDateTime;
@@ -77,7 +76,7 @@ public class CommsAdmin implements PreferencesListener {
     public static final int MAX_ACOMMS_PAYLOAD_SIZE = 998;
     public static final double TIMEOUT_ACOMMS_SECS = 60;
     private int minutesBetweenDeviceActivationSendMinutes = 5;
-    private static boolean dcclEncoding = GeneralPreferences.useDcclEncoding;
+    private static boolean dcclEncoding = false;
 
 
     public enum CommChannelType {
@@ -150,9 +149,11 @@ public class CommsAdmin implements PreferencesListener {
     public CommsAdmin(ImcMsgManager imcMsgManager) {
         this.imcMsgManager = imcMsgManager;
 
+        setDcclEncoding(GeneralPreferences.useDcclEncoding);
         GeneralPreferences.addPreferencesListener(this);
         Collections.addAll(channels, CommChannelType.values());
         ImcMessageFragmentManager.getInstance(this.imcMsgManager); // Ensure the fragment manager is initialized
+
     }
 
      @Override

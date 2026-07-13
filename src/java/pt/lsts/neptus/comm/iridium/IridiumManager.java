@@ -50,7 +50,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
 
-import org.apache.commons.imaging.formats.jpeg.segments.ComSegment;
 import pt.lsts.dccl.DcclTranslator;
 import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.FuelLevel;
