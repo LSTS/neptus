@@ -111,12 +111,6 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
             if (iridiumTypes.containsKey(mgid)) {
                 m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
                 m.deserializeFields(iis);
-
-                // Check if it is a query EntityParameters
-                for (IMCMessage imcMessage : m.asImc()) {
-                    processEntityParameterForDCCL(imcMessage);
-                }
-
                 return m;
 
             }
@@ -225,12 +219,13 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
                         boolean value = entityParameter.getValue().equals("true");
                         ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
 
-                        if (value) {
-                            imcSystem.setAsDcclSpeaker();
-                        } else {
-                            imcSystem.setAsNonDcclSpeaker();
+                        if (imcSystem != null) {
+                            if (value) {
+                                imcSystem.setAsDcclSpeaker();
+                            } else {
+                                imcSystem.setAsNonDcclSpeaker();
+                            }
                         }
-
                     }
                 }
 
