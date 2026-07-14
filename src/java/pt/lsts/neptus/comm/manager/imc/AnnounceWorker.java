@@ -306,7 +306,7 @@ public class AnnounceWorker {
         if (getPeriodUnicastAnnounce() >= 0 && useUnicastAnnounce)
             timer.scheduleAtFixedRate(ttaskAnnounceUnicast, 700, getPeriodUnicastAnnounce());
         if (getPeriodEntityListRequest() >= 0)
-            timer.scheduleAtFixedRate(ttaskEntityListAndPlanDB, 1000, getPeriodEntityListRequest());
+            timer.scheduleAtFixedRate(ttaskEntityListAndPlanDB, 10000, getPeriodEntityListRequest());
         if (getPeriodHeartbeatRequest() >= 0)
             timer.scheduleAtFixedRate(ttaskHeartbeat, 2000, getPeriodHeartbeatRequest());
 		return true;
