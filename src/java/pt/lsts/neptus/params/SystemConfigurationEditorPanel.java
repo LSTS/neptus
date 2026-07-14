@@ -63,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -380,11 +381,33 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             mainPanel.add(fakeSyncButton, "sg buttons2, split");
         }
 
-        // FIXME This might not make sense to not always ask for categories if no wifi
-        refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
-        
+        Timer delayTimer = getRefreshParamsTimer();
+        delayTimer.start();
+
         revalidate();
         repaint();
+    }
+
+    private Timer getRefreshParamsTimer() {
+        Timer delayTimer = new Timer(8_000, actionEvent -> {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    // FIXME This might not make sense to not always ask for categories if no wifi
+                    refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    revalidate();
+                    repaint();
+                }
+            };
+            worker.execute();
+        });
+        delayTimer.setRepeats(false); // Make sure it only runs once per trigger
+        return delayTimer;
     }
 
     private void updateSendButtons() {
