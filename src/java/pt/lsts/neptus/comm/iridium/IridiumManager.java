@@ -471,7 +471,7 @@ public class IridiumManager {
                 if (imcSystem != null) {
                     if (imcSystem.getDcclSpeaker()) {
                         parts = DCCLFragmentHandler.getInstance().fragment(msg, ImcIridiumMessage.MaxPayloadSize);
-                        {
+                        if (parts != null) {
                             // Added some debug info about the fragmentation in DCCL
                             byte[] rawDcclBytes = DcclTranslator.imcToByte(msg);
                             int imcSerSize = 12 + IMCUtils.computePayloadSerializeSize(msg); // plus 12 bytes IridiumMessage header
@@ -572,6 +572,10 @@ public class IridiumManager {
                             sendRaw(imcSystem.getName(), "", rawDcclBytes);
                             NeptusLog.pub().info("Sending DCCL message (size {} from {} in IMC) :: {}", rawDcclBytes.length, imcSerSize, imcMsg.asJSON());
                             return;
+                        }
+                        else {
+                            NeptusLog.pub().info("Error Encoding Msg " + imcMsg.getLongName() +
+                                    " to DCCL. Will Send as IMC.");
                         }
                     }
                     else {
