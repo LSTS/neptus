@@ -244,24 +244,30 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     public static void processEntityParameterForDCCL(IMCMessage imcMessage ) {
         // Check if it is a query EntityParameters
         int imcMessageType = imcMessage.getMessageType().getId();
-        if (imcMessageType == EntityParameters.ID_STATIC) {
-            // Check if it is related with
-            EntityParameters entityParameters = (EntityParameters) imcMessage;
-            if (entityParameters.getName().equals("Communications Manager")) {
-                for (EntityParameter entityParameter : entityParameters.getParams()) {
-                    if (entityParameter.getName().equals("DCCL Encoding")) {
-                        boolean value = entityParameter.getValue().equals("true");
-                        ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
-                        if (imcSystem != null) {
-                            if (value) {
-                                imcSystem.setAsDcclSpeaker();
-                            } else {
-                                imcSystem.setAsNonDcclSpeaker();
-                            }
-                        }
-                    }
-                }
+        if (imcMessageType != EntityParameters.ID_STATIC)
+            return;
+
+        ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
+        if (imcSystem == null)
+            return;
+
+        // Check if it is related with
+        EntityParameters entityParameters = (EntityParameters) imcMessage;
+        if (!entityParameters.getName().equals("Communications Manager"))
+            return;
+
+        for (EntityParameter entityParameter : entityParameters.getParams()) {
+            if (!entityParameter.getName().equals("DCCL Encoding"))
+                continue;
+
+            boolean value = entityParameter.getValue().equals("true") || entityParameter.getValue().equals("1");
+            if (value) {
+                imcSystem.setAsDcclSpeaker();
+            } else {
+                imcSystem.setAsNonDcclSpeaker();
             }
+
+            break; // we already found what we needed
         }
     }
 
