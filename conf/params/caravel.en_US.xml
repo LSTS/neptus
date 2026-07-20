@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2026.01.0 (system/caravel,1dbc370bf)" modules="system/caravel,7c159c4" system="caravel" i18n="en_US">
+<config format="1" version="2026.01.0 (system/caravel,37dfebb1e)" modules="system/caravel,b615891" system="caravel" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -1797,7 +1797,7 @@
     <param name="Power Channel 25 Entity Label">
       <name-i18n>Power Channel 25 Entity Label</name-i18n>
       <type>string</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>STARLINK_C</default>
       <units/>
@@ -1817,7 +1817,7 @@
     <param name="Power Channel 25 Turn On">
       <name-i18n>Power Channel 25 Turn On</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>false</default>
       <units/>
@@ -7275,7 +7275,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VerticalProfile:ADCP - North:10800, VerticalProfile:ADCP - East:10800, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:10800, VerticalProfile:Fluorometers - Turbidity:10800, VerticalProfile:Fluorometers - Dissolved Organic Matter:10800, VerticalProfile:AirMar120WX - Average:10800, VerticalProfile:AirMar120WX - Maximum:10800, VerticalProfile:Dissolved Oxygen:10800, Voltage:Batteries:3600, Current:Batteries:3600, WindSpeed:AirMar120WX:3600, FuelLevel:VC_Battery:3600, Temperature:Mainboard (Core):3600</default>
+      <default>VerticalProfile:ADCP - North:10800, VerticalProfile:ADCP - East:10800, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:10800, VerticalProfile:Fluorometers - Turbidity:10800, VerticalProfile:Fluorometers - Dissolved Organic Matter:10800, VerticalProfile:AirMar120WX - Average:10800, VerticalProfile:AirMar120WX - Maximum:10800, VerticalProfile:Dissolved Oxygen:10800, Voltage:Batteries:3600, Current:Batteries:3600, Temperature:Mainboard (Core):3600</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt;:&lt;Rate&gt; to send using Iridium. The rate is in seconds and is optional. If rate is not specified, the message will be sent every time it is received. If rate is 0, the message will be ignored.</desc>
     </param>
@@ -9125,7 +9125,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>3</default>
       <units/>
       <desc>Thruster current limit for current control. If the value is set to zero, the current control will be disabled.</desc>
       <min>0</min>
@@ -9703,7 +9703,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>30</default>
       <units>s</units>
       <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Not supported&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Not supported&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
@@ -9813,7 +9813,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Restart the ZeroTier service if it is not running.</desc>
     </param>
@@ -9870,7 +9870,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>MOBILE_1_C</default>
+      <default/>
       <units/>
       <desc>Label of the GSM modem power channel. This is used to control the power of the GSM modem.</desc>
     </param>
@@ -9888,7 +9888,7 @@
       <type>list:string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>10.188.254.253, 10.188.2.118, 10.188.0.230, 10.188.0.116</default>
+      <default>10.188.2.118, 10.188.0.230, 10.188.0.116</default>
       <units/>
       <desc>List of Remote Hosts IP to Check for Connectivity.</desc>
     </param>
