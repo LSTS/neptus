@@ -75,6 +75,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.message.BasicNameValuePair;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.data.Pair;
@@ -90,6 +91,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 import static pt.lsts.neptus.comm.iridium.HubIridiumMessenger.updateVehicleWithLastSeenImei;
+import static pt.lsts.neptus.comm.iridium.IridiumMessage.processEntityParameterForDCCL;
 
 /**
  * This class uses the RockBlock HTTP API (directly) to send messages to Iridium destinations and a gmail inbox to poll
@@ -472,6 +474,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             if (irMsg.source == ImcId16.NULL_ID.intValue()) {
                 // Let us try to fill the source from imei
                 irMsg.source = HubIridiumMessenger.HubMessage.findSystemIdByImei(fromImei);
+            }
+
+            // Check if it is a query EntityParameters
+            for (IMCMessage imcMessage : irMsg.asImc()) {
+                processEntityParameterForDCCL(imcMessage);
             }
 
             // If not set, set the timestamp

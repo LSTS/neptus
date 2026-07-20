@@ -244,6 +244,17 @@ public class IridiumComms extends SimpleRendererInteraction {
             m.setDestination(msg.getDst());
             m.timestampMillis = msg.getTimestampMillis();
             NeptusLog.pub().debug("Encoded message: " + m);
+
+            if (m instanceof ImcIridiumMessage) {
+                for (IMCMessage message : m.asImc()) {
+                    message.setSrc(msg.getSrc());
+                    message.setTimestampMillis(msg.getTimestampMillis());
+                    message.setDst(msg.getDst());
+                    NeptusLog.pub().info("Posting incoming message to bus: " + message);
+                    ImcMsgManager.getManager().postInternalMessage(IRIDIUM_COMMS, message);
+                }
+            }
+
         }
         catch (Exception e) {
             NeptusLog.pub().info(

@@ -50,21 +50,31 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
 
+import pt.lsts.dccl.DcclTranslator;
 import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.Goto;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.Maneuver;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.admin.CommsAdmin;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
@@ -73,6 +83,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.speech.SpeechUtil;
+import pt.lsts.dccl.util.DCCLFragmentHandler;
 
 /**
  * This class will handle Iridium communications
@@ -450,10 +461,30 @@ public class IridiumManager {
             m.timestampMillis = msg.getTimestampMillis();
             m.msg = msg;
             return Arrays.asList(m);
-        }
-        else {
-            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
-                    ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
+        } else {
+            MessagePart[] parts = null;
+
+            // Check if it can be sent as dccl message
+            if (CommsAdmin.useDcclEncoding()) {
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcSystemId);
+                // Only send if system speaks dccl
+                if (imcSystem != null) {
+                    if (imcSystem.getDcclSpeaker()) {
+                        parts = DCCLFragmentHandler.getInstance().fragment(msg, ImcIridiumMessage.MaxPayloadSize);
+                        if (parts != null) {
+                            // Added some debug info about the fragmentation in DCCL
+                            byte[] rawDcclBytes = DcclTranslator.imcToByte(msg);
+                            int imcSerSize = 12 + IMCUtils.computePayloadSerializeSize(msg); // plus 12 bytes IridiumMessage header
+                            NeptusLog.pub().info("Fragmenting DCCL message (size {} from {} in IMC) :: {}", rawDcclBytes.length, imcSerSize, msg.asJSON());
+                        }
+                    }
+                }
+            }
+
+            if (parts == null) {
+                parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
+                        ImcIridiumMessage.MaxPayloadSize + IMCDefinition.getInstance().headerLength());
+            }
 
             if (parts.length > 0) {
                 ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), imcSystemId, Arrays.asList(parts));
@@ -502,11 +533,64 @@ public class IridiumManager {
      * 
      * @param msg
      */
+    // DCCL SENDING HERE
+    // Ver se é dccl e send raw
+    // Se é DCCL, tentar serializar e chamar o raw
+    // Destid na mensagem e ir ao imc systems holder das source ele da nome. usar o nome no destinatiodname e deixo vazio o outro
+    // ver se é possivel passar para dccl.
+    // siga.
     public void send(IridiumMessage msg) throws Exception {
         NeptusLog.pub().info("Sending iridium message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
+
+        if (CommsAdmin.useDcclEncoding()) {
+            for (IMCMessage imcMsg : msg.asImc()) {
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMsg.getDst());
+
+                if (imcMsg instanceof PlanControl) {
+                    PlanControl planControl = (PlanControl) imcMsg;
+
+                    if (planControl.getArg() instanceof PlanSpecification) {
+
+                        PlanSpecification planSpec = (PlanSpecification) planControl.getArg();
+
+                        for (PlanManeuver planManeuver : planSpec.getManeuvers()) {
+                            Maneuver maneuver = planManeuver.getData();
+
+                            if (maneuver instanceof Goto) {
+                                NeptusLog.pub().info("Lat: " + ((Goto) maneuver).getLat());
+                            }
+                        }
+                    }
+                }
+
+                // Only send if system speaks dccl
+                if (imcSystem != null) {
+                    if (imcSystem.getDcclSpeaker()) {
+                        byte[] rawDcclBytes = DcclTranslator.imcToByte(imcMsg);
+                        int imcSerSize = 12 + IMCUtils.computePayloadSerializeSize(imcMsg); // plus 12 bytes IridiumMessage header
+                        if (rawDcclBytes != null) {
+                            sendRaw(imcSystem.getName(), "", rawDcclBytes);
+                            NeptusLog.pub().info("Sending DCCL message (size {} from {} in IMC) :: {}", rawDcclBytes.length, imcSerSize, imcMsg.asJSON());
+                            return;
+                        }
+                        else {
+                            NeptusLog.pub().info("Error Encoding Msg " + imcMsg.getLongName() +
+                                    " to DCCL. Will Send as IMC.");
+                        }
+                    }
+                    else {
+                        NeptusLog.pub().info(imcSystem.getName() + " system does NOT speak DCCL");
+                    }
+                }
+                else {
+                    NeptusLog.pub().info("Imc System not found");
+                }
+            }
+        }
         getCurrentMessenger().sendMessage(msg);
         NeptusEvents.post(Notification.success("Sent Iridium message", "Sent message of type " +
                 msg.getMessageType() + " to " + msg.getDestination()));
+
     }
 
     /**

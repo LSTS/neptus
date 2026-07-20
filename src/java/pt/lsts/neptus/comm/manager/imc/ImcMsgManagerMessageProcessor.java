@@ -57,6 +57,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.dccl.util.DCCLFragmentHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -71,11 +72,9 @@ class ImcMsgManagerMessageProcessor {
     private static String MQTT_PUBLISHER_PREFIX = "mqtt";
 
     private final ImcMsgManager manager;
-    private final IMCFragmentHandler fragmentHandler;
 
     public ImcMsgManagerMessageProcessor(ImcMsgManager manager) {
         this.manager = manager;
-        fragmentHandler = new IMCFragmentHandler(manager.imcDefinition);
     }
 
     private ImcSystem.MEDIUM getMediumReported(String publisherName) {
@@ -106,7 +105,7 @@ class ImcMsgManagerMessageProcessor {
     }
 
     void processMessagePart(MessageInfo info, MessagePart msg) {
-        IMCMessage m = fragmentHandler.setFragment((MessagePart)msg);
+        IMCMessage m = ImcMessageFragmentManager.getInstance().onReceivedFragments(msg);
         if (m != null)
             manager.postInternalMessage(info.getPublisher(), m);
     }

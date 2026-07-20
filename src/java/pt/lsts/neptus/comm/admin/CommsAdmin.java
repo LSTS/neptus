@@ -50,6 +50,7 @@ import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
 
 import java.awt.Component;
 import java.time.LocalDateTime;
@@ -69,12 +70,14 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class CommsAdmin {
+public class CommsAdmin implements PreferencesListener {
 
     public static final int COMM_TIMEOUT_MILLIS = 20000;
     public static final int MAX_ACOMMS_PAYLOAD_SIZE = 998;
     public static final double TIMEOUT_ACOMMS_SECS = 60;
     private int minutesBetweenDeviceActivationSendMinutes = 5;
+    private static boolean dcclEncoding = false;
+
 
     public enum CommChannelType {
         WIFI("WiFi", "Wi-Fi channel", "images/channels/wifi.png",
@@ -95,6 +98,7 @@ public class CommsAdmin {
         private boolean enabled;
         private boolean active;
         private boolean reliable;
+
 
         private CommChannelType(String name, String description, String icon, String iconSelected,
                                 String iconDisabled, boolean enabled, boolean active, boolean reliable) {
@@ -136,6 +140,7 @@ public class CommsAdmin {
     private final String acousticOpServiceName = "acoustic/operation";
     private final String iridiumOpServiceName = "iridium";
 
+
     private ImcMsgManager imcMsgManager = null;
     private List<CommChannelType> channels = new ArrayList<>();
 
@@ -144,13 +149,52 @@ public class CommsAdmin {
     public CommsAdmin(ImcMsgManager imcMsgManager) {
         this.imcMsgManager = imcMsgManager;
 
+        setDcclEncoding(GeneralPreferences.useDcclEncoding);
+        GeneralPreferences.addPreferencesListener(this);
         Collections.addAll(channels, CommChannelType.values());
-
         ImcMessageFragmentManager.getInstance(this.imcMsgManager); // Ensure the fragment manager is initialized
+
     }
 
-    //public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener,
-    //                                  Component parent, String errorTextForDialog, String... destinationIds) {
+     @Override
+    public void preferencesUpdated() {
+
+        if (useDcclEncoding() == GeneralPreferences.useDcclEncoding) return;
+
+        // DCCL Encoding is ON
+        if(useDcclEncoding()) {
+
+            // And set to OFF, Forget that vehicle speaks DCCL
+            if (!GeneralPreferences.useDcclEncoding) {
+
+                setDcclEncoding(GeneralPreferences.useDcclEncoding);
+
+                NeptusLog.pub().debug("Neptus set as NON DCCL Speaker." +
+                        " Setting system list register as NON speakers as well.");
+
+                // Set All IMC Systems as non DCCL Speakers
+                for (ImcSystem imcSystem : ImcSystemsHolder.lookupAllSystems()) {
+                    imcSystem.setAsNonDcclSpeaker();
+                }
+            }
+
+        } else {
+
+            if (GeneralPreferences.useDcclEncoding) {
+                setDcclEncoding(GeneralPreferences.useDcclEncoding);
+                NeptusLog.pub().debug("Set Neptus as DCCL Speaker");
+            }
+        }
+     }
+
+    public static void setDcclEncoding(boolean useDccl) {
+        dcclEncoding = useDccl;
+    };
+
+    public static boolean useDcclEncoding() {
+        return dcclEncoding;
+    }
+
 
     public Future<ImcMsgManager.SendResult> sendMessage(IMCMessage message, String destinationName, int timeoutMillis,
                                                         Component parentComponentForAlert,
@@ -313,9 +357,11 @@ public class CommsAdmin {
                             NeptusLog.pub().error(this, e);
                         }
                     }
-                    break;
+                    break; 
                 case IRIDIUM:
-                    //sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    if (useDcclEncoding()) {
+                        sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    }
                     sendViaIridium(destinationName, message, waiter);
                     NeptusLog.pub().debug("=====>>>>>>>>>>> Sent via Iridium: " + message.getAbbrev() + " to " + destinationName + " | WiFi active? " + system.isActiveWifi());
                     return result;

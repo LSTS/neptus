@@ -291,6 +291,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If true, the system will send periodic requests to the iridium gateway if it is active. This accounts for Entity List, Plan DB State, etc.")
     public static boolean isSendPeriodicRequestsIfIridiumActive = false;
 
+    @NeptusProperty(name = "Use DCCL Encoding", category = "Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "If True, the system will try to send and receive DCCL messages")
+    public static boolean useDcclEncoding = false;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,

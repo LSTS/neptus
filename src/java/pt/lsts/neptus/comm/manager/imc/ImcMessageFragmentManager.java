@@ -34,6 +34,7 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import com.google.common.eventbus.Subscribe;
 import org.apache.commons.math3.util.Pair;
+import pt.lsts.dccl.util.DCCLFragmentHandler;
 import pt.lsts.imc.Header;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
@@ -47,6 +48,7 @@ import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.admin.CommsAdmin;
+import pt.lsts.neptus.comm.iridium.IridiumMessage;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
@@ -55,6 +57,7 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.dccl.util.MessageCodec;
 
 import javax.swing.SwingWorker;
 import java.io.ByteArrayInputStream;
@@ -93,7 +96,7 @@ public class ImcMessageFragmentManager {
     // Map to hold the received fragments insert time. Pair is frag id and system id of the destination of the fragments
     private final Map<Pair<Integer, Integer>, Long> receivedFragmentsInsertTimeHolder = Collections.synchronizedMap(new HashMap<>());
     // Map to hold the received fragments type note holder. Pair is frag id and system id of the destination of the fragments
-    private final Map<Pair<Integer, Integer>, String> receivedFragmentsTypeNoteNoteHolder = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Pair<Integer, Integer>, String> receivedFragmentsTypeNoteHolder = Collections.synchronizedMap(new HashMap<>());
 
     public ImcMessageFragmentManager() {
         this(ImcMsgManager.getManager());
@@ -123,10 +126,21 @@ public class ImcMessageFragmentManager {
         }
 
         String systemName = getSystemName(systemId);
-
         String note = "Fragments for frag id " + fragmentId + " to system id " + systemName;
+        IMCMessage originalMsg = null;
+
         try {
-            IMCMessage originalMsg = imcFragmentHandler.reassemble(fragmentList);
+
+            try {
+                originalMsg = imcFragmentHandler.reassemble(fragmentList);
+            } catch (Exception e) {
+            }
+
+            if (originalMsg == null){
+                originalMsg = DCCLFragmentHandler.reassemble(fragmentList);
+                NeptusLog.pub().info("DCCL Message " + originalMsg.getLongName() + " correcly reassembled");
+            }
+
             if (originalMsg == null) {
                 throw new Exception("Original message is null after reassembling fragments");
             }
@@ -178,18 +192,18 @@ public class ImcMessageFragmentManager {
         return systemName;
     }
 
-    public void addReceivedFragments(MessagePart... fragmentList) {
+    public IMCMessage addReceivedFragments(MessagePart... fragmentList) {
         if (fragmentList == null || fragmentList.length == 0) {
-            return;
+            return null;
         }
 
         List<MessagePart> fragments = Arrays.asList(fragmentList);
-        addReceivedFragments(fragments);
+        return addReceivedFragments(fragments);
     }
 
-    public void addReceivedFragments(List<MessagePart> fragmentList) {
+    public IMCMessage addReceivedFragments(List<MessagePart> fragmentList) {
         if (fragmentList == null || fragmentList.isEmpty()) {
-            return;
+            return null;
         }
 
         synchronized (lockReceived) {
@@ -201,12 +215,15 @@ public class ImcMessageFragmentManager {
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
             receivedFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
             List<MessagePart> allFragmentList = receivedFragmentsHolder.get(idPair);
+
             if (allFragmentList == null) {
                 allFragmentList = new ArrayList<>();
+                receivedFragmentsHolder.put(idPair, allFragmentList);
             }
-            receivedFragmentsHolder.put(idPair, allFragmentList);
-            if (!receivedFragmentsTypeNoteNoteHolder.containsKey(idPair))
-                receivedFragmentsTypeNoteNoteHolder.put(idPair, "");
+
+            // New received Fragments Holder
+            if (!receivedFragmentsTypeNoteHolder.containsKey(idPair))
+                receivedFragmentsTypeNoteHolder.put(idPair, "");
 
             // Add the fragments to the list, avoiding duplicates
             for (MessagePart fragment : fragmentList) {
@@ -216,12 +233,14 @@ public class ImcMessageFragmentManager {
                 }
             }
 
-            boolean warnIfTypeGuessed = "".equals(receivedFragmentsTypeNoteNoteHolder.get(idPair));
-            tryToGuessMessageType(allFragmentList, idPair, systemName);
+            if (!tryToGuessMessageType(allFragmentList, idPair, systemName)) {
+                tryToGuessMessageTypeFromDccl(allFragmentList, idPair, systemName);
+            }
 
+            boolean warnIfTypeGuessed = "".equals(receivedFragmentsTypeNoteHolder.get(idPair));
             String msgTypeNoteStr = getMsgTypeStringNote(idPair);
 
-            if (warnIfTypeGuessed && !receivedFragmentsTypeNoteNoteHolder.get(idPair).isEmpty()) {
+            if (warnIfTypeGuessed && !receivedFragmentsTypeNoteHolder.get(idPair).isEmpty()) {
                 String partsString = allFragmentList.stream().map(MessagePart::getFragNumber).sorted()
                         .map(String::valueOf).limit(5).collect(Collectors.joining(", "));
                 if (allFragmentList.size() > 5) {
@@ -240,40 +259,73 @@ public class ImcMessageFragmentManager {
             NeptusLog.pub().warn("Adding received fragments{} from {} with id {} ({}, left {} of {}): {}",
                     msgTypeNoteStr, systemName, idPair, fragNumber, nFrags - allFragmentList.size(), nFrags,
                     fragmentList);
+
+            if (nFrags == allFragmentList.size()) {
+                return assembleFragments(allFragmentList, idPair);
+            }
+                return null;
         }
     }
 
+    private IMCMessage assembleFragments(List<MessagePart> allMessageParts, Pair<Integer, Integer> idPair) {
+
+        IMCMessage assembledMsg = null;
+        try {
+            if (receivedFragmentsTypeNoteHolder.get(idPair).contains("imc.")) {
+                assembledMsg = imcFragmentHandler.reassemble(allMessageParts);
+                IridiumMessage.processEntityParameterForDCCL(assembledMsg);
+            }
+            else if (receivedFragmentsTypeNoteHolder.get(idPair).contains("dccl.")) {
+                assembledMsg = DCCLFragmentHandler.reassemble(allMessageParts);
+                // if message was reassembled then I need to check if the system was already added as a DCCL speaker
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(assembledMsg.getSrc());
+
+                // TODO: imcSystem may not exist yet if 1st message
+                if (imcSystem != null && !imcSystem.getDcclSpeaker()) {
+                    NeptusLog.pub().info("Set System " + imcSystem.getName() + " as a dccl speaker");
+                    imcSystem.setAsDcclSpeaker();
+                }
+
+                NeptusLog.pub().info("Correctly received DCCL Message as Message Parts: " + assembledMsg.asJSON());
+            }
+        } catch (Exception e) {
+            return assembledMsg;
+        }
+
+        return assembledMsg;
+    }
+
     private String getMsgTypeStringNote(Pair<Integer, Integer> idPair) {
-        String typeNote = receivedFragmentsTypeNoteNoteHolder.get(idPair);
+        String typeNote = receivedFragmentsTypeNoteHolder.get(idPair);
         if (typeNote == null || typeNote.isEmpty()) {
             return "";
         }
         return " for '" + typeNote + "'";
     }
 
-    private void tryToGuessMessageType(List<MessagePart> allFragmentList, Pair<Integer, Integer> idPair, String systemName) {
+    private boolean tryToGuessMessageType(List<MessagePart> allFragmentList, Pair<Integer, Integer> idPair, String systemName) {
         synchronized (lockReceived) {
-            String typeNote = receivedFragmentsTypeNoteNoteHolder.get(idPair);
+            String typeNote = receivedFragmentsTypeNoteHolder.get(idPair);
             if (typeNote != null && !typeNote.isEmpty()) {
-                return; // Already guessed the type
+                return true;
             }
             if (allFragmentList.isEmpty()) {
-                return; // No fragments to guess the type
+                return false ; // No fragments to guess the type
             }
 
             MessagePart firstMsgPart = allFragmentList.stream().filter(mp -> {
                     return mp.getFragNumber() == 0; // Find the first message part with frag number 0
                 }).findFirst().orElse(null);
             if (firstMsgPart == null) {
-                return; // No message part with frag number 0, cannot guess the type
+                return false; // No message part with frag number 0, cannot guess the type
             }
 
             byte[] data = firstMsgPart.getData();
-            if (data == null || data.length == 0) {
-                return; // No data to guess the type
+            if (data == null || data.length == 0 ) {
+                return false; // No data to guess the type
             }
             if (data.length < 20) {
-                return; // Data too short to guess the type
+                return false; // Data too short to guess the type
             }
 
             IMCDefinition imcDefinition = ImcMsgManager.getManager().imcDefinition;
@@ -282,14 +334,59 @@ public class ImcMessageFragmentManager {
                 Header header = imcDefinition.readHeader(input);
                 int msgId = header.get_mgid();
                 IMCMessageType msgType = imcDefinition.getType(msgId);
-                receivedFragmentsTypeNoteNoteHolder.put(idPair, msgType.getFullName());
+                receivedFragmentsTypeNoteHolder.put(idPair, "imc." + msgType.getFullName());
+                return true;
+
             } catch (Exception e) {
                 System.out.println("Error guessing message type from fragments: " + e.getMessage());
                 NeptusLog.pub().warn("Error guessing message type from fragments: {}", e.getMessage());
                 // Error guessing the type, returning without doing anything
             }
         }
+        return false;
     }
+
+    private boolean tryToGuessMessageTypeFromDccl(List<MessagePart> allFragmentList, Pair<Integer, Integer> idPair, String systemName) {
+        synchronized (lockReceived) {
+            String typeNote = receivedFragmentsTypeNoteHolder.get(idPair);
+            if (typeNote != null && !typeNote.isEmpty()) {
+                return true;
+            }
+            if (allFragmentList.isEmpty()) {
+                return false ; // No fragments to guess the type
+            }
+
+            MessagePart firstMsgPart = allFragmentList.stream().filter(mp -> {
+                return mp.getFragNumber() == 0; // Find the first message part with frag number 0
+            }).findFirst().orElse(null);
+            if (firstMsgPart == null) {
+                return false; // No message part with frag number 0, cannot guess the type
+            }
+
+            byte[] data = firstMsgPart.getData();
+            if (data == null || data.length == 0 ) {
+                return false; // No data to guess the type
+            }
+            if (data.length < 20) {
+                return false; // Data too short to guess the type
+            }
+
+            try {
+
+                String msgTypeName = MessageCodec.decodePayloadType(data);
+                msgTypeName = "dccl." + msgTypeName;
+                receivedFragmentsTypeNoteHolder.put(idPair, msgTypeName);
+                return true;
+
+            } catch (Exception e) {
+                System.out.println("Error guessing message type from fragments: " + e.getMessage());
+                NeptusLog.pub().warn("Error guessing message type from fragments: {}", e.getMessage());
+                // Error guessing the type, returning without doing anything
+            }
+        }
+        return true;
+    }
+
 
     @Subscribe
     public void onMessageSent(MessagePartControl msg) {
@@ -425,10 +522,9 @@ public class ImcMessageFragmentManager {
         }
     }
 
-    @Subscribe
-    public void onReceivedFragments(MessagePart fragment) {
+    public IMCMessage onReceivedFragments(MessagePart fragment) {
         if (fragment == null || fragment.getSrc() == GeneralPreferences.imcCcuId.intValue())
-            return;
+            return null;
 
         System.out.println("Received " + ((fragment.getUid() < 0 || fragment.getSrc() <= 0) ? "invalid " : "")
                 + "fragment: " + fragment.getUid() + " from system " + fragment.getSrc());
@@ -437,7 +533,7 @@ public class ImcMessageFragmentManager {
                 fragment.getUid(), fragment.getSrc());
 
         if (fragment.getUid() < 0 || fragment.getSrc() <= 0) {
-            return; // Invalid fragment
+            return null; // Invalid fragment
         }
 
         int systemId = fragment.getSrc();
@@ -445,7 +541,7 @@ public class ImcMessageFragmentManager {
         Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
 
         // Add the fragment to the received fragments holder
-        addReceivedFragments(fragment);
+        return addReceivedFragments(fragment);
     }
 
     @Periodic(millisBetweenUpdates = 20_000)
@@ -508,7 +604,7 @@ public class ImcMessageFragmentManager {
             for (Pair<Integer, Integer> fragmentIdPair : toRemove) {
                 receivedFragmentsHolder.remove(fragmentIdPair);
                 receivedFragmentsInsertTimeHolder.remove(fragmentIdPair);
-                receivedFragmentsTypeNoteNoteHolder.remove(fragmentIdPair);
+                receivedFragmentsTypeNoteHolder.remove(fragmentIdPair);
             }
 
             for (Map.Entry<Pair<Integer, Integer>, Long> entry : receivedFragmentsInsertTimeHolder.entrySet()) {
@@ -624,7 +720,7 @@ public class ImcMessageFragmentManager {
                         }
                         receivedFragmentsHolder.remove(fragmentIdPair);
                         receivedFragmentsInsertTimeHolder.remove(fragmentIdPair);
-                        receivedFragmentsTypeNoteNoteHolder.remove(fragmentIdPair);
+                        receivedFragmentsTypeNoteHolder.remove(fragmentIdPair);
                     }
                 });
                 NeptusEvents.post(sendNotificationAction);

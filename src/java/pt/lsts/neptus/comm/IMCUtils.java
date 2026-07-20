@@ -1551,5 +1551,12 @@ public class IMCUtils {
             String name = IMCDefinition.getInstance().getResolver().resolve(id);
             System.out.println(addrElem.getText() + "," + name + " --> " + getSystemType(id));
         }
-    }    
+    }
+
+    public static int computePayloadSerializeSize(IMCMessage message) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IMCOutputStream ios = new IMCOutputStream(baos);
+        IMCDefinition.getInstance().serializeFields(message, ios);
+        return baos.size();
+    }
 }

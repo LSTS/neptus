@@ -34,16 +34,24 @@ package pt.lsts.neptus.comm.iridium;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-
 import org.apache.commons.codec.binary.Hex;
+import pt.lsts.dccl.DcclTranslator;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.QueryEntityParameters;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+
 
 /**
  * @author zp
@@ -59,7 +67,7 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     public abstract int deserializeFields(IMCInputStream in) throws Exception;
     public abstract Collection<IMCMessage> asImc();
     private static LinkedHashMap<Integer, Class<? extends IridiumMessage> > iridiumTypes = new LinkedHashMap<>();
-    
+
     public IridiumMessage(int msgType) {
         this.message_type = msgType;        
     }
@@ -101,6 +109,37 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         if (iridiumTypes.containsKey(mgid)) {
             m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
         } else {
+            try {
+                byte[] dataToProcess = data;
+                // Something to accept a byte[] and then returning a message of type ImcMessage
+                if (data.length > 5) {
+                    String rbString = new String(Arrays.copyOf(data, 5), StandardCharsets.UTF_8);
+                    if (rbString.startsWith("RB")) {
+                        // remove the first 5 bytes of the data array
+                        dataToProcess = Arrays.copyOfRange(data, 5, data.length);
+                    }
+                }
+                IMCMessage imcMessage = DcclTranslator.byteToImc(dataToProcess);
+                NeptusLog.pub().info("Decoded using DCCL: " + imcMessage.asJSON());
+
+                // Check if IMCSystem is already a DCCL Speaker
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
+
+                // TODO: imcSystem may not exist yet if 1st message
+                if (imcSystem != null && !imcSystem.getDcclSpeaker()) {
+                    NeptusLog.pub().info("Set System " + imcSystem.getName() + " as a dccl speaker");
+                    imcSystem.setAsDcclSpeaker();
+                }
+
+                // Turn this message into an m
+                ImcFullIridiumMessage imcFullIridiumMessage = new ImcFullIridiumMessage();
+                imcFullIridiumMessage.setMsg(imcMessage);
+                return imcFullIridiumMessage;
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("Unable to decode message to DCLL");
+            }
+
             mgid = -1;
             iis.reset();
             avlBytes = iis.available();
@@ -200,6 +239,30 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     @Override
     public int compareTo(IridiumMessage o) {
         return (int)(timestampMillis - o.timestampMillis);
+    }
+
+    public static void processEntityParameterForDCCL(IMCMessage imcMessage ) {
+        // Check if it is a query EntityParameters
+        int imcMessageType = imcMessage.getMessageType().getId();
+        if (imcMessageType == EntityParameters.ID_STATIC) {
+            // Check if it is related with
+            EntityParameters entityParameters = (EntityParameters) imcMessage;
+            if (entityParameters.getName().equals("Communications Manager")) {
+                for (EntityParameter entityParameter : entityParameters.getParams()) {
+                    if (entityParameter.getName().equals("DCCL Encoding")) {
+                        boolean value = entityParameter.getValue().equals("true");
+                        ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMessage.getSrc());
+                        if (imcSystem != null) {
+                            if (value) {
+                                imcSystem.setAsDcclSpeaker();
+                            } else {
+                                imcSystem.setAsNonDcclSpeaker();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static void main(String[] args) throws Exception {
