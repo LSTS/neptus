@@ -431,7 +431,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
             mtShip.LON = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLon()));
             mtShip.STATUS_NAME = "" + aisInfo.getNavStatus(); // TODO AISUtil.translateNavigationalStatus(aisInfo.getNavStatus());
             mtShip.SPEED = aisInfo.getSpeed();
-            mtShip.COURSE = AngleUtils.nomalizeAngleDegrees180(aisInfo.getCourse());
+            mtShip.COURSE = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getCourse()));
             mtShip.HEADING = mtShip.COURSE;
             mtShip.ELAPSED = System.currentTimeMillis() - aisInfo.getTimestampMillis();
             contactDb.setMTShip(mtShip);
