@@ -559,7 +559,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             repaint();
 
             if (askForRefresh) {
-                if (channelsToUse.length == 1 && channelsToUse[0].equals(CommsAdmin.CommChannelType.WIFI.name) &&
+                if (channelsToUse.length > 1 || channelsToUse.length == 1 && channelsToUse[0].equals(CommsAdmin.CommChannelType.WIFI.name) &&
                         !(!GeneralPreferences.isSendPeriodicRequestsIfIridiumActive &&
                         IridiumManager.getManager().isRunning() && IridiumManager.getManager().isAvailable())) {
                     for (String sectionName : queryCategoriesList) {
