@@ -34,6 +34,7 @@ package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -259,7 +260,7 @@ public class IridiumManager {
     private static GregorianCalendar parseReportTime(PlainTextReportMessage reportMsg) {
         // Get day month and year from date
         Date recDate = new Date(reportMsg.timestampMillis);
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(recDate);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int month = calendar.get(Calendar.MONTH) + 1; // Months are 0-based in Calendar
@@ -272,6 +273,10 @@ public class IridiumManager {
         reportTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
         reportTime.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
         reportTime.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+
+        if (reportTime.getTimeInMillis() - calendar.getTimeInMillis() > 60 * 60 * 1000) { // 1 hour
+            reportTime.add(Calendar.DAY_OF_MONTH, -1);
+        }
         return reportTime;
     }
 
@@ -613,12 +618,48 @@ public class IridiumManager {
     }
     
     public static void main(String[] args) throws Exception {
-       String hexText = "ffff0000db07002247545653000000000000000041002147545653000000000000000042000147545653000000000000000031000047545653000000000000000032000047545653000000000000000030";
-       byte[] data = Hex.decodeHex(hexText.toCharArray());
-       
-       ExtendedDeviceUpdate devupd = (ExtendedDeviceUpdate) IridiumMessage.deserialize(data);
-       for (Position p : devupd.positions.values()) {
+        String hexText = "ffff0000db07002247545653000000000000000041002147545653000000000000000042000147545653000000000000000031000047545653000000000000000032000047545653000000000000000030";
+        byte[] data = Hex.decodeHex(hexText.toCharArray());
+
+        ExtendedDeviceUpdate devupd = (ExtendedDeviceUpdate) IridiumMessage.deserialize(data);
+        for (Position p : devupd.positions.values()) {
            System.out.println(p.posType);
-       }
+        }
+
+        String iridTex = "(T) (caravel - caravel) 23:58:41 / 40 56.228060, -10 58.946033 / f:94 v:130 c:100 / s: M / p:56";
+        PlainTextReportMessage reportMsg = (PlainTextReportMessage) PlainTextMessage.deserialize(iridTex.getBytes(StandardCharsets.UTF_8));
+
+        GregorianCalendar reportTimeIrid = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        reportTimeIrid.set(Calendar.YEAR, 2026);
+        reportTimeIrid.set(Calendar.MONTH, 7 - 1); // Months are 0-based in Calendar
+        reportTimeIrid.set(Calendar.DAY_OF_MONTH, 27);
+        reportTimeIrid.set(Calendar.HOUR_OF_DAY, 0);
+        reportTimeIrid.set(Calendar.MINUTE, 0);
+        reportTimeIrid.set(Calendar.SECOND, 10);
+        reportMsg.timestampMillis = reportTimeIrid.getTimeInMillis();
+
+        Date recDate = new Date(reportMsg.timestampMillis);
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.setTime(recDate);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1; // Months are 0-based in Calendar
+        int year = calendar.get(Calendar.YEAR);
+
+        GregorianCalendar reportTime = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        String[] timeParts = reportMsg.timeOfDay.split(":");
+        reportTime.set(Calendar.YEAR, year);
+        reportTime.set(Calendar.MONTH, month - 1); // Months are 0-based in Calendar
+        reportTime.set(Calendar.DAY_OF_MONTH, day);
+        reportTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+        reportTime.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+        reportTime.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+
+        System.out.println(new Date(reportMsg.timestampMillis));
+        System.out.println(reportTime.getTime());
+        if (reportTime.getTimeInMillis() - calendar.getTimeInMillis() > 60 * 60 * 1000) { // 1 hour
+            reportTime.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        System.out.println(reportTime.getTime());
+        System.out.println(parseReportTime(reportMsg).getTime());
     }
 }
