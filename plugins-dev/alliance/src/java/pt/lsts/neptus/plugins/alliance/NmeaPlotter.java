@@ -441,8 +441,8 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
             mtShip.SHIP_ID = mmsiNbr;
             mtShip.SHIPNAME = shipName;
             mtShip.SHIPTYPE = aisInfo.getTypeAndCargo();
-            mtShip.HEADING = 351; // Not available
-            mtShip.COURSE = 351; // Not available
+            mtShip.HEADING = 551; // Not available
+            mtShip.COURSE = 551; // Not available
             mtShip.SPEED = -1;
             mtShip.W_LEFT = (int) Math.ceil(aisInfo.getC());
             mtShip.WIDTH = (int) Math.ceil(aisInfo.getC() + aisInfo.getD());
