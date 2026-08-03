@@ -35,7 +35,10 @@ package pt.lsts.neptus.comm.manager.imc;
 import java.net.InetSocketAddress;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * This class is used to check if a remote peer is reachable
@@ -45,7 +48,7 @@ public class ReachableCache {
 
     private static final int REACHABILITY_CACHE_MAX_AGE_MS = 120000;
 
-    static LinkedHashMap<InetSocketAddress, HostReachability> reachabilityCache = new LinkedHashMap<>();
+    static final LinkedHashMap<InetSocketAddress, HostReachability> reachabilityCache = new LinkedHashMap<>();
     static ExecutorService executorService = Executors.newCachedThreadPool();
     
     public static Future<Boolean> isReachable(int timeout, InetSocketAddress addr) {
