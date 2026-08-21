@@ -115,15 +115,6 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
             }
         }
 
-        Element sampling = root.addElement("samplingType");
-        sampling.addAttribute("type", getSamplingType());
-        for (String arg : getSamplingArgs().split(";")) {
-            String[] keyValue = arg.split("=", 2);
-            if (keyValue.length == 2) {
-                sampling.addElement(keyValue[0].trim()).setText(keyValue[1].trim());
-            }
-        }
-
         SpeedType.addSpeedElement(root, this);
 
         return document;
