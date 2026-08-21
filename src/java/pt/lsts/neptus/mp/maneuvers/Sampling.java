@@ -35,6 +35,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -64,6 +66,7 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
     private String samplingType = "";
     private String samplingArgs = "";
+    private final LinkedHashMap<String, LinkedHashMap<String, String>> samplers = new LinkedHashMap<>();
     private Double radius = null;
     private SpeedType speed = new SpeedType(1000, Units.RPM);
     private ManeuverLocation location = new ManeuverLocation();
@@ -76,6 +79,9 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         clone.setSpeed(getSpeed());
         clone.setSamplingType(getSamplingType());
         clone.setSamplingArgs(getSamplingArgs());
+        for (Map.Entry<String, LinkedHashMap<String, String>> sampler : samplers.entrySet()) {
+            clone.samplers.put(sampler.getKey(), new LinkedHashMap<>(sampler.getValue()));
+        }
         return clone;
     }
 
@@ -129,18 +135,30 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
             SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 
-            Element sampling = (Element) doc.selectSingleNode(XML_ROOT + "/samplingType");
-            setSamplingType(sampling.attributeValue("type"));
-
-            StringBuilder args = new StringBuilder();
-            for (Object child : sampling.elements()) {
-                Element arg = (Element) child;
-                if (args.length() > 0) {
-                    args.append(';');
+            Element samplersElement = (Element) doc.selectSingleNode(XML_ROOT + "/samplers");
+            if (samplersElement != null) {
+                samplers.clear();
+                for (Object samplerObject : samplersElement.elements("type")) {
+                    Element sampler = (Element) samplerObject;
+                    String samplerName = sampler.attributeValue("name");
+                    if (samplerName != null && !samplerName.isEmpty()) {
+                        samplers.put(samplerName, parseSamplingArguments(sampler));
+                    }
                 }
-                args.append(arg.getName()).append('=').append(arg.getTextTrim());
+
+                if (!samplers.isEmpty()) {
+                    Map.Entry<String, LinkedHashMap<String, String>> defaultSampler =
+                            samplers.entrySet().iterator().next();
+                    setSamplingType(defaultSampler.getKey());
+                    setSamplingArgs(formatSamplingArguments(defaultSampler.getValue()));
+                }
             }
-            setSamplingArgs(args.toString());
+
+            Element sampling = (Element) doc.selectSingleNode(XML_ROOT + "/samplingType");
+            if (sampling != null) {
+                setSamplingType(sampling.attributeValue("type"));
+                setSamplingArgs(formatSamplingArguments(parseSamplingArguments(sampling)));
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
@@ -355,5 +373,25 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         }
 
         return null;
+    }
+
+    private LinkedHashMap<String, String> parseSamplingArguments(Element sampler) {
+        LinkedHashMap<String, String> arguments = new LinkedHashMap<>();
+        for (Object argumentObject : sampler.elements()) {
+            Element argument = (Element) argumentObject;
+            arguments.put(argument.getName(), argument.getTextTrim());
+        }
+        return arguments;
+    }
+
+    private String formatSamplingArguments(Map<String, String> arguments) {
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, String> argument : arguments.entrySet()) {
+            if (result.length() > 0) {
+                result.append(';');
+            }
+            result.append(argument.getKey()).append('=').append(argument.getValue());
+        }
+        return result.toString();
     }
 }
