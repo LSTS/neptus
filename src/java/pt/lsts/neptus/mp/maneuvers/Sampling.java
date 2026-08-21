@@ -98,8 +98,14 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         // trajRadius.setText(String.valueOf(getRadius()));
         // trajRadius.addAttribute("type", "float");
 
-        root.addElement("samplingType").setText(getSamplingType());
-        root.addElement("samplingArgs").setText(getSamplingArgs());
+        Element sampling = root.addElement("samplingType");
+        sampling.addAttribute("type", getSamplingType());
+        for (String arg : getSamplingArgs().split(";")) {
+            String[] keyValue = arg.split("=", 2);
+            if (keyValue.length == 2) {
+                sampling.addElement(keyValue[0].trim()).setText(keyValue[1].trim());
+            }
+        }
 
         SpeedType.addSpeedElement(root, this);
 
@@ -123,8 +129,18 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
             SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 
-            setSamplingType(doc.selectSingleNode(XML_ROOT + "/samplingType").getText());
-            setSamplingArgs(doc.selectSingleNode(XML_ROOT + "/samplingArgs").getText());
+            Element sampling = (Element) doc.selectSingleNode(XML_ROOT + "/samplingType");
+            setSamplingType(sampling.attributeValue("type"));
+
+            StringBuilder args = new StringBuilder();
+            for (Object child : sampling.elements()) {
+                Element arg = (Element) child;
+                if (args.length() > 0) {
+                    args.append(';');
+                }
+                args.append(arg.getName()).append('=').append(arg.getTextTrim());
+            }
+            setSamplingArgs(args.toString());
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
