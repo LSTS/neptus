@@ -104,6 +104,17 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         // trajRadius.setText(String.valueOf(getRadius()));
         // trajRadius.addAttribute("type", "float");
 
+        if (!samplers.isEmpty()) {
+            Element samplersElement = root.addElement("samplers");
+            for (Map.Entry<String, LinkedHashMap<String, String>> sampler : samplers.entrySet()) {
+                Element samplerElement = samplersElement.addElement("type");
+                samplerElement.addAttribute("name", sampler.getKey());
+                for (Map.Entry<String, String> argument : sampler.getValue().entrySet()) {
+                    samplerElement.addElement(argument.getKey()).setText(argument.getValue());
+                }
+            }
+        }
+
         Element sampling = root.addElement("samplingType");
         sampling.addAttribute("type", getSamplingType());
         for (String arg : getSamplingArgs().split(";")) {
