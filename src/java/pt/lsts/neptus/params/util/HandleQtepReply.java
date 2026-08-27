@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HandleQtepReply implements NeptusMessageListener, MessageListener<MessageInfo, IMCMessage> {
 
-    private static final long QTEPS_TIMEOUT_MS = 3_000;
+    private static final long QTEPS_TIMEOUT_MS = 10_000;
     private static final long NOTIFICATION_COOLDOWN_MS = 10_000;
 
     private volatile boolean isSyncing = false;
@@ -98,7 +98,7 @@ public class HandleQtepReply implements NeptusMessageListener, MessageListener<M
         this.systemId = systemId;
         this.expectedEntities = expectedEntities;
         this.requestId = requestId;
-        this.currentSystemId = currentSystemId;
+        this.currentSystemId = systemId;
 
         PeriodicUpdatesService.registerPojo(this);
 
@@ -121,9 +121,13 @@ public class HandleQtepReply implements NeptusMessageListener, MessageListener<M
 
         String srcSystemId = qtep.getSourceName();
         boolean requestedSync = isSyncing && qtep.getRequestId() == requestId;
+        
+        boolean withinSyncTimeout = syncStartTime > 0 && (System.currentTimeMillis() - syncStartTime) < QTEPS_TIMEOUT_MS;
+        
         handleQtepReply(qtep, srcSystemId, requestedSync);
 
-        if (!requestedSync) {
+        if ((isSyncing || withinSyncTimeout) && srcSystemId.equals(systemId)) {
+        } else if (!requestedSync) {
             showRateLimitedNotification(srcSystemId);
         }
     }
@@ -164,10 +168,10 @@ public class HandleQtepReply implements NeptusMessageListener, MessageListener<M
     @Periodic(millisBetweenUpdates = 500)
     public void checkQtepsCompletion() {
 
-        if (!isSyncing || expectedEntities == null)
+        if (!isSyncing)
             return;
 
-        boolean allReceived = receivedEntities.containsAll(expectedEntities);
+        boolean allReceived = expectedEntities == null || receivedEntities.containsAll(expectedEntities);
         boolean timeout =
                 System.currentTimeMillis() - syncStartTime > QTEPS_TIMEOUT_MS;
 

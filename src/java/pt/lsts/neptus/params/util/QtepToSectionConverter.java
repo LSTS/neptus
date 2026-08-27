@@ -116,7 +116,7 @@ public class QtepToSectionConverter {
             p.addElement("scope").setText(param.getScopeStr().toLowerCase());
 
         if (param.getDefaultValue() != null)
-            p.addElement("default").setText(param.getDefaultValue().toString());
+            p.addElement("default").setText(param.getDefaultValue());
 
         if (param.getUnits() != null)
             p.addElement("units").setText(param.getUnits());

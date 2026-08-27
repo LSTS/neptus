@@ -41,6 +41,7 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -387,7 +388,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         syncDefinitionsButton = new JButton(new AbstractAction(I18n.text("Sync Definitions")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (sid.isSimulated()) {
+                if (sid != null && sid.isSimulated()) {
                     showSimulatedVehicleConfirmation();
                 } else {
                     doSyncParameters();
@@ -412,7 +413,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkGenerateXml = new JCheckBox(I18n.text("Save Current Definitions"));
         uiPanel.add(checkGenerateXml, "sg buttons6, split, gapafter 5px");
         checkGenerateXml.addItemListener(e -> {
-            isToSave = true;
+            isToSave = checkGenerateXml.isSelected();
         });
 
         mainPanel.add(uiPanel, "growx, wrap");
@@ -486,11 +487,16 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 try {
                     if (isAskForCategories) {
                         expectedCategories = askForCategories("sync", lastSelectedCategoriesList).get();
-                        sendQtepRequests(expectedCategories, true);
+                        long count = Arrays.stream(psp.getProperties()).map(Property::getCategory).distinct().count();
+                        if (expectedCategories.size() == count) {
+                            expectedCategories = null;
+                            sendQtepRequests(null, true);
+                        } else {
+                            sendQtepRequests(expectedCategories, true);
+                        }
                     }
                     else {
-                        expectedCategories =
-                                new ArrayList<>(EntitiesResolver.getEntities(systemId).values());
+                        expectedCategories = null;
                         sendQtepRequests(null, false);
                     }
                     qtepHandler.startSync(SystemConfigurationEditorPanel.this, systemId, expectedCategories, reqId, true);
@@ -522,15 +528,18 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
             Map<String, Object> currentValues = new HashMap<>();
             for (SystemProperty sp : local.values()) {
-                currentValues.put(sp.getDisplayName(), sp.getValue());
+                currentValues.put(sp.getCategoryId() + "." + sp.getDisplayName(), sp.getValue());
             }
 
             Map<String, SystemProperty> merged =
                     manager.mergeSystemProperties(local, props);
 
             for (SystemProperty sp : merged.values()) {
-                if (currentValues.containsKey(sp.getDisplayName())) {
-                    sp.setValue(currentValues.get(sp.getDisplayName()));
+                String key = sp.getCategoryId() + "." + sp.getDisplayName();
+                if (currentValues.containsKey(key)) {
+                    sp.setValue(currentValues.get(key));
+                } else {
+                    sp.setValue(sp.getDefaultValue());
                 }
             }
 
