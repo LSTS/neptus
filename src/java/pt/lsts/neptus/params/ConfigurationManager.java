@@ -932,7 +932,8 @@ public class ConfigurationManager {
             ArrayList<SystemProperty> pr = getProperties(system, vis, scope);
 
             pr.sort(Comparator
-                    .comparing(SystemProperty::getCategoryId)
+                    .comparing((SystemProperty sp) -> !"Daemon".equals(sp.getCategoryId()))
+                    .thenComparing(SystemProperty::getCategoryId)
                     .thenComparing(SystemProperty::getName)
             );
 

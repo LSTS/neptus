@@ -240,7 +240,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
         // Configure Property sheet
         psp = new PropertySheetPanel();
-        psp.setSortingCategories(true);
+        psp.setSortingCategories(false);
         psp.setSortingProperties(false);
         psp.setDescriptionVisible(true);
         psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
@@ -577,7 +577,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
             ArrayList<SystemProperty> pr = new ArrayList<>(merged.values());
             pr.sort(Comparator
-                    .comparing(SystemProperty::getCategoryId)
+                    .comparing((SystemProperty sp) -> !"Daemon".equals(sp.getCategoryId()))
+                    .thenComparing(SystemProperty::getCategoryId)
                     .thenComparing(SystemProperty::getName)
             );
 
@@ -747,7 +748,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
             ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(systemId, visibility, scopeToUse);
             pr.sort(Comparator
-                    .comparing(SystemProperty::getCategoryId)
+                    .comparing((SystemProperty sp) -> !"Daemon".equals(sp.getCategoryId()))
+                    .thenComparing(SystemProperty::getCategoryId)
                     .thenComparing(SystemProperty::getName)
             );
             ArrayList<String> secNames = new ArrayList<>();
