@@ -188,9 +188,44 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
             setSamplingType(doc.selectSingleNode(XML_ROOT + "/samplingType").getText());
             setSamplingArgs(doc.selectSingleNode(XML_ROOT + "/samplingArgs").getText());
+            parseSamplingArgs();
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
+        }
+    }
+
+    private void parseSamplingArgs() {
+        if (samplingArgs == null || samplingArgs.isEmpty())
+            return;
+
+        for (String arg : samplingArgs.split("[,;]")) {
+            String[] keyValue = arg.split("=", 2);
+            if (keyValue.length != 2)
+                continue;
+
+            String key = keyValue[0].trim();
+            String value = keyValue[1].trim();
+
+            try {
+                switch (key) {
+                    case "Radius":
+                        samplerRadius = Double.parseDouble(value);
+                        break;
+                    case "Speed":
+                        samplerSpeed = Double.parseDouble(value);
+                        break;
+                    case "Type":
+                        dorisType = DorisType.valueOf(value);
+                        break;
+                    case "Bearing":
+                        dorisBearing = Double.parseDouble(value);
+                        break;
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Failed to parse sampling arg: " + key + "=" + value);
+            }
         }
     }
 
