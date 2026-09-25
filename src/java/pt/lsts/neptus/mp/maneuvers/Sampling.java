@@ -33,6 +33,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
@@ -57,16 +58,74 @@ import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.gui.editor.ComboEditor;
 
 public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
     private static final String XML_ROOT = "Sampling";
+
+    public enum SamplerType {
+        REDX("RedX"),
+        WHITEX("WhiteX"),
+        DORIS("Doris");
+
+        private final String displayName;
+
+        SamplerType(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public static SamplerType fromString(String text) {
+            if (text == null) return null;
+            for (SamplerType type : values()) {
+                if (type.name().equalsIgnoreCase(text) || type.displayName.equalsIgnoreCase(text)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+    }
+
+    public enum DorisType {
+        DRIFT("Drift"),
+        MOVE("Move");
+
+        private final String displayName;
+
+        DorisType(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public static DorisType fromString(String text) {
+            if (text == null) return null;
+            for (DorisType type : values()) {
+                if (type.name().equalsIgnoreCase(text) || type.displayName.equalsIgnoreCase(text)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+    }
 
     private String samplingType = "";
     private String samplingArgs = "";
     private Double radius = null;
     private SpeedType speed = new SpeedType(1000, Units.RPM);
     private ManeuverLocation location = new ManeuverLocation();
+
+    private Double samplerRadius = 10.0;
+    private Double samplerSpeed = 0.0;
+    private DorisType dorisType = DorisType.DRIFT;
+    private Double dorisBearing = 0.0;
 
     @Override
     public Object clone() {
@@ -76,6 +135,10 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         clone.setSpeed(getSpeed());
         clone.setSamplingType(getSamplingType());
         clone.setSamplingArgs(getSamplingArgs());
+        clone.setSamplerRadius(getSamplerRadius());
+        clone.setSamplerSpeed(getSamplerSpeed());
+        clone.setDorisType(getDorisType());
+        clone.setDorisBearing(getDorisBearing());
         return clone;
     }
 
@@ -155,6 +218,11 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
     }
 
     @Override
+    public boolean needsPropertyReload(String propertyName) {
+        return "Sampling Type".equals(propertyName) || "Doris Type".equals(propertyName);
+    }
+
+    @Override
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> props = new Vector<>();
 
@@ -162,15 +230,61 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         speed.setShortDescription(I18n.text("The vehicle's desired speed while approaching the sampling point"));
         props.add(speed);
 
+        String[] validSamplers = null;
+        if (!vehicles.isEmpty()) {
+            validSamplers = PlanUtil.getValidSamplersForVehicle(vehicles.get(0));
+        }
+        if (validSamplers == null || validSamplers.length == 0) {
+            validSamplers = new String[] { "RedX", "WhiteX", "Doris" };
+        }
+
         DefaultProperty samplingType = PropertiesEditor.getPropertyInstance("Sampling Type", String.class,
                 this.samplingType, true);
         samplingType.setShortDescription(I18n.text("Type of sampler to use in maneuver."));
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(samplingType, new ComboEditor<String>(validSamplers));
         props.add(samplingType);
 
-        DefaultProperty samplingArgs = PropertiesEditor.getPropertyInstance("Sampling Args", String.class,
-                this.samplingArgs, true);
-        samplingArgs.setShortDescription(I18n.text("Tuple list of sampling arguments (for example Radius=10;Speed=0.3)."));
-        props.add(samplingArgs);
+        SamplerType currentSampler = SamplerType.fromString(this.samplingType);
+        if (currentSampler != null) {
+            switch (currentSampler) {
+                case REDX:
+                case WHITEX:
+                    DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class,
+                            samplerRadius, true);
+                    radius.setShortDescription(I18n.text("Sampling radius in meters."));
+                    props.add(radius);
+
+                    DefaultProperty samplerSpeed = PropertiesEditor.getPropertyInstance("Sampler Speed", Double.class,
+                            this.samplerSpeed, true);
+                    samplerSpeed.setShortDescription(I18n.text("Sampler speed in m/s."));
+                    props.add(samplerSpeed);
+                    break;
+                case DORIS:
+                    DefaultProperty dorisTypeProp = PropertiesEditor.getPropertyInstance("Doris Type", DorisType.class,
+                            this.dorisType, true);
+                    dorisTypeProp.setShortDescription(I18n.text("Doris operation type (Drift or Move)."));
+                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(dorisTypeProp, new ComboEditor<DorisType>(DorisType.values()));
+                    props.add(dorisTypeProp);
+
+                    DefaultProperty dorisRadius = PropertiesEditor.getPropertyInstance("Radius", Double.class,
+                            samplerRadius, true);
+                    dorisRadius.setShortDescription(I18n.text("Sampling radius in meters."));
+                    props.add(dorisRadius);
+
+                    DefaultProperty dorisSpeed = PropertiesEditor.getPropertyInstance("Sampler Speed", Double.class,
+                            this.samplerSpeed, true);
+                    dorisSpeed.setShortDescription(I18n.text("Sampler speed in m/s."));
+                    props.add(dorisSpeed);
+
+                    if (this.dorisType == DorisType.MOVE) {
+                        DefaultProperty bearing = PropertiesEditor.getPropertyInstance("Bearing", Double.class,
+                                dorisBearing, true);
+                        bearing.setShortDescription(I18n.text("Bearing in degrees."));
+                        props.add(bearing);
+                    }
+                    break;
+            }
+        }
 
         return props;
     }
@@ -193,8 +307,87 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
 
             if (p.getName().equals("Sampling Args")) {
                 setSamplingArgs((String) p.getValue());
+                continue;
+            }
+
+            if (p.getName().equals("Radius")) {
+                setSamplerRadius((Double) p.getValue());
+                continue;
+            }
+
+            if (p.getName().equals("Sampler Speed")) {
+                setSamplerSpeed((Double) p.getValue());
+                continue;
+            }
+
+            if (p.getName().equals("Doris Type")) {
+                DorisType oldType = this.dorisType;
+                DorisType newType = (DorisType) p.getValue();
+                setDorisType(newType);
+
+                if (oldType == DorisType.MOVE && newType == DorisType.DRIFT) {
+                    this.dorisBearing = 0.0;
+                }
+                continue;
+            }
+
+            if (p.getName().equals("Bearing")) {
+                setDorisBearing((Double) p.getValue());
+                continue;
             }
         }
+
+        updateSamplingArgsFromFields();
+    }
+
+    private void updateSamplingArgsFromFields() {
+        SamplerType currentSampler = SamplerType.fromString(samplingType);
+        if (currentSampler == null) {
+            return;
+        }
+
+        StringBuilder args = new StringBuilder();
+
+        switch (currentSampler) {
+            case REDX:
+            case WHITEX:
+                if (samplerRadius != null) {
+                    args.append("Radius=").append(samplerRadius);
+                }
+                if (samplerSpeed != null) {
+                    if (args.length() > 0) args.append(", ");
+                    args.append("Speed=").append(samplerSpeed);
+                }
+                break;
+            case DORIS:
+                if (dorisType != null) {
+                    args.append("Type=").append(dorisType.name());
+                }
+                if (samplerRadius != null) {
+                    if (args.length() > 0) args.append(", ");
+                    args.append("Radius=").append(samplerRadius);
+                }
+                if (dorisType == DorisType.DRIFT) {
+                    if (samplerSpeed != null) {
+                        if (args.length() > 0) args.append(", ");
+                        args.append("Speed=").append(samplerSpeed);
+                    }
+                }
+                else if (dorisType == DorisType.MOVE) {
+                    if (samplerSpeed != null) {
+                        if (args.length() > 0) args.append(", ");
+                        args.append("Speed=").append(samplerSpeed);
+                    }
+                    if (dorisBearing != null) {
+                        if (args.length() > 0) args.append(", ");
+                        args.append("Bearing=").append(dorisBearing);
+                    }
+                }
+                break;
+        }
+
+        this.samplingArgs = args.toString();
+        this.radius = parseRadius(this.samplingArgs);
     }
 
     @Override
@@ -219,11 +412,31 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         if (!hasRadius())
             return;
         double radius = getRadius() * renderer.getZoom();
-        g2d.setColor(new Color(255, 255, 255, 100));
-        g2d.fill(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
-        g2d.setColor(Color.blue.darker());
-        g2d.draw(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
-        g2d.setTransform(at);
+        SamplerType currentSampler = SamplerType.fromString(samplingType);
+        boolean isDorisMove = currentSampler == SamplerType.DORIS && dorisType == DorisType.MOVE;
+        if (!isDorisMove) {
+            g2d.setColor(new Color(255, 255, 255, 100));
+            g2d.fill(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
+            g2d.setColor(Color.blue.darker());
+            g2d.draw(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
+            g2d.setTransform(at);
+        } else {
+            double length = radius * 2;
+            double bearingRad = Math.toRadians(dorisBearing);
+            double x1 = -length / 2 * Math.sin(bearingRad);
+            double y1 = length / 2 * Math.cos(bearingRad);
+            double x2 = length / 2 * Math.sin(bearingRad);
+            double y2 = -length / 2 * Math.cos(bearingRad);
+            g2d.setColor(Color.blue.darker());
+            g2d.draw(new Line2D.Double(x1, y1, x2, y2));
+            g2d.setColor(new Color(255, 255, 255, 100));
+            g2d.fill(new Ellipse2D.Double(x1 - 3, y1 - 3, 6, 6));
+            g2d.fill(new Ellipse2D.Double(x2 - 3, y2 - 3, 6, 6));
+            g2d.setColor(Color.blue.darker());
+            g2d.draw(new Ellipse2D.Double(x1 - 3, y1 - 3, 6, 6));
+            g2d.draw(new Ellipse2D.Double(x2 - 3, y2 - 3, 6, 6));
+            g2d.setTransform(at);
+        }
     }
 
     @Override
@@ -323,8 +536,52 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
         return radius != null;
     }
 
+    public Double getSamplerRadius() {
+        return samplerRadius;
+    }
+
+    public void setSamplerRadius(Double samplerRadius) {
+        this.samplerRadius = samplerRadius;
+    }
+
+    public Double getSamplerSpeed() {
+        return samplerSpeed;
+    }
+
+    public void setSamplerSpeed(Double samplerSpeed) {
+        this.samplerSpeed = samplerSpeed;
+    }
+
+    public DorisType getDorisType() {
+        return dorisType;
+    }
+
+    public void setDorisType(DorisType dorisType) {
+        this.dorisType = dorisType;
+    }
+
+    public Double getDorisBearing() {
+        return dorisBearing;
+    }
+
+    public void setDorisBearing(Double dorisBearing) {
+        this.dorisBearing = dorisBearing;
+    }
+
+    public String validateSamplerRadius(double value) {
+        if (value <= 0)
+            return I18n.text("Radius must be greater than 0");
+        return null;
+    }
+
+    public String validateSamplerSpeed(double value) {
+        if (value <= 0)
+            return I18n.text("Speed must be greater than 0");
+        return null;
+    }
+
     private Double parseRadius(String samplingArgs) {
-        for (String arg : samplingArgs.split(";")) {
+        for (String arg : samplingArgs.split("[,;]")) {
             String[] keyValue = arg.split("=", 2);
             if (keyValue.length != 2 || !"Radius".equals(keyValue[0].trim())) {
                 continue;
