@@ -177,6 +177,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private PlanElementsFactory planElementsFactory = null;
 
     private ManeuverLocation.Z_UNITS[] validZUnits = null;
+    private String[] validSamplers = null;
 
     public VehicleType() {
 
@@ -346,6 +347,19 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                             .filter(Objects::nonNull).toArray(Z_UNITS[]::new);
                     if (res.length > 0)
                         validZUnits = res;
+                }
+            }
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/valid-samplers");
+            validSamplers = null;
+            if (nd != null) {
+                String valueListStr = nd.getText();
+                if (valueListStr != null) {
+                    String[] res = Arrays.stream(valueListStr.split("\\s*[,;:]\\s*"))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty()).toArray(String[]::new);
+                    if (res.length > 0)
+                        validSamplers = res;
                 }
             }
 
@@ -1279,6 +1293,13 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      */
     public ManeuverLocation.Z_UNITS[] getValidZUnits() {
         return validZUnits;
+    }
+
+    /**
+     * @return the validSamplers
+     */
+    public String[] getValidSamplers() {
+        return validSamplers;
     }
     
     /**

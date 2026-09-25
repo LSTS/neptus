@@ -676,4 +676,21 @@ public class PlanUtil {
     public static ManeuverLocation.Z_UNITS[] getValidZUnitsForVehicle(VehicleType vehicle) {
         return vehicle == null ? null : vehicle.getValidZUnits();
     }
+
+    /**
+     * @param vehicle
+     * @return
+     */
+    public static String[] getValidSamplersForVehicle(String vehicle) {
+        VehicleType veh = VehiclesHolder.getVehicleById(vehicle);
+        return getValidSamplersForVehicle(veh);
+    }
+
+    /**
+     * @param vehicle
+     * @return
+     */
+    public static String[] getValidSamplersForVehicle(VehicleType vehicle) {
+        return vehicle == null ? null : vehicle.getValidSamplers();
+    }
 }
