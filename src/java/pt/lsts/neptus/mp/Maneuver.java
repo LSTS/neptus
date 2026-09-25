@@ -961,6 +961,15 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return new Vector<DefaultProperty>();
     }
 
+    /**
+     * Check if a property change requires reloading the properties panel.
+     * @param propertyName The name of the property that changed
+     * @return true if properties need to be reloaded, false otherwise
+     */
+    public boolean needsPropertyReload(String propertyName) {
+        return false;
+    }
+
     public void setProperties(Property[] properties) {
         for (Property p : properties) {
             try {

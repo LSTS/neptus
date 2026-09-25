@@ -113,6 +113,12 @@ public class ManeuverPropertiesPanel extends JPanel {
                     }
                 }
 
+                if (prop != null && maneuver.needsPropertyReload(prop.getName())) {
+                    setProps();
+                    setManeuver(maneuver);
+                    return;
+                }
+
                 setProps();
             }
         });
