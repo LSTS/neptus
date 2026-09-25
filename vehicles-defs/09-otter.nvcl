@@ -23,6 +23,7 @@
     </appearance>
     <limits>
       <valid-zunits>depth</valid-zunits>
+      <valid-samplers>Doris, WhiteX</valid-samplers>
     </limits>
   </properties>
   <feasibleManeuvers>
