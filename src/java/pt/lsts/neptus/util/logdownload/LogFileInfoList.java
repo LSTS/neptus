@@ -89,6 +89,8 @@ public class LogFileInfoList extends JXList {
 			public Component getListCellRendererComponent(JList<? extends LogFileInfo> list, LogFileInfo value, int index, boolean isSelected, boolean cellHasFocus) {
 				try {
 					LogFileInfo folder = value;
+					if (folder == null)
+						return new JLabel();
 					
 					String infoSize = "";
 					if (folder.getSize() >= 0) {
