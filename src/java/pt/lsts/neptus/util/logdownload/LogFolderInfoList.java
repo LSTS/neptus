@@ -86,6 +86,8 @@ public class LogFolderInfoList extends JXList {
 					boolean cellHasFocus) {
 				try {
 					LogFolderInfo folder = value;
+					if (folder == null)
+						return new JLabel();
 					
 					JLabel lbl = new JLabel(folder.getName(), ICON_NEW, JLabel.LEFT) {
 					    @Override
