@@ -36,9 +36,10 @@ import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -223,10 +224,16 @@ public class ConsoleParse implements FileHandler {
                 throw new IOException("File missing or locked: " + fx.getAbsolutePath());
             }
 
-            SAXReader reader =  new SAXReader();
-            try (FileInputStream fis = new FileInputStream(fx)) {
-                Document doc = reader.read(fis);
+            // Read and close the native file descriptor before handing the data to SAX. Some
+            // Linux/JVM combinations otherwise intermittently report EBADF while SAX is parsing.
+            byte[] consoleData = Files.readAllBytes(fx.toPath());
+            SAXReader reader = new SAXReader();
+            try (ByteArrayInputStream input = new ByteArrayInputStream(consoleData)) {
+                Document doc = reader.read(input);
                 Element rootConsole = (Element) doc.selectSingleNode("//" + ConsoleLayout.DEFAULT_ROOT_ELEMENT);
+                if (rootConsole == null)
+                    throw new IOException("Invalid console file (missing " + ConsoleLayout.DEFAULT_ROOT_ELEMENT
+                            + " root element): " + fx.getAbsolutePath());
                 parseElement(rootConsole, console, consoleURL);
 
                 console.setXmlDoc(doc);
