@@ -216,7 +216,7 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
                         samplerSpeed = Double.parseDouble(value);
                         break;
                     case "Type":
-                        dorisType = DorisType.valueOf(value);
+                        dorisType = DorisType.fromString(value);
                         break;
                     case "Bearing":
                         dorisBearing = Double.parseDouble(value);
@@ -390,31 +390,31 @@ public class Sampling extends Maneuver implements LocatedManeuver, ManeuverWithS
                     args.append("Radius=").append(samplerRadius);
                 }
                 if (samplerSpeed != null) {
-                    if (args.length() > 0) args.append(", ");
+                    if (args.length() > 0) args.append("; ");
                     args.append("Speed=").append(samplerSpeed);
                 }
                 break;
             case DORIS:
                 if (dorisType != null) {
-                    args.append("Type=").append(dorisType.name());
+                    args.append("Type=").append(dorisType.getDisplayName());
                 }
                 if (samplerRadius != null) {
-                    if (args.length() > 0) args.append(", ");
+                    if (args.length() > 0) args.append("; ");
                     args.append("Radius=").append(samplerRadius);
                 }
                 if (dorisType == DorisType.DRIFT) {
                     if (samplerSpeed != null) {
-                        if (args.length() > 0) args.append(", ");
+                        if (args.length() > 0) args.append("; ");
                         args.append("Speed=").append(samplerSpeed);
                     }
                 }
                 else if (dorisType == DorisType.MOVE) {
                     if (samplerSpeed != null) {
-                        if (args.length() > 0) args.append(", ");
+                        if (args.length() > 0) args.append("; ");
                         args.append("Speed=").append(samplerSpeed);
                     }
                     if (dorisBearing != null) {
-                        if (args.length() > 0) args.append(", ");
+                        if (args.length() > 0) args.append("; ");
                         args.append("Bearing=").append(dorisBearing);
                     }
                 }
