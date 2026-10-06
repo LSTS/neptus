@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2026.01.0 (project/explora,70a0b870e)" modules="unknown or not apply" system="otter" i18n="en_US">
+<config format="1" version="2026.01.0 (project/explora,1c7c7bae7)" modules="master,68d4828" system="otter" i18n="en_US">
   <section name="Daemon" name-i18n="Daemon">
     <param name="Activation Time" editable="false">
       <name-i18n>Activation Time</name-i18n>
@@ -244,6 +244,129 @@
       <units>s</units>
       <desc>Number of seconds without data before restarting task</desc>
       <min>1.0</min>
+    </param>
+  </section>
+  <section name="Attitude EKF" name-i18n="Attitude EKF">
+    <param name="Accelerometer Gate">
+      <name-i18n>Accelerometer Gate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units/>
+      <desc>Specific-force deviation from gravity above which the accelerometer noise is inflated (m/s^2)</desc>
+    </param>
+    <param name="Accelerometer Noise">
+      <name-i18n>Accelerometer Noise</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.00019</default>
+      <units/>
+      <desc>Accelerometer roll/pitch measurement noise variance (rad^2)</desc>
+    </param>
+    <param name="Activation Time" editable="false">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected activation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Angle Random-Walk PSD">
+      <name-i18n>Angle Random-Walk PSD</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.7e-8</default>
+      <units/>
+      <desc>Attitude process-noise PSD (rad^2/s)</desc>
+    </param>
+    <param name="Deactivation Time" editable="false">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected deactivation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Debug level for human-readable messages</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Entity Label" editable="false">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Attitude EKF</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Entity Label - IMU">
+      <name-i18n>Entity Label - IMU</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AHRS</default>
+      <units/>
+      <desc>Label of the entity producing the acceleration, angular velocity, delta angle and magnetic field measurements. Leave empty to accept measurements from any source</desc>
+    </param>
+    <param name="Execution Priority" editable="false">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Gyro Bias Random-Walk PSD">
+      <name-i18n>Gyro Bias Random-Walk PSD</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1e-10</default>
+      <units/>
+      <desc>Gyro-bias process-noise PSD ((rad/s)^2/s)</desc>
+    </param>
+    <param name="Loopback Internal Messages" editable="false">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Magnetometer Noise">
+      <name-i18n>Magnetometer Noise</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0076</default>
+      <units/>
+      <desc>Magnetometer yaw measurement noise variance (rad^2)</desc>
+    </param>
+    <param name="Nominal Update Period">
+      <name-i18n>Nominal Update Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.02</default>
+      <units>s</units>
+      <desc>Fallback filter period, used until timestamps provide a valid delta</desc>
     </param>
   </section>
   <section name="Back Seat TCP Server" name-i18n="Back Seat TCP Server">
@@ -798,6 +921,15 @@
       <desc>Expected activation time in seconds.</desc>
       <min>0</min>
     </param>
+    <param name="DCCL Encoding">
+      <name-i18n>DCCL Encoding</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable encoding of IMC messages with DCCL protocol</desc>
+    </param>
     <param name="Deactivation Time" editable="false">
       <name-i18n>Deactivation Time</name-i18n>
       <type>real</type>
@@ -837,6 +969,16 @@
       <units/>
       <desc>Execution priority</desc>
     </param>
+    <param name="Fragment Storage Time">
+      <name-i18n>Fragment Storage Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>s</units>
+      <desc>Represents the amount of time a message is valid for retransmission. If set to 0, retransmission requests are not allowed.</desc>
+      <min>0</min>
+    </param>
     <param name="GSM - Entity Label">
       <name-i18n>GSM - Entity Label</name-i18n>
       <type>string</type>
@@ -864,14 +1006,14 @@
       <units/>
       <desc>Entity label of Iridium modem</desc>
     </param>
-    <param name="Iridium Reports Period">
-      <name-i18n>Iridium Reports Period</name-i18n>
+    <param name="Iridium - Payload Size">
+      <name-i18n>Iridium - Payload Size</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>600</default>
+      <default>259</default>
       <units/>
-      <desc>Period, in seconds, between transmission of states via Iridium. Value of 0 disables transmission.</desc>
+      <desc>Maximum size of iridium payload messages in bytes.</desc>
     </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
@@ -1049,12 +1191,12 @@
     </param>
     <param name="Entity Label - Compass">
       <name-i18n>Entity Label - Compass</name-i18n>
-      <type>string</type>
+      <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>AHRS</default>
       <units/>
-      <desc>Entity label of 'AHRS' messages</desc>
+      <desc>Comma-separated list of entity labels of 'AHRS' messages</desc>
     </param>
     <param name="Execution Priority" editable="false">
       <name-i18n>Execution Priority</name-i18n>
@@ -1113,6 +1255,16 @@
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
+    <param name="Collector -- Disks RPM">
+      <name-i18n>Collector -- Disks RPM</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>1000</default>
+      <units>r/min</units>
+      <desc>RPM of the collector's disks during sampling.</desc>
+      <min>0</min>
+    </param>
     <param name="Collector -- Maximum Water Level - GPIO Label" editable="false">
       <name-i18n>Collector -- Maximum Water Level - GPIO Label</name-i18n>
       <type>string</type>
@@ -1148,6 +1300,16 @@
       <default>2</default>
       <units/>
       <desc>Id of the motor to control the collector's disks.</desc>
+    </param>
+    <param name="Collector -- Motor - Settings" editable="false">
+      <name-i18n>Collector -- Motor - Settings</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000.0, 1.0</default>
+      <units/>
+      <desc>Settings for the collector's disks motor: {maximum motor rpm, ratio motor:disks}.</desc>
+      <size>2</size>
     </param>
     <param name="Collector -- Pumps - Power Channel Names" editable="false">
       <name-i18n>Collector -- Pumps - Power Channel Names</name-i18n>
@@ -1421,7 +1583,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>EP1</default>
       <units/>
       <desc>Name of the GPIO that corresponds to the row end.</desc>
     </param>
@@ -2855,6 +3017,15 @@
       <units/>
       <desc>Log the size of each PID parcel</desc>
     </param>
+    <param name="Log Thrust Parcel">
+      <name-i18n>Log Thrust Parcel</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Log common and differential thrust. Common logged as p, differential as d.</desc>
+    </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
       <type>boolean</type>
@@ -2927,8 +3098,6 @@
       <default>1.0</default>
       <units/>
       <desc>Maximum Motor Command</desc>
-      <min>0.0</min>
-      <max>1.0</max>
     </param>
     <param name="Maximum Thrust Differential Actuation">
       <name-i18n>Maximum Thrust Differential Actuation</name-i18n>
@@ -2983,7 +3152,7 @@
       <scope>global</scope>
       <default>0.0</default>
       <units/>
-      <desc>Ramp actuation limit when the value is rising in actuation per second</desc>
+      <desc>Ramp actuation limit, in actuation per second</desc>
     </param>
     <param name="Share Saturation">
       <name-i18n>Share Saturation</name-i18n>
@@ -3252,7 +3421,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AcousticLink, AcousticOperation, AcousticRequest, AcousticStatus, AllocatedControlTorques, AlignmentState, AssetReport, Chlorophyll, Conductivity, CurrentProfile, DvlRejection, DissolvedOrganicMatter, DissolvedOxygen, Elevator, Fluorescein, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, MagneticField, PH, Phycocyanin, Phycoerythrin, PopUp, Pressure, Redox, RhodamineDye, Rpm, Salinity, SadcReadings, ServoPosition, SetServoPosition, SetThrusterActuation, SoiCommand, SoiState, SonarData, SoundSpeed, Turbidity, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, WaterDensity, WaterVelocity, YoYo</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AcousticLink, AcousticOperation, AcousticRequest, AcousticStatus, AllocatedControlTorques, AlignmentState, AssetReport, Chlorophyll, Conductivity, CurrentProfile, DvlRejection, DissolvedOrganicMatter, DissolvedOxygen, Elevator, Fluorescein, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, MagneticField, PH, Phycocyanin, Phycoerythrin, PopUp, Pressure, Redox, RhodamineDye, Rpm, Salinity, SadcReadings, ServoPosition, SetServoPosition, SetThrusterActuation, SoiCommand, SoiState, SonarData, SoundSpeed, Turbidity, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, WaterDensity, WaterVelocity, YoYo, SamplingAction, Sampling, WaterFlow, GpioState</default>
       <units/>
       <desc>List of messages to log. If empty, all messages will be logged.</desc>
     </param>
@@ -3295,6 +3464,17 @@
       <default>1</default>
       <units>m</units>
       <desc>Minimum altitude necessary to consider a vehicle (Copter) in air</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Conductivity Threshold">
+      <name-i18n>Conductivity Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units/>
+      <desc>Conductivity threshold value</desc>
+      <min>0.0</min>
     </param>
     <param name="Deactivation Time" editable="false">
       <name-i18n>Deactivation Time</name-i18n>
@@ -3526,6 +3706,15 @@
       <default>1800</default>
       <units/>
       <desc>Maximum amount of seconds to wait for missing fragments in incoming messages</desc>
+    </param>
+    <param name="Transmission Request TTL">
+      <name-i18n>Transmission Request TTL</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>120</default>
+      <units/>
+      <desc>Time to live for transmission requests</desc>
     </param>
   </section>
   <section name="Multiplexer Maneuver" name-i18n="Multiplexer Maneuver">
@@ -4059,7 +4248,35 @@
       <desc>Expected activation time in seconds.</desc>
       <min>0</min>
     </param>
-    <param name="Convert Height to Geoid Height">
+    <param name="Altitude Source Entity Label" editable="false">
+      <name-i18n>Altitude Source Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Entity label of the source of Altitude data. If an empty label is provided, Altitude data will not be used.</desc>
+    </param>
+    <param name="Angular Velocity Source Entity Label" editable="false">
+      <name-i18n>Angular Velocity Source Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AHRS</default>
+      <units/>
+      <desc>Entity label of the source of Angular Velocity data. If an empty label is provided, Angular Velocity data will not be used.</desc>
+    </param>
+    <param name="COG and SOG Estimator Window Size">
+      <name-i18n>COG and SOG Estimator Window Size</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Window size for the moving average of COG and SOG estimates.</desc>
+      <min>1</min>
+    </param>
+    <param name="Convert Height to Geoid Height" editable="false">
       <name-i18n>Convert Height to Geoid Height</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
@@ -4089,6 +4306,44 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Default Depth">
+      <name-i18n>Default Depth</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc>Default value for depth.</desc>
+    </param>
+    <param name="Depth Source Entity Label" editable="false">
+      <name-i18n>Depth Source Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Entity label of the source of Depth data. If an empty label is provided, Depth data will not be used.</desc>
+    </param>
+    <param name="Device Input Timeout" editable="false">
+      <name-i18n>Device Input Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>s</units>
+      <desc>Device input timeout in seconds.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Distress Message TTL">
+      <name-i18n>Distress Message TTL</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0</default>
+      <units>s</units>
+      <desc>Time to live for distress messages. If set to 0, distress messages will not be sent.</desc>
+      <min>0.0</min>
+    </param>
     <param name="Entity Label" editable="false">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
@@ -4098,32 +4353,33 @@
       <units/>
       <desc>Main entity label</desc>
     </param>
-    <param name="Entity Label - GPS">
-      <name-i18n>Entity Label - GPS</name-i18n>
-      <type>string</type>
+    <param name="Estimate COG and SOG" editable="false">
+      <name-i18n>Estimate COG and SOG</name-i18n>
+      <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GPS</default>
+      <default>false</default>
       <units/>
-      <desc>Entity label of 'GpsFix' and 'GroundVelocity' messages</desc>
+      <desc>Estimate course over ground (COG) and speed over ground (SOG). Using the difference in position and time between consecutive valid GNSS fixes. If set to true, COG and SOG from GNSS input will be discarded. Ground Velocity input will be prioritized over estimated COG and SOG if available and valid.</desc>
     </param>
-    <param name="Entity Label - IMU">
-      <name-i18n>Entity Label - IMU</name-i18n>
-      <type>string</type>
+    <param name="Euler Angles Source Entity Labels" editable="false">
+      <name-i18n>Euler Angles Source Entity Labels</name-i18n>
+      <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS</default>
+      <default>AHRS, GPS</default>
       <units/>
-      <desc>Entity label of 'EulerAngles' and 'AngularVelocity' messages</desc>
+      <desc>Comma-seperated Entity labels of the sources of Euler Angles data, ordered by priority. If an empty label is provided, it will result in a configuration error and the task will be restarted.</desc>
+      <max-size>5</max-size>
     </param>
-    <param name="Entity Label - Yaw">
-      <name-i18n>Entity Label - Yaw</name-i18n>
-      <type>string</type>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS</default>
-      <units/>
-      <desc>Entity label of 'EulerAngles' messages (field 'psi')</desc>
+      <default>5</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
     </param>
     <param name="Execution Priority" editable="false">
       <name-i18n>Execution Priority</name-i18n>
@@ -4133,6 +4389,46 @@
       <default>10</default>
       <units/>
       <desc>Execution priority</desc>
+    </param>
+    <param name="GNSS Maximum HACC">
+      <name-i18n>GNSS Maximum HACC</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc>Maximum acceptable Horizontal Accuracy (HACC) for a GpsFix. Set to 0 to disable.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="GNSS Maximum HDOP">
+      <name-i18n>GNSS Maximum HDOP</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4</default>
+      <units/>
+      <desc>Maximum acceptable Horizontal Dilution of Precision (HDOP) for a GpsFix. Set to 0 to disable.</desc>
+      <min>0.0</min>
+    </param>
+    <param name="GNSS Source Entity Labels" editable="false">
+      <name-i18n>GNSS Source Entity Labels</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>Comma-seperated Entity labels of the sources of GNSS data, ordered by priority. If an empty label is provided, it will result in a configuration error and the task will be restarted.</desc>
+      <min-size>1</min-size>
+      <max-size>5</max-size>
+    </param>
+    <param name="Ground Velocity Source Entity Label" editable="false">
+      <name-i18n>Ground Velocity Source Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Entity label of the source of Ground Velocity data. If an empty label is provided, Ground Velocity data will not be used.</desc>
     </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
@@ -4148,10 +4444,28 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000.0</default>
-      <units>m</units>
-      <desc>Distance needed for reference change.</desc>
-      <min>500</min>
+      <default>20.0</default>
+      <units>km</units>
+      <desc>Distance needed for reference change (in kilometers).</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Require COG and SOG from GNSS">
+      <name-i18n>Require COG and SOG from GNSS</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Require course over ground (COG) and speed over ground (SOG) for a GpsFix to be valid.</desc>
+    </param>
+    <param name="Use COG as Heading">
+      <name-i18n>Use COG as Heading</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use course over ground as heading when Euler Angles data is not available.</desc>
     </param>
   </section>
   <section name="Operational Limits" name-i18n="Operational Limits">
@@ -4680,7 +4994,8 @@
       <scope>global</scope>
       <default>3.0</default>
       <units/>
-      <desc>Radius around endpoint to consider maneuver as done.</desc>
+      <desc>Radius around endpoint to consider maneuver as done. If negative, only ETA is considered.</desc>
+      <min>-1</min>
     </param>
     <param name="State Report Frequency">
       <name-i18n>State Report Frequency</name-i18n>
@@ -4699,15 +5014,6 @@
       <default>false</default>
       <units/>
       <desc>Enable separate gains for loiter control.If false, gains for path control are used for loiter control as well.</desc>
-    </param>
-    <param name="Use Radius To Endpoint">
-      <name-i18n>Use Radius To Endpoint</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Use radius to endpoint instead of ETA.</desc>
     </param>
   </section>
   <section name="Plan Database" name-i18n="Plan Database">
@@ -5493,7 +5799,7 @@
       <default>15.0</default>
       <units>°</units>
       <desc>Threshold for alignment during sampling repositioning</desc>
-      <min>0.1</min>
+      <min>5.0</min>
     </param>
     <param name="Doris -- Initial Wait Time">
       <name-i18n>Doris -- Initial Wait Time</name-i18n>
@@ -5513,7 +5819,7 @@
       <default>5.0</default>
       <units>s</units>
       <desc>Maximum time without a sampling state update</desc>
-      <min>0.1</min>
+      <min>1.0</min>
     </param>
     <param name="Doris -- Setup Timeout">
       <name-i18n>Doris -- Setup Timeout</name-i18n>
@@ -5523,7 +5829,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>Maximum time allowed for sampling setup</desc>
-      <min>0.1</min>
+      <min>1.0</min>
     </param>
     <param name="Entity Label" editable="false">
       <name-i18n>Entity Label</name-i18n>
@@ -5560,7 +5866,7 @@
       <default>5.0</default>
       <units>s</units>
       <desc>Maximum time without a sampling state update</desc>
-      <min>0.1</min>
+      <min>1.0</min>
     </param>
     <param name="RedX -- Setup Timeout">
       <name-i18n>RedX -- Setup Timeout</name-i18n>
@@ -5570,7 +5876,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>Maximum time allowed for sampling setup</desc>
-      <min>0.1</min>
+      <min>1.0</min>
     </param>
     <param name="Supported Sampler Types">
       <name-i18n>Supported Sampler Types</name-i18n>
@@ -5589,7 +5895,7 @@
       <default>5.0</default>
       <units>s</units>
       <desc>Maximum time without a sampling state update</desc>
-      <min>0.1</min>
+      <min>1.0</min>
     </param>
     <param name="WhiteX -- Setup Timeout">
       <name-i18n>WhiteX -- Setup Timeout</name-i18n>
@@ -5599,7 +5905,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>Maximum time allowed for sampling setup</desc>
-      <min>0.1</min>
+      <min>1.0</min>
     </param>
   </section>
   <section name="Service Announcer" name-i18n="Service Announcer">
@@ -6079,6 +6385,76 @@
       <desc>Factor in fault detection for comparison between accumulated differences</desc>
     </param>
   </section>
+  <section name="State Reporter" name-i18n="State Reporter">
+    <param name="Activation Time" editable="false">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected activation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Deactivation Time" editable="false">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Expected deactivation time in seconds.</desc>
+      <min>0</min>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Debug level for human-readable messages</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Entity Label" editable="false">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>State Reporter</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority" editable="false">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Iridium Reports Period">
+      <name-i18n>Iridium Reports Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>600</default>
+      <units/>
+      <desc>Period, in seconds, between transmission of states via Iridium. Value of 0 disables transmission.</desc>
+      <min>0</min>
+    </param>
+    <param name="Loopback Internal Messages" editable="false">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+  </section>
   <section name="Swarm Participant" name-i18n="Swarm Participant">
     <param name="Acknowledgement Timeout">
       <name-i18n>Acknowledgement Timeout</name-i18n>
@@ -6505,7 +6881,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>EntityParameters, LoggingControl, PopEntityParameters, PowerOperation, PushEntityParameters, QueryEntityInfo, QueryEntityParameters, SaveEntityParameters, SetEntityParameters, SamplingAction</default>
+      <default>EntityParameters, LoggingControl, PopEntityParameters, PowerOperation, PushEntityParameters, QueryEntityInfo, QueryEntityParameters, SaveEntityParameters, SetEntityParameters, SamplingAction, PowerChannelControl, QueryPowerChannelState</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
@@ -7461,6 +7837,15 @@
       <units/>
       <desc>Execution priority</desc>
     </param>
+    <param name="Force State Transition">
+      <name-i18n>Force State Transition</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Manually force state transition.</desc>
+    </param>
     <param name="Loopback Internal Messages" editable="false">
       <name-i18n>Loopback Internal Messages</name-i18n>
       <type>boolean</type>
@@ -7508,6 +7893,15 @@
       <values>Automatic, Manual</values>
       <values-i18n>Automatic, Manual</values-i18n>
     </param>
+    <param name="Pause Allowed">
+      <name-i18n>Pause Allowed</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Allow pausing the sampling process.</desc>
+    </param>
     <param name="Pumps - Power Channel Names" editable="false">
       <name-i18n>Pumps - Power Channel Names</name-i18n>
       <type>list:string</type>
@@ -7516,6 +7910,25 @@
       <default>VBat_0, VBat_1, VBat_2, VBat_3, VBat_4, VBat_5, VBat_6, VBat_7, VBat_8, VBat_9</default>
       <units/>
       <desc>Names of the power channels that control the pumps.</desc>
+    </param>
+    <param name="Restart Allowed">
+      <name-i18n>Restart Allowed</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Allow restarting the sampling process.</desc>
+    </param>
+    <param name="Sampling Timeout">
+      <name-i18n>Sampling Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>s</units>
+      <desc>Timeout for the sampling process in seconds.</desc>
+      <min>0.0</min>
     </param>
     <param name="Water Flow - Entity Label" editable="false">
       <name-i18n>Water Flow - Entity Label</name-i18n>
