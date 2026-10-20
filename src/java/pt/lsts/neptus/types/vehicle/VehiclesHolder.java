@@ -55,6 +55,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.CloudloopArgs;
 import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.CoordinateSystemsHolder;
@@ -186,6 +187,18 @@ public class VehiclesHolder {
        return vtList.stream().filter(vt -> vt.getProtocolsArgs().containsKey(CommMean.IRIDIUM)).filter(vt -> {
             IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get(CommMean.IRIDIUM);
             return args.getImei().equals(imei) || (args.getImei1() != null && args.getImei1().equals(imei));
+        }).findFirst().orElse(null);
+    }
+
+    public static VehicleType getVehicleWithCloudloopThingId(String thingId) {
+        Collection<VehicleType> vtList = VehiclesHolder.getVehiclesList().values();
+        if (vtList.isEmpty()) {
+            return null;
+        }
+
+        return vtList.stream().filter(vt -> vt.getProtocolsArgs().containsKey(CommMean.IRIDIUM_CLOUDLOOP)).filter(vt -> {
+            CloudloopArgs args = (CloudloopArgs) vt.getProtocolsArgs().get(CommMean.IRIDIUM_CLOUDLOOP);
+            return args.getThingId().equals(thingId) || (args.getThingId1() != null && args.getThingId1().equals(thingId));
         }).findFirst().orElse(null);
     }
 

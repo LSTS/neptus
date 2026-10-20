@@ -69,6 +69,7 @@ import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.CloudloopArgs;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.GsmArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
@@ -475,6 +476,11 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     IridiumArgs iridiumArgs = new IridiumArgs();
                     iridiumArgs.load(ndP.asXML());
                     protocolsArgs.put(CommMean.IRIDIUM, iridiumArgs);
+                }
+                else if (nodeName.equalsIgnoreCase("cloudloop")) {
+                    CloudloopArgs cloudloopArgs = new CloudloopArgs();
+                    cloudloopArgs.load(ndP.asXML());
+                    protocolsArgs.put(CommMean.IRIDIUM_CLOUDLOOP, cloudloopArgs);
                 }
             }
 

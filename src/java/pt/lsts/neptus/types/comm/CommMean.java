@@ -60,6 +60,7 @@ public class CommMean implements XmlOutputMethods {
     public static final String IMC = "imc";
     public static final String HTTP = "http";
     public static final String IRIDIUM = "iridium";
+    public static final String IRIDIUM_CLOUDLOOP = "cloudloop";
     public static final String GSM = "gsm";
 
     protected String name = "";
