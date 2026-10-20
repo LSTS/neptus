@@ -460,7 +460,9 @@ public class SidescanReplay implements LogReplayLayer {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source, Context context) {
-        return SidescanParserFactory.existsSidescanParser(source);
+        return source.getLog("EstimatedState") != null && (source.getLog("SonarData") != null
+                || source.getLog("SidescanPing") != null)
+                    || SidescanParserFactory.existsSidescanParser(source);
     }
 
     @Override
