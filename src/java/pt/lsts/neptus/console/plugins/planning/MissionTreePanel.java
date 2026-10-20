@@ -210,7 +210,9 @@ public class MissionTreePanel extends ConsolePanel
 
         // Using a javax.swing.Timer — runs on the Event Dispatch Thread (EDT) to force reload of the mission tree
         // to clear a strange behavior at start (appears a space between transponders and plan branch)
-        new Timer(500, e -> browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole())).start();
+        Timer timer = new Timer(500, e -> browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole()));
+        timer.setRepeats(false);
+        timer.start();
     }
 
     private void addClearPlanDbMenuItem() {
