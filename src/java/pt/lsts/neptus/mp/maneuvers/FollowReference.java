@@ -214,7 +214,7 @@ public class FollowReference extends DefaultManeuver implements IMCSerialization
             if (p.getName().equals("Controlling Source")) {
                 setControlSource((Integer) p.getValue());
             }
-            else if (p.getName().equals("Controlling Entityd")) {
+            else if (p.getName().equals("Controlling Entity")) {
                 setControlEntity((Integer) p.getValue());
             }
             else if (p.getName().equals("Controlling Timeout")) {
