@@ -349,8 +349,12 @@ class ScriptedPlotGroovy  {
         else
             Double.NaN
     }
-    
-     static public double getAGVFor(String id) {
+    static public double getAGVFor(String id) {
+        // typo method name, but we keep it for backward compatibility
+        return getAVGFor(id);
+    }
+
+    static public double getAVGFor(String id) {
         double result
         String system,key=""
         String [] split = id.split("\\.")
