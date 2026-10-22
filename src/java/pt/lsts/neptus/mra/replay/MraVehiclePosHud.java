@@ -72,18 +72,28 @@ public class MraVehiclePosHud {
 
     protected Color pathColor = Color.black;
     protected IMraLogGroup source;
-    
+
+    int imgMargin = 5;
+    double marginPercentage = 0.03;
+
+    float pathStroke = 3f;
+    float pathShadowStroke = 20f;
+    float maxStroke = Math.max(pathStroke, pathShadowStroke);
+
     public MraVehiclePosHud(IMraLogGroup source, int width, int height) {
         this.source = source;
         this.index = source.getLsfIndex();
         this.width = width;
         this.height = height;
+        imgMargin = (int) (Math.min(this.width, this.height) * marginPercentage);
         loadIndex();
     }
     
     public void correctPositions() {
         CorrectedPosition cp = new CorrectedPosition(source);
         for (SystemPositionAndAttitude state : states) {
+            if (state == null) continue;
+
             double timestamp = state.getTime() / 1000.0;
             SystemPositionAndAttitude corPos = cp.getPosition(timestamp);
             state.setPosition(new LocationType(corPos.getPosition()));
@@ -129,10 +139,10 @@ public class MraVehiclePosHud {
     }
     
     public BufferedImage getImage(double startTimestamp, double endTimestamp, double timestep) {
-        double desiredWidth = maxX - minX;
-        double desiredHeight = maxY - minY;
-        double zoom = (width-20) / desiredWidth;
-        zoom = Math.min(zoom, (height-20) / desiredHeight);
+        double desiredWidth = calcDesiredWidth();
+        double desiredHeight = calcDesiredHeight();
+        double zoom = calcZoom(desiredWidth, desiredHeight);
+
         if (map == null) {
             map = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             createMap();
@@ -143,27 +153,36 @@ public class MraVehiclePosHud {
         g2.drawImage(map, 0, 0, null);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (double timestamp = startTimestamp; timestamp < endTimestamp; timestamp += timestep) {
-            Graphics2D g = (Graphics2D)g2.create();
+            Graphics2D g = (Graphics2D) g2.create();
             setTimestamp(timestamp);
             SystemPositionAndAttitude state = states.get(currentPosition);
-        
-            
+            if (state == null) continue;
+
+            g.translate(imgMargin, imgMargin);
+            if (desiredWidth - desiredHeight > 0) {
+                g.translate(0, (height - imgMargin * 2 - desiredHeight * zoom) / 2.0);
+            } else {
+                g.translate((width - imgMargin * 2 - desiredWidth * zoom) / 2.0, 0);
+            }
+
             g.scale(zoom, zoom);
-            g.translate(-minX+10, -minY+10);
-            double offsets[] = state.getPosition().getOffsetFrom(ref);
+            g.translate(-minX + maxStroke / 2.0, -minY + maxStroke / 2.0);
+            double[] offsets = state.getPosition().getOffsetFrom(ref);
             g.setColor(Color.red);
             Ellipse2D.Double tmp = new Ellipse2D.Double(offsets[1]-3/zoom, -offsets[0]-3/zoom, 6/zoom, 6/zoom); 
             g.fill(tmp);            
+            g.dispose();
         }
+        g2.dispose();
         return img;
 
     }
 
     public BufferedImage getImage(double timestamp) {
-        double desiredWidth = maxX - minX;
-        double desiredHeight = maxY - minY;
-        double zoom = (width-20) / desiredWidth;
-        zoom = Math.min(zoom, (height-20) / desiredHeight);
+        double desiredWidth = calcDesiredWidth();
+        double desiredHeight = calcDesiredHeight();
+        double zoom = calcZoom(desiredWidth, desiredHeight);
+
         setTimestamp(timestamp);
         SystemPositionAndAttitude state = states.get(currentPosition);
         
@@ -172,35 +191,59 @@ public class MraVehiclePosHud {
             createMap();
         }
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        
+
         Graphics2D g = img.createGraphics();
         g.drawImage(map, 0, 0, null);
+        if (state == null) {
+            g.dispose();
+            return img;
+        }
 
-       
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g.translate(imgMargin, imgMargin);
+        if (desiredWidth - desiredHeight > 0) {
+            g.translate(0, (height - imgMargin * 2 - desiredHeight * zoom) / 2.0);
+        } else {
+            g.translate((width - imgMargin * 2 - desiredWidth * zoom) / 2.0, 0);
+        }
+
         g.scale(zoom, zoom);
-        g.translate(-minX+10, -minY+10);
-        double offsets[] = state.getPosition().getOffsetFrom(ref);
+        g.translate(-minX + maxStroke / 2.0, -minY + maxStroke / 2.0);
+        double[] offsets = state.getPosition().getOffsetFrom(ref);
         g.setColor(Color.red);
         Ellipse2D.Double tmp = new Ellipse2D.Double(offsets[1]-3/zoom, -offsets[0]-3/zoom, 6/zoom, 6/zoom); 
         g.fill(tmp);
         g.setColor(Color.black);
         g.draw(tmp);
-        
+        g.dispose();
+
         return img;
+    }
+
+    private double calcDesiredWidth() {
+        return maxX - minX + maxStroke;
+    }
+
+    private double calcDesiredHeight() {
+        return maxY - minY + maxStroke;
+    }
+
+    private double calcZoom(double desiredWidth, double desiredHeight) {
+        double zoom = (width - imgMargin * 2) / desiredWidth;
+        zoom = Math.min(zoom, (height - imgMargin * 2) / desiredHeight);
+        return zoom;
     }
 
     protected void createMap() {
         GeneralPath path = new GeneralPath();
         path.moveTo(0, 0);
 
-        for (int i = 0; i < states.size(); i++) {
-            SystemPositionAndAttitude state = states.get(i);
+        for (SystemPositionAndAttitude state : states) {
             if (state == null)
                 continue;
 
             LocationType loc = state.getPosition();
-
             double[] offsets = loc.getOffsetFrom(ref);
             double x = offsets[1];
             double y = -offsets[0];
@@ -211,25 +254,32 @@ public class MraVehiclePosHud {
             path.lineTo(x, y);
         }
 
-        double desiredWidth = maxX - minX;
-        double desiredHeight = maxY - minY;
-
-        double zoom = (width-20) / desiredWidth;
-        zoom = Math.min(zoom, (height-20) / desiredHeight);
+        double desiredWidth = calcDesiredWidth();
+        double desiredHeight = calcDesiredHeight();
+        double zoom = calcZoom(desiredWidth, desiredHeight);
 
         Graphics2D g = map.createGraphics();//offscreen.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+
+        g.translate(imgMargin, imgMargin);
+        if (desiredWidth - desiredHeight > 0) {
+            g.translate(0, (height - imgMargin * 2 - desiredHeight * zoom) / 2.0);
+        } else {
+            g.translate((width - imgMargin * 2 - desiredWidth * zoom) / 2.0, 0);
+        }
+
         g.scale(zoom, zoom);
-        g.translate(-minX+10, -minY+10);
+        g.translate(-minX + maxStroke / 2.0, -minY + maxStroke / 2.0);
         
         g.setColor(new Color(pathColor.getRed(),pathColor.getGreen(),pathColor.getBlue(),64));
-        g.setStroke(new BasicStroke(20f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(new BasicStroke(pathShadowStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.draw(path);
         
-        g.setStroke(new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setStroke(new BasicStroke(pathStroke, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.setColor(new Color(pathColor.getRed(),pathColor.getGreen(),pathColor.getBlue(),200));
-        g.draw(path);        
+        g.draw(path);
+        g.dispose();
     }
 
     public void setTimestamp(double timeSecs) {
@@ -288,7 +338,7 @@ public class MraVehiclePosHud {
     public static void main(String[] args) throws Exception {
 
         //LsfIndex index = new LsfIndex(new File("/home/zp/Desktop/logs/shore_line/Data.lsf"));
-        IMraLogGroup source = new LsfLogSource(new File("/home/zp/Desktop/REP14/REP_20140708/lauv-noptilus-2/20140708/100908_long_pier/Data.lsf"), null);
+        IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Disco2/LSTSLogs/skarv/20260921_090109_corax_0012_MWN_22-025/Data.lsf"), null);
         MraVehiclePosHud hud = new MraVehiclePosHud(source, 250, 200);
         hud.correctPositions();
         BufferedImage img = hud.getImage(hud.getStartTime()+300);
