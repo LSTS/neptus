@@ -209,10 +209,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Subscribe
     public void on(PlanControlState controlState) {
-
-        
-        if (controlState.getPlanId() == null || controlState.getPlanId().isEmpty())
-            return;
+        //if (controlState.getPlanId() == null || controlState.getPlanId().isEmpty())
+        //    return;
         
         // Check if we have already received a FollowReferenceState
         if (!frefStates.containsKey(controlState.getSourceName()))
@@ -227,6 +225,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                         + " is not being controlled anymore."));                
             }
             frefStates.remove(controlState.getSourceName());
+            plans.remove(controlState.getSourceName());
+            focusedWaypoint = null;
             return;
         }
 
