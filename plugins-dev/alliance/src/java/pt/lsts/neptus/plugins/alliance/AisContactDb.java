@@ -327,11 +327,18 @@ public class AisContactDb implements AISObserver {
     }
     
     public void setMTShip(MTShip ship) {
+        if (ship == null)
+            return;
+
         int mmsi = (int) ship.SHIP_ID;
         String name = ship.SHIPNAME;
-        if (ship.SHIPNAME.equals("[SAT-AIS]")) {
-            name = "SAT_"+ship.SHIP_ID;
+        if ("[SAT-AIS]".equals(ship.SHIPNAME)) {
+            name = "SAT_" + ship.SHIP_ID;
         }
+        else if (name == null || name.trim().isEmpty()) {
+            name = "MMSI_" + ship.SHIP_ID;
+        }
+
         AisContact contact;
         synchronized (lock) {
             if (!contacts.containsKey(mmsi)) {
@@ -350,27 +357,33 @@ public class AisContactDb implements AISObserver {
         contact.setLabel(name);
         contact.setSog(ship.SPEED);
         contact.setRateOfTurn(ship.ROT);
-        contact.setNavStatus(ship.STATUS_NAME);
+        contact.setNavStatus(ship.STATUS_NAME != null ? ship.STATUS_NAME : "");
         Message05 additionalProps = new Message05();
         additionalProps.setVesselName(name);
         additionalProps.setDimensionToPort(ship.W_LEFT);
-        additionalProps.setDimensionToStarboard(ship.WIDTH-ship.W_LEFT);
+        additionalProps.setDimensionToStarboard(ship.WIDTH - ship.W_LEFT);
         additionalProps.setDimensionToBow(ship.L_FORE);
-        additionalProps.setDimensionToStern(ship.LENGTH-ship.L_FORE);
+        additionalProps.setDimensionToStern(ship.LENGTH - ship.L_FORE);
         additionalProps.setAisVersion(-1);
         additionalProps.setCallSign("Unknown");
         additionalProps.setDraught(ship.DRAUGHT);
         additionalProps.setShipType(ship.TYPE);
-        additionalProps.setDestination(ship.DESTINATION);
+        additionalProps.setDestination(ship.DESTINATION != null ? ship.DESTINATION : "Unknown");
         contact.update(additionalProps);
-        long time = System.currentTimeMillis()-ship.ELAPSED;
+        long time = System.currentTimeMillis() - ship.ELAPSED;
         contact.setLastUpdate(time);
-        updateSystem(mmsi,new LocationType(ship.LAT,ship.LON),ship.HEADING,time);
+        updateSystem(mmsi, new LocationType(ship.LAT, ship.LON), ship.HEADING, time);
     }
     
     public void processJson(String sentence) {
-        MTShip ship = gson.fromJson(sentence, MTShip.class);
-        setMTShip(ship);
+        try {
+            MTShip ship = gson.fromJson(sentence, MTShip.class);
+            if (ship != null)
+                setMTShip(ship);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error processing MTShip JSON: " + sentence, e);
+        }
     }
 
     public void updateSystem(int mmsi, LocationType loc, double heading,long millis) {
