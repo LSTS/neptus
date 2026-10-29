@@ -78,6 +78,7 @@ import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -127,7 +128,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Override
     public void propertiesChanged() {
-
+        // To avoid waiting to the end of a long period to change the periodicity
+        PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
+        PeriodicUpdatesService.register((IPeriodicUpdates) this);
     }
 
     @Override
