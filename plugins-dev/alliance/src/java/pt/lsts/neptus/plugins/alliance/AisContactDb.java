@@ -92,49 +92,58 @@ public class AisContactDb implements AISObserver {
             return;
 
         int count = 0;
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(cache));
+        try (BufferedReader reader = new BufferedReader(new FileReader(cache))) {
             String line = reader.readLine();
             while (line != null) {
-                String[] parts = line.split(",");
-                int mmsi;
+                line = line.trim();
+                if (line.isEmpty() || !line.contains(",")) {
+                    line = reader.readLine();
+                    continue;
+                }
                 try {
-                    mmsi = Integer.parseInt(parts[0]);
-                }
-                catch (Exception e1) {
-                    mmsi = Integer.parseInt(parts[0].replaceAll("^0x", ""), 16);
-                }
-                String name = parts[1].trim();
-                synchronized (lock) {
-                    labelCache.put(mmsi, name);
-                }
-
-                HashMap<String, Object> dimV = new HashMap<>();
-                for (int i = 2; i < parts.length; i++) {
-                    String tk = parts[i].trim();
-                    String[] prs = tk.split("=");
-                    if (prs.length > 1) {
-                        String n = prs[0].trim();
+                    String[] parts = line.split(",");
+                    if (parts.length >= 2) {
+                        int mmsi;
                         try {
-                            double v = Double.parseDouble(prs[1].trim());
-                            dimV.put(n, v);
+                            mmsi = Integer.parseInt(parts[0]);
                         }
-                        catch (Exception e) {
-                            NeptusLog.pub().info(String.format("Not found a number, adding as string for %s", n));
-                            dimV.put(n, prs[1].trim());
+                        catch (Exception e1) {
+                            mmsi = Integer.parseInt(parts[0].replaceAll("^0x", ""), 16);
                         }
-                    }
-                }
-                if (!dimV.isEmpty()) {
-                    synchronized (lock) {
-                        dimensionsCache.put(mmsi, dimV);
-                    }
-                }
+                        String name = parts[1].trim();
+                        synchronized (lock) {
+                            labelCache.put(mmsi, name);
+                        }
 
+                        HashMap<String, Object> dimV = new HashMap<>();
+                        for (int i = 2; i < parts.length; i++) {
+                            String tk = parts[i].trim();
+                            String[] prs = tk.split("=");
+                            if (prs.length > 1) {
+                                String n = prs[0].trim();
+                                try {
+                                    double v = Double.parseDouble(prs[1].trim());
+                                    dimV.put(n, v);
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().info(String.format("Not found a number, adding as string for %s", n));
+                                    dimV.put(n, prs[1].trim());
+                                }
+                            }
+                        }
+                        if (!dimV.isEmpty()) {
+                            synchronized (lock) {
+                                dimensionsCache.put(mmsi, dimV);
+                            }
+                        }
+                        count++;
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().debug("Error parsing cache line: " + line, e);
+                }
                 line = reader.readLine();
-                count++;
             }
-            reader.close();
             NeptusLog.pub().info("Read {} vessel names from {}", count, cache.getAbsolutePath());
         }
         catch (Exception e) {
@@ -198,7 +207,7 @@ public class AisContactDb implements AISObserver {
         }
         LocationType oldLoc = extSys.getLocation();
         extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
-        if (myLoc != null && oldLoc.compareTo(myLoc) != 0) {
+        if (myLoc != null && oldLoc != null && oldLoc.compareTo(myLoc) != 0) {
             NeptusLog.pub().debug((String.format(">>>>>>>>> Ship >>>>>>> %s  :: %s :: %s :: %s", sentence, 
                     CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
                     DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));
@@ -240,139 +249,213 @@ public class AisContactDb implements AISObserver {
     public void processRattm(String sentence) {
         if (lastGGA == null)
             return;
-        // $GPGGA,132446.00,3811.805048,N,00856.490411,W,2,06,1.2,30.5,M,49.7,M,3.8,0000*6F
-        LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
-        // $RATTM,17,1.25,60.9,T,7.9,358.0,T,1.11,-4.3,N,wb,T,,133714,M*27
-        String[] parts = sentence.trim().split(",");
-        double heading = Double.parseDouble(parts[3]);
-        double dist = Double.parseDouble(parts[2]) * 1852;
+        try {
+            // $GPGGA,132446.00,3811.805048,N,00856.490411,W,2,06,1.2,30.5,M,49.7,M,3.8,0000*6F
+            LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
+            if (myLoc == null)
+                return;
+            // $RATTM,17,1.25,60.9,T,7.9,358.0,T,1.11,-4.3,N,wb,T,,133714,M*27
+            String[] parts = sentence.trim().split(",");
+            if (parts.length < 12 || parts[1].isEmpty() || parts[2].isEmpty() || parts[3].isEmpty())
+                return;
 
-        LocationType newLoc = new LocationType(myLoc);
-        newLoc.setAzimuth(heading);
-        newLoc.setOffsetDistance(dist);
-        newLoc.convertToAbsoluteLatLonDepth();
-        String id = parts[11];
-        Integer rid = Integer.parseInt(parts[1]);
+            double heading = Double.parseDouble(parts[3]);
+            double dist = Double.parseDouble(parts[2]) * 1852;
 
-        if (id.isEmpty())
-            id = "radar-" + parts[1];
+            LocationType newLoc = new LocationType(myLoc);
+            newLoc.setAzimuth(heading);
+            newLoc.setOffsetDistance(dist);
+            newLoc.convertToAbsoluteLatLonDepth();
+            String id = parts[11].trim();
+            Integer rid = Integer.parseInt(parts[1].trim());
 
-        ImcSystem sys = ImcSystemsHolder.getSystemWithName(id);
-        if (sys != null && sys.isActive()) {
-            return;
-        }
+            if (id.isEmpty())
+                id = "radar-" + parts[1].trim();
 
-        synchronized (lock) {
-            if (!contacts.containsKey(rid)) {
-                AisContact contact = new AisContact(rid);
-                contacts.put(rid, contact);
+            ImcSystem sys = ImcSystemsHolder.getSystemWithName(id);
+            if (sys != null && sys.isActive()) {
+                return;
             }
 
-            AisContact contact = contacts.get(rid);
-            contact.setLocation(newLoc);
-            contact.setLabel(id);
+            synchronized (lock) {
+                AisContact contact = contacts.get(rid);
+                if (contact == null) {
+                    contact = new AisContact(rid);
+                    contacts.put(rid, contact);
+                }
+                contact.setLocation(newLoc);
+                contact.setLabel(id);
+                contact.setLastUpdate(System.currentTimeMillis());
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug("Unable to parse RATTM sentence: " + sentence, e);
         }
     }
 
     public void processBtll(String sentence) {
         // $A-TLL,1,4330.60542,N,01623.45716,E,IVER-UPCT,,,315.4*02
-        String[] parts = sentence.replaceFirst("\\*\\w\\w$", "").trim().split(",");
-        int mmsi = Integer.parseInt(parts[1]);
-        double lat = 0, lon = 0;
         try {
-            lat = NMEAUtils.nmeaLatOrLongToWGS84(parts[2]);
-            lon = NMEAUtils.nmeaLatOrLongToWGS84(parts[4]);
+            String[] parts = sentence.trim().replaceFirst("\\*\\w\\w$", "").split(",");
+            if (parts.length < 7 || parts[1].isEmpty())
+                return;
 
-            if (parts[3].equals("S"))
-                lat = -lat;
+            int mmsi = Integer.parseInt(parts[1].trim());
+            double lat = 0, lon = 0;
+            try {
+                lat = NMEAUtils.nmeaLatOrLongToWGS84(parts[2]);
+                lon = NMEAUtils.nmeaLatOrLongToWGS84(parts[4]);
 
-            if (parts[5].equals("W"))
-                lon = -lon;
-        }
-        catch (Exception e) {
-            NeptusLog.pub().debug("Unable to parse coordinates in " + sentence);
-            return;
-        }
-        String id = parts[6];
+                if (parts[3].equals("S"))
+                    lat = -lat;
 
-        // no need to use AIS for systems using IMC
-        if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
-            return;
-        }
-
-        double heading = 0;
-        try {
-            heading = Double.parseDouble(parts[9]);
-        }
-        catch (Exception e) {
-            // e.printStackTrace();
-        }
-
-        LocationType loc = new LocationType(lat, lon);
-
-        AisContact contact;
-        synchronized (lock) {
-            if (!contacts.containsKey(mmsi)) {
-                contact = new AisContact(mmsi);
-                contacts.put(mmsi, contact);
-            } else {
-                contact = contacts.get(mmsi);
+                if (parts[5].equals("W"))
+                    lon = -lon;
             }
+            catch (Exception e) {
+                NeptusLog.pub().debug("Unable to parse coordinates in " + sentence);
+                return;
+            }
+            String id = parts[6].trim();
+            if (id.isEmpty())
+                id = "target-" + mmsi;
+
+            // no need to use AIS for systems using IMC
+            if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
+                return;
+            }
+
+            double heading = 0;
+            if (parts.length > 9 && !parts[9].trim().isEmpty()) {
+                try {
+                    heading = Double.parseDouble(parts[9].trim());
+                }
+                catch (Exception e) {
+                    // e.printStackTrace();
+                }
+            }
+
+            LocationType loc = new LocationType(lat, lon);
+
+            AisContact contact;
+            synchronized (lock) {
+                if (!contacts.containsKey(mmsi)) {
+                    contact = new AisContact(mmsi);
+                    contacts.put(mmsi, contact);
+                } else {
+                    contact = contacts.get(mmsi);
+                }
+                contact.setLocation(loc);
+                contact.setCog(heading);
+                contact.setLabel(id);
+                contact.setLastUpdate(System.currentTimeMillis());
+            }
+            if (ImcSystemsHolder.getSystemWithName(id) == null)
+                updateSystem(mmsi, loc, heading, System.currentTimeMillis());
         }
-        contact.setLocation(loc);
-        contact.setCog(heading);
-        contact.setLabel(id);
-        if (ImcSystemsHolder.getSystemWithName(id) == null)
-            updateSystem(mmsi, loc, heading,System.currentTimeMillis());
+        catch (Exception e) {
+            NeptusLog.pub().debug("Unable to parse BTLL sentence: " + sentence, e);
+        }
     }
     
+    /** Largest valid MMSI (9 digits). */
+    static final long MAX_MMSI = 999_999_999L;
+
     public void setMTShip(MTShip ship) {
-        if (ship == null)
+        if (ship == null || ship.SHIP_ID <= 0 || ship.SHIP_ID > MAX_MMSI)
             return;
 
         int mmsi = (int) ship.SHIP_ID;
-        String name = ship.SHIPNAME;
-        if ("[SAT-AIS]".equals(ship.SHIPNAME)) {
-            name = "SAT_" + ship.SHIP_ID;
-        }
-        else if (name == null || name.trim().isEmpty()) {
-            name = "MMSI_" + ship.SHIP_ID;
+        String rawName = ship.SHIPNAME != null ? ship.SHIPNAME.trim() : null;
+        boolean isSatAis = "[SAT-AIS]".equalsIgnoreCase(rawName);
+        boolean hasValidName = rawName != null && !rawName.isEmpty() && !isSatAis;
+        boolean validPosition = AisContact.isValidPosition(ship.LAT, ship.LON);
+
+        long now = System.currentTimeMillis();
+        long reportTime;
+        if (ship.TIME > 0)
+            reportTime = (long) (ship.TIME * 1000.0);
+        else if (ship.ELAPSED > 0)
+            reportTime = now - ship.ELAPSED;
+        else
+            reportTime = now;
+        // Guard against clock skew: a future timestamp would block every later report
+        reportTime = Math.min(reportTime, now);
+
+        LocationType loc;
+        double heading;
+
+        synchronized (lock) {
+            AisContact existing = contacts.get(mmsi);
+
+            // 1. Ordering: drop reports older than the last applied one (before touching anything)
+            if (existing != null && existing.getLastReportMillis() > 0
+                    && reportTime < existing.getLastReportMillis()) {
+                NeptusLog.pub().debug("Ignoring out-of-order report for " + mmsi);
+                return;
+            }
+
+            // Learn the name even if the report has no usable position
+            if (hasValidName)
+                labelCache.put(mmsi, rawName);
+
+            // 2. Don't publish a brand new contact that has no position (it would show up at 0,0)
+            if (existing == null && !validPosition)
+                return;
+
+            // 3. Resolve the label without clobbering a known good name
+            String label;
+            String currentLabel = existing != null ? existing.getLabel() : null;
+            boolean currentHasGoodLabel = currentLabel != null && !currentLabel.isEmpty()
+                    && !currentLabel.startsWith("MMSI_") && !currentLabel.startsWith("SAT_");
+            if (hasValidName)
+                label = rawName;
+            else if (currentHasGoodLabel)
+                label = currentLabel;
+            else if (labelCache.get(mmsi) != null && !labelCache.get(mmsi).trim().isEmpty())
+                label = labelCache.get(mmsi);
+            else
+                label = (isSatAis ? "SAT_" : "MMSI_") + ship.SHIP_ID;
+
+            // 4. Build static data first, so a throwing setter can't leave a half-updated contact
+            Message05 additionalProps = new Message05();
+            additionalProps.setVesselName(label);
+            additionalProps.setDimensionToPort(ship.W_LEFT);
+            additionalProps.setDimensionToStarboard(ship.WIDTH - ship.W_LEFT);
+            additionalProps.setDimensionToBow(ship.L_FORE);
+            additionalProps.setDimensionToStern(ship.LENGTH - ship.L_FORE);
+            additionalProps.setAisVersion(-1);
+            additionalProps.setCallSign("Unknown");
+            additionalProps.setDraught(ship.DRAUGHT);
+            additionalProps.setShipType(ship.TYPE);
+            additionalProps.setDestination(ship.DESTINATION != null ? ship.DESTINATION : "Unknown");
+
+            // 5. Apply
+            AisContact contact = existing != null ? existing : new AisContact(mmsi);
+            contact.update(additionalProps);
+            contact.setLabel(label);
+            if (validPosition)
+                contact.setLocation(new LocationType(ship.LAT, ship.LON));
+            if (AisContact.isValidAngle(ship.HEADING))
+                contact.setHdg(ship.HEADING);
+            if (AisContact.isValidAngle(ship.COURSE))
+                contact.setCog(ship.COURSE);
+            if (AisContact.isValidSpeed(ship.SPEED))
+                contact.setSog(ship.SPEED);
+            contact.setRateOfTurn(ship.ROT);
+            contact.setNavStatus(ship.STATUS_NAME != null ? ship.STATUS_NAME : "");
+            // update(Message05) resets lastUpdate to now, so set the report time after it
+            contact.setLastUpdate(reportTime);
+            contact.setLastReportMillis(reportTime);
+
+            if (existing == null)
+                contacts.put(mmsi, contact);
+
+            loc = contact.getLocation();
+            heading = AisContact.isValidAngle(ship.HEADING) ? ship.HEADING : contact.getHdg();
         }
 
-        AisContact contact;
-        synchronized (lock) {
-            if (!contacts.containsKey(mmsi)) {
-                contact = new AisContact(mmsi);
-                contacts.put(mmsi, contact);
-            }
-            else {
-                contact = contacts.get(mmsi);
-                contact.setLastUpdate((long) (ship.TIME * 1000.0));
-                contacts.replace(mmsi, contact);
-            }
-        }
-        contact.setLocation(new LocationType(ship.LAT, ship.LON));
-        contact.setHdg(ship.HEADING);
-        contact.setCog(ship.COURSE);
-        contact.setLabel(name);
-        contact.setSog(ship.SPEED);
-        contact.setRateOfTurn(ship.ROT);
-        contact.setNavStatus(ship.STATUS_NAME != null ? ship.STATUS_NAME : "");
-        Message05 additionalProps = new Message05();
-        additionalProps.setVesselName(name);
-        additionalProps.setDimensionToPort(ship.W_LEFT);
-        additionalProps.setDimensionToStarboard(ship.WIDTH - ship.W_LEFT);
-        additionalProps.setDimensionToBow(ship.L_FORE);
-        additionalProps.setDimensionToStern(ship.LENGTH - ship.L_FORE);
-        additionalProps.setAisVersion(-1);
-        additionalProps.setCallSign("Unknown");
-        additionalProps.setDraught(ship.DRAUGHT);
-        additionalProps.setShipType(ship.TYPE);
-        additionalProps.setDestination(ship.DESTINATION != null ? ship.DESTINATION : "Unknown");
-        contact.update(additionalProps);
-        long time = System.currentTimeMillis() - ship.ELAPSED;
-        contact.setLastUpdate(time);
-        updateSystem(mmsi, new LocationType(ship.LAT, ship.LON), ship.HEADING, time);
+        updateSystem(mmsi, loc, heading, reportTime);
     }
     
     public void processJson(String sentence) {
@@ -382,7 +465,7 @@ public class AisContactDb implements AISObserver {
                 setMTShip(ship);
         }
         catch (Exception e) {
-            NeptusLog.pub().error("Error processing MTShip JSON: " + sentence, e);
+            NeptusLog.pub().error("Error processing MTShip JSON (" + e.getMessage() + "): " + sentence);
         }
     }
 
@@ -395,12 +478,15 @@ public class AisContactDb implements AISObserver {
             return;
 
         String name = contact.getLabel();
+        if (name == null || name.isEmpty())
+            name = "" + mmsi;
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
 
-        if (!loc.equals(LocationType.ABSOLUTE_ZERO)) {
+        if (!loc.equals(LocationType.ABSOLUTE_ZERO)
+                && AisContact.isValidPosition(loc.getLatitudeDegs(), loc.getLongitudeDegs())) {
             sys.setLocation(loc, millis);
         }
-        sys.setAttitudeDegrees(heading > 360 ? contact.getCog() : heading,millis);
+        sys.setAttitudeDegrees(AisContact.isValidAngle(heading) ? heading : contact.getCog(), millis);
 
         HashMap<String, Object> dimV;
         synchronized (lock) {
@@ -413,7 +499,11 @@ public class AisContactDb implements AISObserver {
         sys.storeData(SystemUtils.MMSI_KEY, mmsi);
 
         sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / UnitsUtil.MS_TO_KNOT);
-        sys.storeData(SystemUtils.COURSE_DEGS_KEY, contact.getCog() == 0 ? heading : contact.getCog());
+        double course = contact.getCog();
+        if (course == 0 && AisContact.isValidAngle(heading)) {
+            course = heading;
+        }
+        sys.storeData(SystemUtils.COURSE_DEGS_KEY, course);
         sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, contact.getRateOfTurn());
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, contact.getNavStatus());
@@ -441,11 +531,13 @@ public class AisContactDb implements AISObserver {
 //                    + sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY) + "   @"
 //                    + sys.retrieveData(SystemUtils.GROUND_SPEED_KEY) + "   HDG:" + sys.getYawDegrees());
 
-            dimV.put(SystemUtils.DRAUGHT_KEY, sys.retrieveData(SystemUtils.DRAUGHT_KEY));
-            dimV.put(SystemUtils.WIDTH_KEY, sys.retrieveData(SystemUtils.WIDTH_KEY));
-            dimV.put(SystemUtils.LENGHT_KEY, sys.retrieveData(SystemUtils.LENGHT_KEY));
-            dimV.put(SystemUtils.WIDTH_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY));
-            dimV.put(SystemUtils.LENGHT_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY));
+            synchronized (lock) {
+                dimV.put(SystemUtils.DRAUGHT_KEY, sys.retrieveData(SystemUtils.DRAUGHT_KEY));
+                dimV.put(SystemUtils.WIDTH_KEY, sys.retrieveData(SystemUtils.WIDTH_KEY));
+                dimV.put(SystemUtils.LENGHT_KEY, sys.retrieveData(SystemUtils.LENGHT_KEY));
+                dimV.put(SystemUtils.WIDTH_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY));
+                dimV.put(SystemUtils.LENGHT_CENTER_OFFSET_KEY, sys.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY));
+            }
         }
         else {
             if (dimV != null) {
@@ -469,6 +561,7 @@ public class AisContactDb implements AISObserver {
             int mmsi = arg0.getSourceMmsi();
             switch (arg0.getType()) {
                 case 1:
+                case 2:
                     if (!contacts.containsKey(mmsi))
                         contacts.put(mmsi, new AisContact(mmsi));
                     contacts.get(mmsi).update((Message01) arg0);
@@ -487,9 +580,13 @@ public class AisContactDb implements AISObserver {
                 case 5:
                     if (!contacts.containsKey(mmsi))
                         contacts.put(mmsi, new AisContact(mmsi));
-                    contacts.get(mmsi).update((Message05) arg0);
-                    String name = ((Message05) arg0).getVesselName().trim();
-                    labelCache.put(mmsi, name);
+                    Message05 m5 = (Message05) arg0;
+                    contacts.get(mmsi).update(m5);
+                    String vName = m5.getVesselName();
+                    if (vName != null && !vName.trim().isEmpty()) {
+                        String name = vName.trim();
+                        labelCache.put(mmsi, name);
+                    }
                     updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog(), System.currentTimeMillis());
                     break;
                 default:

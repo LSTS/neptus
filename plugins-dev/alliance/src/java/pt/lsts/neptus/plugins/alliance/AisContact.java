@@ -53,8 +53,40 @@ public class AisContact {
     private long lastUpdate = 0;
     private LocationType loc = new LocationType();
     private String navStatus = "underfined";
+    /** Timestamp (epoch ms) of the most recent position report applied, 0 if none. Used for ordering. */
+    private long lastReportMillis = 0;
     
     private Message05 additionalProperties = null;
+
+    /** AIS "speed not available" sentinel (knots). */
+    public static final double SOG_NOT_AVAILABLE = 102.3;
+
+    /**
+     * @return true if the position is a real position (in range, not the AIS 91/181 "not available"
+     *         sentinels and not 0,0 which is used by feeds for missing values).
+     */
+    public static boolean isValidPosition(double latDegs, double lonDegs) {
+        if (Double.isNaN(latDegs) || Double.isNaN(lonDegs))
+            return false;
+        if (latDegs < -90 || latDegs > 90 || lonDegs < -180 || lonDegs > 180)
+            return false;
+        return latDegs != 0 || lonDegs != 0;
+    }
+
+    /**
+     * @return true if the angle is a valid heading/course. AIS uses 511 (heading) and 360 (course) as
+     *         "not available", so only [0, 360) is accepted.
+     */
+    public static boolean isValidAngle(double degs) {
+        return !Double.isNaN(degs) && degs >= 0 && degs < 360;
+    }
+
+    /**
+     * @return true if the speed is valid. AIS uses 102.3 knots as "not available".
+     */
+    public static boolean isValidSpeed(double knots) {
+        return !Double.isNaN(knots) && knots >= 0 && knots < SOG_NOT_AVAILABLE;
+    }
     
     public LocationType getLocation() {
         return loc;
@@ -67,36 +99,49 @@ public class AisContact {
     }
     
     public void update(Message01 m) {
-        lastUpdate = System.currentTimeMillis();
-        loc.setLatitudeDegs(m.getLatitude());
-        loc.setLongitudeDegs(m.getLongitude());
-        hdg = m.getTrueHeading();
-        cog = m.getCourseOverGround();
-        sog = m.getSpeedOverGround();
-        rateOfTurn = m.getRateOfTurn();
-        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
-        if (label == null)
-            label = ""+m.getSourceMmsi();
+        applyPositionReport(m.getLatitude(), m.getLongitude(), m.getTrueHeading(), m.getCourseOverGround(),
+                m.getSpeedOverGround(), m.getRateOfTurn(),
+                AISUtil.translateNavigationalStatus(m.getNavigationStatus()), m.getSourceMmsi());
     }
     
     public void update(Message03 m) {
+        applyPositionReport(m.getLatitude(), m.getLongitude(), m.getTrueHeading(), m.getCourseOverGround(),
+                m.getSpeedOverGround(), m.getRateOfTurn(),
+                AISUtil.translateNavigationalStatus(m.getNavigationStatus()), m.getSourceMmsi());
+    }
+
+    /**
+     * Applies a Class A position report, ignoring AIS "not available" sentinel values so they don't
+     * overwrite previously known good values.
+     */
+    private void applyPositionReport(double lat, double lon, double trueHeading, double courseOverGround,
+            double speedOverGround, double rot, String nav, int sourceMmsi) {
         lastUpdate = System.currentTimeMillis();
-        loc.setLatitudeDegs(m.getLatitude());
-        loc.setLongitudeDegs(m.getLongitude());
-        hdg = m.getTrueHeading();
-        cog = m.getCourseOverGround();
-        sog = m.getSpeedOverGround();
-        rateOfTurn = m.getRateOfTurn();
-        navStatus = AISUtil.translateNavigationalStatus(m.getNavigationStatus());
+        lastReportMillis = lastUpdate;
+        if (isValidPosition(lat, lon)) {
+            loc.setLatitudeDegs(lat);
+            loc.setLongitudeDegs(lon);
+        }
+        if (isValidAngle(trueHeading))
+            hdg = trueHeading;
+        if (isValidAngle(courseOverGround))
+            cog = courseOverGround;
+        if (isValidSpeed(speedOverGround))
+            sog = speedOverGround;
+        rateOfTurn = rot;
+        navStatus = nav;
         if (label == null)
-            label = ""+m.getSourceMmsi();
+            label = "" + sourceMmsi;
     }
     
     public void update(Message05 m) {
         lastUpdate = System.currentTimeMillis();
-        label = m.getVesselName().trim();
+        if (m.getVesselName() != null && !m.getVesselName().trim().isEmpty()) {
+            label = m.getVesselName().trim();
+        }
         additionalProperties = m;
     }
+
     
     public long ageMillis() {
         return System.currentTimeMillis() - lastUpdate;
@@ -147,6 +192,22 @@ public class AisContact {
     public void setLastUpdate(long lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    /**
+     * @return epoch ms of the most recent position report applied to this contact, 0 if none yet
+     */
+    public long getLastReportMillis() {
+        return lastReportMillis;
+    }
+
+    public void setLastReportMillis(long lastReportMillis) {
+        this.lastReportMillis = lastReportMillis;
+    }
+
 
     /**
      * @param label the label to set
