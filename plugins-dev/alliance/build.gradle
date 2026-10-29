@@ -2,4 +2,19 @@ dependencies {
     implementation 'dk.dma.ais.lib:ais-lib-messages:2.4'
     implementation 'dk.dma.commons:dma-commons-util:0.5'
     implementation 'dk.dma.enav:enav-model:0.6'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation project(':core')
+    testImplementation project(':core').sourceSets.main.runtimeClasspath
+}
+
+test {
+    workingDir = rootProject.rootDir
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+
+    // Never run diagnostic or interactive runners during unit test builds
+    exclude '**/*Runner*'
 }
