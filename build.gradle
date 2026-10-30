@@ -377,8 +377,8 @@ project(':core') {
     }
 
     dependencies {
-        implementation name: 'libimc-5.91.0'
-        implementation name: 'libimcsender-5.91.0'
+        implementation name: 'libimc-5.91.1'
+        implementation name: 'libimcsender-5.91.1'
 
         // DCCL related
         implementation name: 'dccl-java-1.0-SNAPSHOT'
