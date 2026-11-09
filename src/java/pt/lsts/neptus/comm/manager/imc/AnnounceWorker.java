@@ -556,6 +556,8 @@ public class AnnounceWorker {
                     NeptusLog.pub().warn("Expecting {} for casting but got error {}",
                             EntityList.class.getSimpleName(), e.getMessage());
                 }
+           } else if (!sentRqst && (imcState == null || imcState.get(EntityList.class.getSimpleName()) == null)) {
+               sentRqst = true;
            }
 
            if (!sentRqst) {
