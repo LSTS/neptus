@@ -178,6 +178,13 @@ Section "-$(^Name) base" sec1
       ;${Break}
     ${EndSwitch}
 
+    ; --- ADD FIREWALL RULES HERE ---
+    ; Allow bundled javaw.exe (GUI apps) on both Public and Private networks
+    nsExec::ExecToLog 'netsh advfirewall firewall add rule name="Neptus JVM (javaw)" dir=in action=allow program="$INSTDIR\jre\bin\javaw.exe" enable=yes profile=public,private'
+
+    ; Allow bundled java.exe (Console/Background processes) on both Public and Private networks
+    nsExec::ExecToLog 'netsh advfirewall firewall add rule name="Neptus JVM (java)" dir=in action=allow program="$INSTDIR\jre\bin\java.exe" enable=yes profile=public,private'
+
 SectionEnd
 
 Section /o "Desktop Shortcut" desktop
@@ -235,6 +242,10 @@ done${UNSECTION_ID}:
 
 # Uninstaller sections
 Section /o un.Main UNSEC0000
+    ; --- REMOVE FIREWALL RULES HERE ---
+    nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="Neptus JVM (javaw)"'
+    nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="Neptus JVM (java)"'
+
     RMDir /r /REBOOTOK $SMPROGRAMS\$StartMenuGroup
     RMDir /r /REBOOTOK $INSTDIR        
     Delete /REBOOTOK "$Desktop\$(^Name).lnk"
