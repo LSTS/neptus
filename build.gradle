@@ -185,6 +185,7 @@ tasks.register('generateRunScripts', Copy) {
     dependsOn buildClasspathJar
     from runStartScripts
     into file("$rootDir")
+    doNotTrackState("Destination is rootDir which contains locked .gradle files") // Fix Windows problem on checking locked files
 }
 
 jar.dependsOn generateRunScripts
