@@ -152,9 +152,22 @@ tasks.register('buildClasspathJar', Jar) {
         manifest {
             attributes("Class-Path": configurationClasspath.collect({
                 try {
-                    relativePath(it)
-                } catch (e) {
-                    it
+                    def rootDrive = rootDir.absolutePath.take(3)
+                    def depDrive = it.absolutePath.take(3)
+                    if (System.getProperty("os.name").toLowerCase().contains("windows") &&
+                            !rootDrive.equalsIgnoreCase(depDrive)) {
+                        // C: vs D:
+                        it.toURI().toString()
+                    } else {
+                        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                            relativePath(it).replace('\\', '/')
+                        } else {
+                            relativePath(it)
+                        }
+                    }
+                }
+                catch (Exception ignored) {
+                    it.toURI().toString()
                 }
             }).join(' '))
         }
