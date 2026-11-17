@@ -556,24 +556,6 @@ public class IridiumManager {
         if (CommsAdmin.useDcclEncoding()) {
             for (IMCMessage imcMsg : msg.asImc()) {
                 ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(imcMsg.getDst());
-
-                if (imcMsg instanceof PlanControl) {
-                    PlanControl planControl = (PlanControl) imcMsg;
-
-                    if (planControl.getArg() instanceof PlanSpecification) {
-
-                        PlanSpecification planSpec = (PlanSpecification) planControl.getArg();
-
-                        for (PlanManeuver planManeuver : planSpec.getManeuvers()) {
-                            Maneuver maneuver = planManeuver.getData();
-
-                            if (maneuver instanceof Goto) {
-                                NeptusLog.pub().info("Lat: " + ((Goto) maneuver).getLat());
-                            }
-                        }
-                    }
-                }
-
                 // Only send if system speaks dccl
                 if (imcSystem != null) {
                     if (imcSystem.getDcclSpeaker()) {
